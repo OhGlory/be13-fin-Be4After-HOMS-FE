@@ -16,7 +16,10 @@
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     {{ column.label }}
                                 </th>
-                                <th v-if="$slots.actions" class="px-6 py-3 bg-gray-100 border-b border-gray-200"></th>
+                                <th v-if="$slots.actions"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    {{ props.action }}
+                                </th>
                             </tr>
                         </thead>
 
@@ -59,8 +62,11 @@ const props = defineProps({
   },
   showCheckbox: {
     type: Boolean,
-    default: true,
     // 체크박스 표시 여부
+  },
+  action: {
+    type: String,
+    // 액션 부분 헤더
   },
 });
 
