@@ -3,7 +3,10 @@
     <div class="text-3xl px-3 py-3">
       <span>공지사항</span>
     </div>
-    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
+    <SearchBox @search="handleSearch"
+      :selectOptions="handleSelectOption"
+      :buttons="actionButtons"
+      :userRole="currentUserRole" />
     <DynamicTable :columns="userColumns" :items="users">
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -38,6 +41,7 @@ import { ref } from 'vue';
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
+const currentUserRole = ref('admin'); // 현재 유저 권한
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -50,6 +54,21 @@ const handleSelectOption = ref([
   { value: "", label: "전체" },
   { value: "important", label: "중요" },
   { value: "recent", label: "최근" },
+]);
+
+const actionButtons = ref([
+  {
+    label: "수정",
+    color: "bg-orange-500 hover:bg-orange-700",
+    action: (item) => console.log("수정:", item),
+    allowedRoles: ["admin", "editor"] // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
+  },
+  {
+    label: "삭제",
+    color: "bg-gray-500 hover:bg-gray-700",
+    action: (item) => console.log("삭제:", item),
+    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
+  }
 ]);
 
 // ------- 테이블 --------

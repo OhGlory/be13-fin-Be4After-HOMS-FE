@@ -42,6 +42,18 @@
                             </span>
                         </div>
                     </div>
+
+                </div>
+                <div class="left-0 flex flex-nowrap gap-2 overflow-x-auto">
+                    <button
+                        v-for="button in filteredButtons"
+                        :key="button.label"
+                        :class="button.color"
+                        class="text-white font-bold py-2 px-4 rounded text-sm"
+                        @click="button.action()"
+                    >
+                        {{ button.label }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -49,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits } from 'vue';
+import { ref, computed, defineProps, defineEmits } from 'vue';
 
 // Props 정의
 const props = defineProps({
@@ -72,6 +84,23 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 버튼 옵션
+  buttons: {
+    type: Array,
+    default: () => []
+  },
+  // 유저 권한
+  userRole: {
+    type: String,
+    default: "guest" // 기본값은 'guest'
+  }
+});
+
+// `computed`를 활용해 권한이 있는 버튼만 필터링
+const filteredButtons = computed(() => {
+  return props.buttons.filter(button => 
+    !button.allowedRoles || button.allowedRoles.includes(props.userRole)
+  );
 });
 
 // Emit 정의

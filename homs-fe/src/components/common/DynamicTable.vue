@@ -8,7 +8,7 @@
                         <thead>
                             <tr>
                                 <th v-for="column in columns" :key="column.key"
-                                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-100 border-b border-gray-200">
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     {{ column.label }}
                                 </th>
                                 <th v-if="$slots.actions" class="px-6 py-3 bg-gray-100 border-b border-gray-200"></th>
