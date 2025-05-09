@@ -96,6 +96,6 @@
   }
 
   const getIconPath = (iconNumber) => {
-    return new URL(`../../assets/menu-icon-${iconNumber}.svg`, import.meta.url).href
+    return new URL(`../../assets/menu/menu-icon-${iconNumber}.svg`, import.meta.url).href
   }
   </script>
