@@ -7,6 +7,11 @@
                     <table class="min-w-full">
                         <thead>
                             <tr>
+                                <th v-if="showCheckbox"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    <input type="checkbox" @change="toggleAll" v-model="allSelected" />
+                                </th>
+
                                 <th v-for="column in columns" :key="column.key"
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     {{ column.label }}
@@ -16,7 +21,10 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id">
+                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100">
+                                <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                    <input type="checkbox" v-model="selectedItems" :value="item.id" />
+                                </td>
                                 <td v-for="column in columns" :key="column.key"
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
@@ -34,7 +42,7 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { ref, watch,defineProps } from 'vue';
 
 const props = defineProps({
   columns: {
@@ -49,5 +57,28 @@ const props = defineProps({
     // 테이블 데이터를 담는 객체 배열
     // 각 객체의 키는 columns 배열의 key 값과 매칭되어야 합니다.
   },
+  showCheckbox: {
+    type: Boolean,
+    default: true,
+    // 체크박스 표시 여부
+  },
 });
+
+const selectedItems = ref([]);
+const allSelected = ref(false);
+
+// 전체 선택/해제 기능
+const toggleAll = () => {
+    if (allSelected.value) {
+        selectedItems.value = props.items.map(item => item.id);
+    } else {
+        selectedItems.value = [];
+    }
+};
+
+// 전체 선택 상태 감시
+watch(selectedItems, () => {
+    allSelected.value = selectedItems.value.length === props.items.length;
+});
+
 </script>
