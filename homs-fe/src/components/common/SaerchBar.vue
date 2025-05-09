@@ -66,7 +66,7 @@ const props = defineProps({
   // 검색 옵션
   selectOptions: {
     type: Array,
-    default: () => [{ value: "", label: "전체" },{ value: "", label: "전체" }],
+    default: () => [{ value: "", label: "전체" }],
   },
   searchFalse: {
     type: Boolean,

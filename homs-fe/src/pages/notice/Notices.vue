@@ -1,6 +1,9 @@
 <template>
   <div>
-    <SearchBox @search="handleSearch" />
+    <div class="text-3xl px-3 py-3">
+      <span>공지사항</span>
+    </div>
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
     <DynamicTable :columns="userColumns" :items="users">
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -36,12 +39,20 @@ const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
 
+// ------- 검색바 --------
 const handleSearch = (searchData) => {
   console.log('검색 데이터:', searchData);
   // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
   searchResult.value = searchData;
 };
 
+const handleSelectOption = ref([
+  { value: "", label: "전체" },
+  { value: "important", label: "중요" },
+  { value: "recent", label: "최근" },
+]);
+
+// ------- 테이블 --------
 const userColumns = ref([
   { label: '순번', key: 'id' },
   { label: '제목', key: 'title' },
@@ -61,6 +72,7 @@ const deleteUser = (user) => {
   console.log('삭제:', user);
 };
 
+// ------- 페이지네이션 --------
 const handleSetPage = (page) => {
   console.log('페이지 변경 요청:', page);
   currentPage.value = page;
