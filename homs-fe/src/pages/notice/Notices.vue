@@ -1,13 +1,14 @@
 <template>
   <div>
+    <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
       <span>공지사항</span>
     </div>
-    <SearchBox @search="handleSearch"
-      :selectOptions="handleSelectOption"
-      :buttons="actionButtons"
+    <!-- 검색바 -->
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="currentUserRole" />
-    <DynamicTable :columns="userColumns" :items="users">
+    <!-- 테이블 -->
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
       </template>
@@ -28,6 +29,7 @@
         </button>
       </template>
     </DynamicTable>
+    <!-- 페이지 네비 -->
     <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
   </div>
 </template>
