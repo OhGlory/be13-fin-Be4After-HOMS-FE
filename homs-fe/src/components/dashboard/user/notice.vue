@@ -1,0 +1,45 @@
+<template>
+    <div class="w-1/3 max-w-md p-4 bg-white border border-gray-300 rounded-3xl shadow-lg sm:p-8">
+        <!-- 카드 헤더 -->
+        <div class="flex items-center justify-between mb-4">
+            <h5 class="text-xl font-bold leading-none text-gray-900 ">
+                공지 사항
+            </h5>
+            <a href="#" class="text-sm font-medium hover:underline ">
+                +
+            </a>
+        </div>
+        <!-- 카드 내용 부분 -->
+        <div class="flow-root">
+            <ul role="list" class="divide-y divide-gray-200">
+                <li v-for="(item, index) in NoticeList" :key="index" class="py-3 sm:py-4">
+                    <div class="flex items-center justify-between">
+                            <p class="flex text-md font-medium text-gray-900 truncate">
+                                {{ item.title }}
+                            </p>
+                        <div class="flex w-1/3 items-center text-gray-900">
+                            {{ item.date }}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+   </div>
+
+</template>
+
+<script setup>
+import { ref } from 'vue'
+// 나중에 DB에서 받아서 할 예정
+const NoticeList = ref([
+  { title: '한화 솔루션 케미컬에서 알립니다.', date: '2025-04-24' },
+  { title: '구매 이용 방법', date: '2025-02-19' },
+  { title: '발주 방법 공지 사항', date: '2025-01-10' },
+])
+
+</script>
+
+<style lang="scss" scoped>
+
+</style>
