@@ -38,7 +38,12 @@
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
   import logo from '@/assets/homsLogo.png'
 
-  
+  // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
+  // ture 이면 admin | false이면 user
+  const isAdmin = false;
+
+  const basePath = isAdmin ? '/admin' : '';
+
   // 메뉴 관련 메뉴DB에서 받올 예정
   const menuItems = ref([
     {
@@ -46,8 +51,8 @@
       icon: 1,
       open: false,
       children: [
-        { name: '주문 목록', path: '/orders' },
-        { name: '클레임 목록', path: '/claims' },
+        { name: '주문 목록', path: `${basePath}/orders` },            // 관리자O, 사용자O
+        { name: '클레임 목록', path: `${basePath}/claims` },          // 관리자O, 사용자 X
       ],
     },
     {
@@ -55,29 +60,29 @@
       icon: 2,
       open: false,
       children: [
-        { name: '상품 목록', path: '/products' },
-        { name: '카테고리 관리', path: '/categories' },
+        { name: '상품 목록', path: `${basePath}/products` },           // 관리자O, 사용자O
+        { name: '카테고리 관리', path: `${basePath}/categories` },     // 관리자O, 사용자 X
       ],
     },
     {
       title: '정산 관리',
       icon: 3,
       open: false,
-      children: [{ name: '정산 현황', path: '/settlements' }],
+      children: [{ name: '정산 현황', path: `${basePath}/settlements` }], // 관리자O, 사용자O
     },
     {
       title: '공지사항',
       icon: 4,
       open: false,
-      children: [{ name: '공지 사항', path: '/notices' }],
+      children: [{ name: '공지 사항', path: `${basePath}/notices` }],     // 관리자O, 사용자O
     },
     {
       title: '거래처 관리',
       icon: 5,
       open: false,
       children: [
-        { name: '거래처 목록', path: '/clients' },
-        { name: '계약 관리', path: '/contracts' },
+        { name: '거래처 목록', path: `${basePath}/clients` },             // 관리자O, 사용자 X
+        { name: '계약 관리', path: `${basePath}/contracts` },            // 관리자O, 사용자 X
       ],
     },
     {
@@ -85,10 +90,10 @@
       icon: 6,
       open: false,
       children: [
-        { name: '통합 계정 관리', path: '/AdminAccounts' },
-        { name: '메뉴 설정', path: '/menuSettings' },
+        { name: '통합 계정 관리', path: `${basePath}/AdminAccount` },     // 관리자O, 사용자 X
+        { name: '메뉴 설정', path: `${basePath}/menu-settings` },       // 관리자O, 사용자 X
       ],
-    },
+    }
   ])
   
   const toggleMenu = (index) => {
