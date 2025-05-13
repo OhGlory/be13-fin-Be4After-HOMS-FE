@@ -1,22 +1,7 @@
 {
-  "주문 목록":"Order List",
-  "주문 관리" : "Order Management",
-  "클레임 목록": "Claim List",
-  "상품 관리": "Product Management",
-  "상품 목록": "Product List",
-  "카테고리 관리": "Category Management",
-  "정산 관리": "Settlement Management",
-  "정산 현황": "Settlement Status",
-  "공지사항": "Notice",
-  "거래처 관리": "Client Management",
-  "거래처 목록": "Client List",
-  "계약 관리": "Contract Management",
-  "계정관리": "Account Management",
-  "통합 계정 관리": "Integrated Account Management",
-  "메뉴 설정": "Menu Settings",
-  "설정": "Settings",
-  "알림": "Notification",
-  "상위 주문 상품": "Top Ordered Products",
-  "월별 매출 현황": "Monthly Sales Status",
-  "총 주문 현황": "Total Order Status"
+  "login": "로그인",
+  "saveId": "아이디 저장",
+  "resetPassword": "비밀번호 초기화",
+  "register": "파트너사 등록",
+  "setting": "설정"
 }

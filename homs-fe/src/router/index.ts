@@ -12,11 +12,20 @@ import Notices from '@/pages/notice/Notices.vue'
 import Clients from '@/pages/clients/Clients.vue'
 import Contracts from '@/pages/clients/Contracts.vue'
 import MenuSettings from '@/pages/account/MenuSettings.vue'
+import Login from '@/pages/login/Login.vue'
 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // {
+    //   path: '/',
+    //   redirect: 'login'
+    // },
+    {
+      path: '/login',
+      component: Login,
+    },
     {
       path: '/',
       name: 'BaseLayout',
