@@ -1,18 +1,33 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AdminDashBoard from '@/pages/dashboard/AdminDashBoard.vue'
-import AdminAccount from '@/pages/account/AdminAccount.vue'
+import AdminDashBoard from '@/pages/admin/dashboard/AdminDashBoard.vue'
+import AdminAccount from '@/pages/admin/account/AdminAccount.vue'
 import BaseLayout from '@/components/common/BaseLayout.vue'
-import Orders from '@/pages/order/Order.vue'
-import Setting from '@/pages/etc/Setting.vue'
-import Claims from '@/pages/order/Claim.vue'
-import Products from '@/pages/product/Products.vue'
-import Categories from '@/pages/etc/Categories.vue'
-import Settlements from '@/pages/settlement/settlements.vue'
-import Notices from '@/pages/notice/Notices.vue'
-import Clients from '@/pages/clients/Clients.vue'
-import Contracts from '@/pages/clients/Contracts.vue'
-import MenuSettings from '@/pages/account/MenuSettings.vue'
-import Login from '@/pages/login/Login.vue'
+import AdminOrders from '@/pages/admin/order/Order.vue'
+import Setting from '@/pages/common/Setting.vue'
+import Claims from '@/pages/admin/order/Claim.vue'
+import AdminProducts from '@/pages/admin/product/Products.vue'
+import Categories from '@/pages/admin/product/Categories.vue'
+import AdminSettlements from '@/pages/admin/settlement/settlements.vue'
+import AdminNotices from '@/pages/admin/notice/Notices.vue'
+import Clients from '@/pages/admin/clients/Clients.vue'
+import Contracts from '@/pages/admin/clients/Contracts.vue'
+import MenuSettings from '@/pages/admin/menu/MenuSettings.vue'
+import Login from '@/pages/common/login/Login.vue'
+
+
+// 유저 관련
+import UserDashBoard from '@/pages/user/dashboard/UserDashBoard.vue'
+import Accounts from '@/pages/user/account/Account.vue'
+import Products from '@/pages/user/product/Products.vue'
+import Orders from '@/pages/user/order/Order.vue'
+import Deliverys from '@/pages/user/delivery/Delivery.vue'
+import Settlements from '@/pages/user/settlement/Settlements.vue'
+import Notices from '@/pages/user/notice/Notices.vue'
+
+// 에러 관련
+import PageNotFound from '@/pages/common/PageNotFound.vue'
+
+
 
 
 const router = createRouter({
@@ -27,71 +42,121 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: '/',
-      name: 'BaseLayout',
+      path: '/admin',
+      name: 'AdminLayout',
       component: BaseLayout,
       children: [
         {
-          path: '/',
-          name: 'adminDash',
+          path: '',
+          name: 'AdminDashBoard',
           component: AdminDashBoard,
         },
         {
-          path:'/AdminAccounts',
-          name:'AdminAccounts',
+          path: 'adminaccount',
+          name: 'AdminAccount',
           component: AdminAccount,
         },
         {
-          path:'/orders',
-          name: 'Orders',
-          component: Orders,
+          path: 'orders',
+          name: 'AdminOrders',
+          component: AdminOrders,
         },
         {
-          path:'/setting',
-          name: 'Setting',
-          component: Setting,
-        },
-        {
-          path:'/claims',
-          name: 'Claims',
+          path: 'claims',
+          name: 'AdminClaims',
           component: Claims,
         },
         {
-          path:'/products',
-          name: 'Products',
-          component: Products,
+          path: 'menu-settings',
+          name: 'MenuSettings',
+          component: MenuSettings,
         },
         {
-          path:'/categories',
-          name: 'Categories',
-          component: Categories,
-        },
-        {
-          path:'/settlements',
-          name: 'Settlements',
-          component: Settlements,
-        },
-        {
-          path:'/notices',
-          name: 'Notices',
-          component: Notices,
-        },
-        {
-          path:'/clients',
+          path: 'clients',
           name: 'Clients',
           component: Clients,
         },
         {
-          path:'/contracts',
+          path: 'contracts',
           name: 'Contracts',
           component: Contracts,
         },
         {
-          path:'/menuSettings',
-          name: 'MenuSettings',
-          component: MenuSettings,
+          path: 'products',
+          name: 'AdminProducts',
+          component: AdminProducts,
+        },
+        {
+          path: 'categories',
+          name: 'Categories',
+          component: Categories,
+        },
+        {
+          path: 'settlements',
+          name: 'AdminSettlements',
+          component: AdminSettlements,
+        },
+        {
+          path: 'notices',
+          name: 'AdminNotices',
+          component: AdminNotices,
+        },
+        {
+          path: 'setting',
+          name: 'AdminSetting',
+          component: Setting,
         },
       ]
+    },
+    {
+      path: '/',
+      name: 'UserLayout',
+      component: BaseLayout,
+      children: [
+        {
+          path: '',
+          name: 'UserDashBoard',
+          component: UserDashBoard,
+        },
+        {
+          path: 'accounts',
+          name: 'Accounts',
+          component: Accounts,
+        },
+        {
+          path: 'products',
+          name: 'UserProducts',
+          component: Products,
+        },
+        {
+          path: 'orders',
+          name: 'UserOrders',
+          component: Orders,
+        },
+        {
+          path: 'delivery',
+          name: 'Delivery',
+          component: Deliverys,
+        },
+        {
+          path: 'settlements',
+          name: 'UserSettlements',
+          component: Settlements,
+        },
+        {
+          path: 'notices',
+          name: 'UserNotices',
+          component: Notices,
+        },
+      ]
+    },
+    {
+      path: "/:pathMatch(.*)",
+      redirect: "/404",
+    },
+    {
+      path: "/404",
+      component: PageNotFound,
     }
   ],
 })
