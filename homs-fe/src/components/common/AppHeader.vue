@@ -3,7 +3,7 @@
       <div class="flex justify-end items-center h-20 px-6 border-b-1 border-gray-200">
         <div class="flex gap-x-2 mr-5">
           <RouterLink to="Setting" class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-70">
-            설정
+            {{ t('setting') }}
           </RouterLink>
           <button @click="toggleDropdown" class="flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-70">
             알림
@@ -42,7 +42,9 @@
 <script setup>
 import logoImg from '@/assets/homsLogo.png'
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const LoginStatus = ref('Login')
 const isOpen = ref(false)
 
