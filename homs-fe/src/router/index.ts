@@ -8,7 +8,6 @@ import Claims from "@/pages/admin/order/Claim.vue";
 import AdminProducts from "@/pages/admin/product/Products.vue";
 import Categories from "@/pages/admin/product/Categories.vue";
 import AdminSettlements from "@/pages/admin/settlement/settlements.vue";
-import AdminNotices from "@/pages/admin/notice/Notices.vue";
 import Clients from "@/pages/admin/clients/Clients.vue";
 import Contracts from "@/pages/admin/clients/Contracts.vue";
 import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
@@ -93,11 +92,6 @@ const router = createRouter({
           path: "settlements",
           name: "AdminSettlements",
           component: AdminSettlements,
-        },
-        {
-          path: "notices",
-          name: "AdminNotices",
-          component: AdminNotices,
         },
         {
           path: "notices/form",

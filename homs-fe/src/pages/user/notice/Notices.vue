@@ -9,24 +9,12 @@
       :userRole="currentUserRole" />
     <!-- 테이블 -->
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
+      <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
       </template>
-      <template #cell-name="{ item }">
-        {{ item.name }}
-      </template>
-      <template #cell-email="{ item }">
-        <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-      </template>
-      <template #actions="{ item }">
-        <button @click="editUser(item)"
-          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-          {{ $t('btnEdit') }}
-        </button>
-        <button @click="deleteUser(item)"
-          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-          {{ $t('btnDel') }}
-        </button>
+      <template #cell-createdAt="{ item }">
+        {{ new Date(item.createdAt).toLocaleDateString() }}
       </template>
     </DynamicTable>
 
@@ -41,16 +29,20 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 
 const { locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
-const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(20); // 총 페이지 수 상태 관리
+const router = useRouter();
 
-const searchQuery = ref(''); // 검색어 (ref로 변경)
-// const selectOption = ref(''); // 검색 옵션 (ref로 변경)
+const currentPage = ref(1); // 현재 페이지 상태 관리
+const totalPages = ref(0); // 총 페이지 수 상태 관리
+const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+
+const searchQuery = ref(''); // 검색어
+// const selectOption = ref(''); // 검색 옵션
 
 const currentUserRole = ref('admin'); // 현재 유저 권한
 
@@ -66,7 +58,7 @@ const handleSearch = (searchData) => {
   console.log('검색 데이터:', searchData);
   // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
   searchQuery.value = searchData.searchQuery;
-  totalPages.value = searchData.size;
+  pageSize.value = searchData.size;
   currentPage.value = 1;
   fetchData();
 };
@@ -81,7 +73,7 @@ const actionButtons = ref([
   {
     label: "추가",
     color: "bg-orange-500 hover:bg-orange-700",
-    action: (item) => console.log("수정:", item),
+    action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
   {
@@ -105,14 +97,6 @@ const users = ref([
   { id: 2, title: '아무말이나 더미데이터로 넣어봅시다!', createdAt: '25-04-24' },
 ]);
 
-const editUser = (user) => {
-  console.log('수정:', user);
-};
-
-const deleteUser = (user) => {
-  console.log('삭제:', user);
-};
-
 // ------- 페이지네이션 --------
 const handleSetPage = (page) => {
   currentPage.value = page;
@@ -121,13 +105,10 @@ const handleSetPage = (page) => {
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
-    // loading.value = true;
-    // error.value = null;
-
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
-        size: totalPages.value,
+        size: pageSize.value,
     };
 
     if (searchQuery.value) {
@@ -140,14 +121,11 @@ const fetchData = async () => {
             console.log(response.data.data);
             users.value = response.data.data.content; // 응답 데이터 할당
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
-
         } else {
             alert("데이터 조회 실패");
         }
     } catch (err) {
-        console.error("Q&A 데이터 조회 오류:", err);
-    } finally {
-        // loading.value = false;
+        console.error("데이터 조회 오류:", err);
     }
 };
 

@@ -83,7 +83,6 @@ const allSelected = ref(false);
 
 // 상세 페이지 이동
 const ditailPage = (item) => {
-  console.log('수정:', item);
   router.push({ name: route.name+'Detail', params: { id: item } });
 };
 

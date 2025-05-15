@@ -33,10 +33,12 @@ import {useRouter, useRoute} from "vue-router";
 const route = useRoute();
 const router = useRouter();
 
-const qnaId = Number(route.query.id || "");
+const noticesId = Number(route.query.noticesId || "");
 const title = ref(route.query.title || "");
 const content = ref(route.query.content || "");
 const isEditMode = ref(!!route.query.title);
+
+console.log(route.query);
 
 const submitForm = async () => {
     const params = {
@@ -44,19 +46,18 @@ const submitForm = async () => {
         content: content.value,
     };
 
-    // try {
-    //     if (isEditMode.value) {
-    //         // ?parentId=1
-    //         await apiClient.put(`/qna/${qnaId}`, params);
-    //         alert(" 공지사항이 수정되었습니다.");
-    //         router.push(`/qna/${qnaId}`);
-    //     } else {
-    //         const response = await apiClient.post("/qna", params);
-    //         alert("공지사항이 생성되었습니다.");
-    //         router.push(`/qna`);
-    //     }
-    // } catch (error) {
-    //     alert(error.response?.data.message || "알 수 없는 오류 발생");
-    // }
+    try {
+        if (isEditMode.value) {
+            await apiClient.put(`/notice/${noticesId}`, params);
+            alert(" 공지사항이 수정되었습니다.");
+            router.push(`/notices/${noticesId}`);
+        } else {
+            await apiClient.post("/notice/", params);
+            alert("공지사항이 생성되었습니다.");
+            router.push(`/notices`);
+        }
+    } catch (error) {
+        alert(error.response?.data.message || "알 수 없는 오류 발생");
+    }
 };
 </script>
