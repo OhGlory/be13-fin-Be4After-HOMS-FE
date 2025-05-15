@@ -2,26 +2,31 @@
   <div>
     <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
-      <span>{{ $t('notice') }}</span>
+      <span>{{ $t('title.notice') }}</span>
     </div>
     <div class="p-6 bg-white rounded-md shadow-md">
-      <h2 class="text-2xl font-bold mb-4">{{ notice.title }}</h2>
-      <p class="text-gray-500 text-sm">{{ new Date(notice.createdAt).toLocaleDateString() }}</p>
-      <hr class="my-4" />
+      <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold mb-4">{{ notice.title }}</h1>
+        <p class="text-gray-500 text-sm">{{ new Date(notice.createdAt).toLocaleDateString() }}</p>
+      </div>
+      <hr class="my-2" />
       <p class="text-gray-700">{{ notice.content }}</p>
-
-      <button @click="goToEditPage(notice)"
-        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-        {{ $t('btnEdit') }}
-      </button>
-      <button @click="confirmDelete(notice.id)"
-        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-        {{ $t('btnDel') }}
-      </button>
-      <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-        목록
-      </button>
-
+      <hr class="my-6" />
+      <div class="flex items-center justify-end">
+        <div v-if="isAdmin">
+          <button @click=" goToEditPage(notice)"
+            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+            {{ $t('btn.edit') }}
+          </button>
+          <button @click="confirmDelete(notice.id)"
+            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+            {{ $t('btn.del') }}
+          </button>
+        </div>
+        <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+          {{ $t('btn.list') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -36,8 +41,12 @@ const route = useRoute(); // 현재 URL 정보 가져옴
 const router = useRouter(); // 경로 이동 (라우트를 이동하거나 상태 변경할때 사용)
 const noticeId = Number(route.params.id); // 경로에 포함된 번호를 가져옴
 const notice = ref({}); 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
+
+// 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
+// ture 이면 admin | false이면 user
+const isAdmin = true;
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
@@ -52,7 +61,6 @@ const goBack = () => {
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
-  
     try {
         const response = await apiClient.get(`/notice/${noticeId}`);
         if (response.status === 200) {
@@ -60,10 +68,10 @@ const fetchData = async () => {
             notice.value = response.data.data; // 응답 데이터 할당
 
         } else {
-            alert("데이터 조회 실패");
+            alert(t('errors.fetch_data_failed'));
         }
     } catch (err) {
-        console.error("데이터 조회 오류:", err);
+        console.error(t('errors.fetch_data_erro'), err);
     }
 };
 
@@ -73,7 +81,6 @@ onMounted(() => {
 });
 
 const goToEditPage = (notice) => {
-  console.log('goToEditPage 호출됨', notice.id)
   router.push({
     name: "AdminNoticesFrom",
     query: {
@@ -85,7 +92,7 @@ const goToEditPage = (notice) => {
 };
 
 const confirmDelete = (noticeId) => {
-  if (confirm("정말로 삭제하시겠습니까?")) {
+  if (confirm(t('script.delete'))) {
     // 삭제 처리 로직 호출
     deletePostData(noticeId);
   }
@@ -95,8 +102,6 @@ const confirmDelete = (noticeId) => {
 const deletePostData = async (noticeId) => {
   try {
     await apiClient.delete(`/notice/${noticeId}`);
-    alert("삭제 됐습니다.");
-    // 게시글을 삭제한 후 기존 페이지로 돌려보냄
     router.push("/notices/");
   } catch (error) {
     alert(error.response.data.message);

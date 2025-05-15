@@ -2,7 +2,7 @@
   <div>
     <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
-      <span>{{ $t('notice') }}</span>
+      <span>{{ $t('title.notice') }}</span>
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
@@ -19,11 +19,11 @@
       <template #actions="{ item }">
         <button @click="editUser(item.id)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-          {{ $t('btnEdit') }}
+          {{ $t('btn.edit') }}
         </button>
         <button @click="deleteUser(item.id)"
           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-          {{ $t('btnDel') }}
+          {{ $t('btn.del') }}
         </button>
       </template>
     </DynamicTable>
@@ -80,13 +80,13 @@ const handleSelectOption = ref([
 // 액션 버튼 정의
 const actionButtons = ref([
   {
-    label: "추가",
+    label: t('btn.add'),
     color: "bg-orange-500 hover:bg-orange-700",
     action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
   {
-    label: "삭제",
+    label: t('btn.del'),
     color: "bg-gray-500 hover:bg-gray-700",
     action: (item) => console.log("삭제:", item),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음

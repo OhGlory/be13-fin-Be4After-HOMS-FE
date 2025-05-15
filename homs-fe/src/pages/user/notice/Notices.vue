@@ -2,13 +2,13 @@
   <div>
     <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
-      <span>{{ $t('notice') }}</span>
+      <span>{{ $t('title.notice') }}</span>
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-      :userRole="currentUserRole" />
+      :userRole="isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -32,8 +32,12 @@ import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
+
+// 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
+// ture 이면 admin | false이면 user
+const isAdmin = true;
 
 const router = useRouter();
 
@@ -41,10 +45,10 @@ const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(0); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 
+const selectedUserIds = ref([]); // 선택된 항목 ID
+
 const searchQuery = ref(''); // 검색어
 // const selectOption = ref(''); // 검색 옵션
-
-const currentUserRole = ref('admin'); // 현재 유저 권한
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
@@ -55,8 +59,6 @@ watch(selectedLang, (newLang) =>{
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
-  console.log('검색 데이터:', searchData);
-  // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
   searchQuery.value = searchData.searchQuery;
   pageSize.value = searchData.size;
   currentPage.value = 1;
@@ -71,15 +73,15 @@ const handleSelectOption = ref([
 // 액션 버튼 정의
 const actionButtons = ref([
   {
-    label: "추가",
+    label: t('btn.add'),
     color: "bg-orange-500 hover:bg-orange-700",
     action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
   {
-    label: "삭제",
+    label: t('btn.del'),
     color: "bg-gray-500 hover:bg-gray-700",
-    action: (item) => console.log("삭제:", item),
+    action: () => deleteItems(selectedUserIds.value.length),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   }
 ]);
@@ -96,12 +98,6 @@ const users = ref([
   { id: 1, title: '한화 솔루션 케미칼에서 알려드립니다.', createdAt: '25-04-23' },
   { id: 2, title: '아무말이나 더미데이터로 넣어봅시다!', createdAt: '25-04-24' },
 ]);
-
-// ------- 페이지네이션 --------
-const handleSetPage = (page) => {
-  currentPage.value = page;
-  fetchData();
-};
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -122,11 +118,41 @@ const fetchData = async () => {
             users.value = response.data.data.content; // 응답 데이터 할당
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
-            alert("데이터 조회 실패");
+            alert(t('errors.fetch_data_failed'));
         }
     } catch (err) {
-        console.error("데이터 조회 오류:", err);
+        console.error(t('errors.fetch_data_erro'), err);
     }
+};
+
+// ------- 페이지네이션 --------
+const handleSetPage = (page) => {
+  currentPage.value = page;
+  fetchData();
+};
+
+// ------ 기타 -------
+
+// 체크박스 선택된 항목 처리
+const handleSelectedItems = (selectedIds) => {
+  selectedUserIds.value = selectedIds;
+  console.log('선택된 아이템 ID:', selectedUserIds.value);
+  // selectedUserIds.value.length
+};
+
+// 게시글 삭제
+const deleteItems = async (selectedItemLength) => {
+  // try {
+  //   await apiClient.delete(`/notice/${noticeId}`);
+  //   alert("삭제 됐습니다.");
+  //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
+  //   router.push("/notices/");
+  // } catch (error) {
+  //   alert(error.response.data.message);
+  // }
+  if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")){
+    alert('미구현!')
+  }
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
