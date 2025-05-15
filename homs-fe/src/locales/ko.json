@@ -1,7 +1,20 @@
 {
   "login": "로그인",
+  "logout": "로그아웃",
   "saveId": "아이디 저장",
   "resetPassword": "비밀번호 초기화",
   "register": "파트너사 등록",
-  "setting": "설정"
+  "setting": "설정",
+
+  "notice": "공지사항",
+
+  "no": "순번",
+  "title": "제목",
+  "createAt": "등록일",
+  "updateAt": "수정일",
+
+  "all": "전체",
+  "btnAdd": "추가",
+  "btnEdit": "수정",
+  "btnDel": "삭제"
 }

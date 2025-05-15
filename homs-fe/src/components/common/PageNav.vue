@@ -67,22 +67,26 @@ const setPage = (page) => {
   emit('set-page', page);
 };
 
+// 이전 페이지
 const prevPage = () => {
   if (props.currentPage > 1) {
     emit('set-page', props.currentPage - 1);
   }
 };
 
+// 다음 페이지
 const nextPage = () => {
   if (props.currentPage < props.totalPages) {
     emit('set-page', props.currentPage + 1);
   }
 };
 
+// 첫 페이지로
 const goToFirstPage = () => {
   emit('set-page', 1);
 };
 
+// 마지막 페이지로
 const goToLastPage = () => {
   emit('set-page', props.totalPages);
 };
@@ -116,7 +120,3 @@ const displayedPages = computed(() => {
 });
 
 </script>
-
-<style scoped>
-/* Tailwind CSS 클래스는 <style> 태그 없이도 전역으로 적용됩니다. */
-</style>

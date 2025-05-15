@@ -2,7 +2,7 @@
   <div>
     <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
-      <span>공지사항</span>
+      <span>{{ $t('notice') }}</span>
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
@@ -21,11 +21,11 @@
       <template #actions="{ item }">
         <button @click="editUser(item)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-          수정
+          {{ $t('btnEdit') }}
         </button>
         <button @click="deleteUser(item)"
           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-          삭제
+          {{ $t('btnDel') }}
         </button>
       </template>
     </DynamicTable>
@@ -38,12 +38,22 @@
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
-import { ref } from 'vue';
+import { ref , watch } from 'vue';
+import { useI18n } from 'vue-i18n'
 
+const { locale } = useI18n()
+const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
 const currentUserRole = ref('admin'); // 현재 유저 권한
+
+// 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
+watch(selectedLang, (newLang) =>{
+    const langCode = newLang === 'KOR' ? 'ko' : 'en'
+    locale.value = langCode
+    localStorage.setItem('selectedLang', langCode)
+})
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
