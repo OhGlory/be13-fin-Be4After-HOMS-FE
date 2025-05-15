@@ -1,7 +1,7 @@
 <template>
     <!-- 배경 비디오 -->
     <video autoplay loop muted class="fixed w-2/3 h-full top-0 left-0h-full object-cover ">
-      <source :src="backgroundVideo" type="video/mp4" />
+        <source :src="backgroundVideo" type="video/mp4" />
     </video>
     <div class="fixed w-1/3 h-full top-0 right-0 flex justify-center items-center">
         <div class="flex flex-col h-1/2 w-full bg-white p-16 ">
@@ -9,10 +9,12 @@
                 LOGIN
             </div>
             <!-- 번역 구현은 어떻게 할지 -->
-            <div class="text-xs flex justify-end mb-2 gap-2 cursor-pointer"> 
-                <span :class="selectedLang === 'KOR' ? 'font-bold underline' : 'text-gray-500'" @click="selectedLang='KOR'"> KOR</span>
+            <div class="text-xs flex justify-end mb-2 gap-2 cursor-pointer">
+                <span :class="selectedLang === 'KOR' ? 'font-bold underline' : 'text-gray-500'"
+                    @click="selectedLang = 'KOR'"> KOR</span>
                 |
-                <span :class="selectedLang === 'ENG' ? 'font-bold underline' : 'text-gray-500'" @click="selectedLang='ENG'">ENG</span>
+                <span :class="selectedLang === 'ENG' ? 'font-bold underline' : 'text-gray-500'"
+                    @click="selectedLang = 'ENG'">ENG</span>
             </div>
             <!-- 로그인 폼 -->
             <form>
@@ -22,7 +24,8 @@
                 <div class="mb-6">
                     <input placeholder="PW" type="password" class="w-full px-4 py-3 bg-gray-300 font-bold" />
                 </div>
-                <button type="submit" class="w-full bg-orange-500 text-white py-4 hover:bg-orange-600 transition font-bold cursor-pointer">
+                <button type="submit"
+                    class="w-full bg-orange-500 text-white py-4 hover:bg-orange-600 transition font-bold cursor-pointer">
                     {{ $t('login') }}
                 </button>
             </form>
@@ -30,28 +33,29 @@
             <div class="flex w-full justify-between mt-2">
                 <div class="flex">
                     <input type="checkbox" id="saveId" class="cursor-pointer">
-                    <label for="saveId" class="ml-1 font-semibold text-xs cursor-pointer">{{ $t('saveId' )}}</label>
+                    <label for="saveId" class="ml-1 font-semibold text-xs cursor-pointer">{{ $t('saveId') }}</label>
                 </div>
                 <div class="flex">
-                    <p @click="showPasswordResetModal=true" class=" underline font-semibold text-xs cursor-pointer">
-                        {{$t('resetPassword')}}
-                    </p> 
+                    <p @click="showPasswordResetModal = true" class=" underline font-semibold text-xs cursor-pointer">
+                        {{ $t('resetPassword') }}
+                    </p>
                 </div>
             </div>
             <div class="w-full border border-gray-300 mt-5"></div>
-            <div @click="showRegisterModal=true" class="inline-flex w-fit px-6 py-1  border border-gray-300 text-sm font-bold mx-auto mt-5 hover:bg-gray-400 transition cursor-pointer">
+            <div @click="showRegisterModal = true"
+                class="inline-flex w-fit px-6 py-1  border border-gray-300 text-sm font-bold mx-auto mt-5 hover:bg-gray-400 transition cursor-pointer">
                 {{ $t('register') }}
             </div>
         </div>
     </div>
     <!-- 집입시 모달 보이기 -->
     <Modal :visible="showModal" @confirm="confirmModal" />
-    <PartnerRegisterModal :visible="showRegisterModal" @close="showRegisterModal=false"/>
-    <PasswordResetModal :visible="showPasswordResetModal" @close="showPasswordResetModal=false" />
-  
-  </template>
-  
-  <script setup>
+    <PartnerRegisterModal :visible="showRegisterModal" @close="showRegisterModal = false" />
+    <PasswordResetModal :visible="showPasswordResetModal" @close="showPasswordResetModal = false" />
+
+</template>
+
+<script setup>
   import backgroundVideo from '@/assets/hanwha_chemical.mp4'
   import Modal from '@/components/common/modal/Modal.vue';
   import PartnerRegisterModal from '@/components/common/modal/PartnerRegisterModal.vue';
@@ -84,5 +88,3 @@
     }
   })
   </script>
-  
-  
