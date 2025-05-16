@@ -68,8 +68,8 @@
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="productName" class="block text-sm font-medium text-gray-700">최소 수량</label>
-                            <input type="text" id="productName" :placeholder="'ex) 10'"
+                            <label for="minQuantity" class="block text-sm font-medium text-gray-700">최소 수량</label>
+                            <input type="text" id="minQuantity" :placeholder="'ex) 10'" v-model="minQuantity"
                                 class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                         </div>
                     </div>
@@ -120,11 +120,12 @@ const route = useRoute();
 const router = useRouter();
 
 // 수정용 데이터
-const productsId = Number(route.query.productsId || "");
-const productName = ref(route.query.productName || "");
-const productUsage = ref(route.query.productUsage || "");
-const productFeature = ref(route.query.productFeature || "");
-const isEditMode = ref(!!route.query.productName);
+const productsId = Number("");
+const productName = ref("");
+const productUsage = ref("");
+const productFeature = ref("");
+const minQuantity = ref("");
+const isEditMode = ref(route.query.productId);
 
 // 데이터 속성 정의
 const categoryData = ref([]);
@@ -195,6 +196,22 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t('errors.fetch_data_erro'), err);
+    }
+
+    if(isEditMode.value){
+        const response = await apiClient.get(`/product/${isEditMode.value}`);
+        if (response.status === 200) {
+            console.log(response.data.data);
+            productName.value = response.data.data.productName;
+            productUsage.value = response.data.data.productUsage;
+            productFeature.value = response.data.data.productFeature;
+            minQuantity.value = 10;
+            selectedCategoryLevel1.value = response.data.data.category.categoryId;
+            loadSecondLevelCategories();
+            loadThirdLevelCategories();
+        } else {
+            alert(t('errors.fetch_data_failed'));
+        }
     }
 };
 

@@ -25,11 +25,11 @@
       </template>
       <template #cell-minQuantity>10</template>
       <template #actions="{ item }">
-        <button @click="editBtn(item.id)"
+        <button @click="editBtn(item.productId)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
           {{ $t('btn.edit') }}
         </button>
-        <button @click="deleteBtn(item.id)"
+        <button @click="deleteBtn(item.productId)"
           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
           {{ $t('btn.del') }}
         </button>
@@ -119,12 +119,26 @@ const users = ref([
     { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
 ]);
 
-const editBtn = (id) => {
-  router.push({ name: 'ProductForm', params: { id: id } });
+const editBtn = (productId) => {
+  router.push({ name: 'ProductForm', query: { productId: productId } });
 };
 
-const deleteBtn = (user) => {
-  console.log('삭제:', user);
+const deleteBtn = (productId) => {
+  if (confirm(t('script.delete'))) {
+    // 삭제 처리 로직 호출
+    deletePostData(productId);
+  }
+};
+
+// 상품 삭제
+const deletePostData = async (productId) => {
+  try {
+    await apiClient.delete(`/product/${productId}`);
+    router.push("/products/");
+    fetchData();
+  } catch (error) {
+    alert(error.response.data.message);
+  }
 };
 
 // 데이터 가져오는 함수
@@ -161,6 +175,11 @@ const handleRowClick = (item) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+  // 모달 상태를 localstorage에 넣어서 상태 관리
+  const modalConfirmed = localStorage.getItem('modalConfirmed')
+  if (modalConfirmed === 'true') {
+    showModal.value = false
+  }
     fetchData();
 });
 
@@ -201,11 +220,4 @@ watch(selectedLang, (newLang) =>{
     localStorage.setItem('selectedLang', langCode)
 })
 
-// 모달 상태를 localstorage에 넣어서 상태 관리
-onMounted(() => {
-  const modalConfirmed = localStorage.getItem('modalConfirmed')
-  if (modalConfirmed === 'true') {
-    showModal.value = false
-  }
-})
 </script>
