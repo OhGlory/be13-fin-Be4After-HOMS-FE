@@ -20,12 +20,13 @@
             </div>
 
             <!-- 이메일 -->
-            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-200 font-semibold self-center">
+             <!-- 이미 유저 정보에 email이 있어서 유저 정보에서 받아오면 될 것같다는 판단-->
+            <!-- <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-200 font-semibold self-center">
                 이메일
             </label>
             <div class="col-span-2 p-2 border border-gray-200">
                 <input v-model="resetPwform.userEmail" type="email" class="flex w-1/2 border border-gray-300 text-md">
-            </div>
+            </div> -->
         </div>
 
         <div>
