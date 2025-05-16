@@ -155,7 +155,6 @@ const fetchData = async () => {
 
 // 선택한 행에 대한 정보 처리
 const handleRowClick = (item) => {
-  console.log(item.productId);
   selectedId.value = item.productId; // 선택된 항목 ID 업데이트
   showModal.value = true;
 };

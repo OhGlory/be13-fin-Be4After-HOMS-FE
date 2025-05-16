@@ -81,11 +81,6 @@ const props = defineProps({
   },
 });
 
-// 상세 페이지 이동
-// const ditailPage = (item) => {
-//   router.push({ name: route.name+'Detail', params: { id: item } });
-// };
-
 // 전체 선택/해제 기능
 const toggleAll = () => {
     if (allSelected.value) {

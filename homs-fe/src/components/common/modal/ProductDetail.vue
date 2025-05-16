@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="mb-8 flex">
-                    <img v-if="productDetail.imageUrl" :src="productDetail?.imageUrl"
+                    <img v-if="productDetail?.imageUrl" :src="productDetail.imageUrl"
                         :alt="productDetail.productName || '제품 이미지'"
                         class="w-full max-h-96 object-contain rounded-md shadow-md" />
                     <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-md shadow-md">
@@ -32,11 +32,11 @@
                     <div class="ml-8 w-full">
                         <label class="block text-gray-700 font-semibold mb-1">제품명</label>
                         <div class="mb-5 border border-gray-300 rounded-md py-2 px-3 text-gray-800">
-                            {{ productDetail.productName || '-' }}
+                            {{ productDetail?.productName || '-' }}
                         </div>
                         <label class="block text-gray-700 font-semibold mb-1">제조공정</label>
                         <div class="border border-gray-300 rounded-md py-2 px-3 text-gray-800">
-                            {{ productDetail.productName || '-' }}
+                            {{ productDetail?.category.processName || '-' }}
                         </div>
                     </div>
                 </div>
@@ -45,13 +45,13 @@
                     <div>
                         <label class="block text-gray-700 font-semibold mb-1">제품 특징</label>
                         <div class="border border-gray-300 rounded-md py-2 px-3 text-gray-800 whitespace-pre-line">
-                            {{ productDetail.productFeature || '-' }}
+                            {{ productDetail?.productFeature || '-' }}
                         </div>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold mb-1">적용 용도</label>
                         <div class="border border-gray-300 rounded-md py-2 px-3 text-gray-800 whitespace-pre-line">
-                            {{ productDetail.productUsage || '-' }}
+                            {{ productDetail?.productUsage || '-' }}
                         </div>
                     </div>
                 </div>
@@ -115,7 +115,6 @@ watch(() => props.visible, (newVisible) => {
     } else {
         productDetail.value = null;
     }
-    console.log("Visible Changed:",props.productId);
 });
 
 onMounted(() => {
