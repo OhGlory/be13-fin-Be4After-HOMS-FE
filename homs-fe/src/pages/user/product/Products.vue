@@ -17,8 +17,8 @@
       <template #cell-category="{ item }">
         {{ item.category?.categoryId }}
       </template>
-      <template #cell-categoryParent="{ item }">
-        {{ item.category?.categoryParent }}
+      <template #cell-upperCategoryName="{ item }">
+        {{ item.category?.upperCategoryName }}
       </template>
       <template #cell-categoryName="{ item }">
         {{ item.category?.categoryName }}
@@ -38,6 +38,8 @@
 
     <!-- 페이지 네비 -->
     <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"></PageNav>
+    <!-- 모달 -->
+    <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
   </div>
 </template>
 
@@ -46,6 +48,7 @@ import apiClient from '@/api';
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
+import ProductDetail from '@/components/common/modal/ProductDetail.vue';
 import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
@@ -56,6 +59,9 @@ const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
 const router = useRouter();
+
+const showModal = ref(false); // 모달 상태 관리
+const selectedId = ref(null); // 선택된 항목 ID
 
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(0); // 총 페이지 수 상태 관리
@@ -99,7 +105,7 @@ const actionButtons = ref([
 // ------- 테이블 --------
 const userColumns = ref([
   { label: '번호', key: 'productId' },
-  { label: '분야', key: 'categoryParent' },
+  { label: '분야', key: 'upperCategoryName' },
   { label: '분류', key: 'categoryName' },
   { label: '제품명', key: 'productName' },
   { label: '최소단위', key: 'minQuantity' },
@@ -150,6 +156,8 @@ const fetchData = async () => {
 // 선택한 행에 대한 정보 처리
 const handleRowClick = (item) => {
   console.log(item.productId);
+  selectedId.value = item.productId; // 선택된 항목 ID 업데이트
+  showModal.value = true;
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
@@ -194,5 +202,11 @@ watch(selectedLang, (newLang) =>{
     localStorage.setItem('selectedLang', langCode)
 })
 
-
+// 모달 상태를 localstorage에 넣어서 상태 관리
+onMounted(() => {
+  const modalConfirmed = localStorage.getItem('modalConfirmed')
+  if (modalConfirmed === 'true') {
+    showModal.value = false
+  }
+})
 </script>

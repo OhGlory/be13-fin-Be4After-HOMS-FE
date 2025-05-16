@@ -24,13 +24,12 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer"
-                                @click="$emit('row-click', item)">
+                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <input type="checkbox" v-model="selectedItems" :value="item.id"
                                         @change="emitSelectedItems" />
                                 </td>
-                                <td v-for="column in columns" :key="column.key"
+                                <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>

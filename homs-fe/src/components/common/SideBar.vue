@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white text-gray-900 h-screen transition-all duration-300 ease-in-out z-100 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0">
+    class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white text-gray-900 h-screen transition-all duration-300 ease-in-out z-10 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0">
     <!-- 로고 영역 -->
     <div class="py-8 flex justify-start">
       <router-link to="/" class="flex">
