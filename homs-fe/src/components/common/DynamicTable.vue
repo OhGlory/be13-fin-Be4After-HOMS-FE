@@ -24,12 +24,13 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100">
+                            <tr v-for="item in items" :key="item.id" class=" hover:bg-gray-100">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                                    <input type="checkbox" v-model="selectedItems" :value="item.id" />
+                                    <input type="checkbox" v-model="selectedItems" :value="item.id"
+                                        @change="emitSelectedItems" />
                                 </td>
-                                <td v-for="column in columns" :key="column.key"
-                                    class="px-6 py-4 text-center border-b border-gray-200 whitespace-nowrap">
+                                <td v-for="column in columns" :key="column.key" @click="ditailPage(item.id)"
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
                                 <td v-if="$slots.actions" class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
@@ -46,6 +47,14 @@
 
 <script setup>
 import { ref, watch,defineProps } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+const emit = defineEmits(['selected']);
+
+const selectedItems = ref([]);
+const allSelected = ref(false);
 
 const props = defineProps({
   columns: {
@@ -68,10 +77,16 @@ const props = defineProps({
     type: String,
     // 액션 부분 헤더
   },
+  ditailPageUrl: {
+    type: String,
+    // 상세 페이지 URL
+  },
 });
 
-const selectedItems = ref([]);
-const allSelected = ref(false);
+// 상세 페이지 이동
+const ditailPage = (item) => {
+  router.push({ name: route.name+'Detail', params: { id: item } });
+};
 
 // 전체 선택/해제 기능
 const toggleAll = () => {
@@ -80,11 +95,17 @@ const toggleAll = () => {
     } else {
         selectedItems.value = [];
     }
+    emitSelectedItems();
 };
 
 // 전체 선택 상태 감시
 watch(selectedItems, () => {
     allSelected.value = selectedItems.value.length === props.items.length;
 });
+
+// 선택된 아이템들을 부모 컴포넌트로 emit
+const emitSelectedItems = () => {
+    emit('selected', selectedItems.value);
+};
 
 </script>

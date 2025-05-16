@@ -19,19 +19,18 @@ import Login from '@/pages/common/login/Login.vue'
 
 
 // 유저 관련
-import UserDashBoard from '@/pages/user/dashboard/UserDashBoard.vue'
-import Accounts from '@/pages/user/account/Account.vue'
-import Products from '@/pages/user/product/Products.vue'
-import Orders from '@/pages/user/order/Order.vue'
-import Deliverys from '@/pages/user/delivery/Delivery.vue'
-import Settlements from '@/pages/user/settlement/Settlements.vue'
-import Notices from '@/pages/user/notice/Notices.vue'
+import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
+import Accounts from "@/pages/user/account/Account.vue";
+import Products from "@/pages/user/product/Products.vue";
+import Orders from "@/pages/user/order/Order.vue";
+import Deliverys from "@/pages/user/delivery/Delivery.vue";
+import Settlements from "@/pages/user/settlement/Settlements.vue";
+import Notices from "@/pages/user/notice/Notices.vue";
+import NoticesDetail from "@/pages/user/notice/NoticesDetail.vue";
+import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
 
 // 에러 관련
-import PageNotFound from '@/pages/common/PageNotFound.vue'
-
-
-
+import PageNotFound from "@/pages/common/PageNotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,138 +40,143 @@ const router = createRouter({
     //   redirect: 'login'
     // },
     {
-      path: '/login',
+      path: "/login",
       component: Login,
     },
     {
-      path: '/admin',
-      name: 'AdminLayout',
+      path: "/admin",
+      name: "AdminLayout",
       component: BaseLayout,
       // meta: { requiresAuth: true, role: 'admin' },       // 대시보드 진입을 위한 주석
       children: [
         {
-          path: '',
-          name: 'AdminDashBoard',
+          path: "",
+          name: "AdminDashBoard",
           component: AdminDashBoard,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'adminaccount',
-          name: 'AdminAccount',
+          path: "adminaccount",
+          name: "AdminAccount",
           component: AdminAccount,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'orders',
-          name: 'AdminOrders',
+          path: "orders",
+          name: "AdminOrders",
           component: AdminOrders,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'claims',
-          name: 'AdminClaims',
+          path: "claims",
+          name: "AdminClaims",
           component: Claims,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'menu-settings',
-          name: 'MenuSettings',
+          path: "menu-settings",
+          name: "MenuSettings",
           component: MenuSettings,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'clients',
-          name: 'Clients',
+          path: "clients",
+          name: "Clients",
           component: Clients,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'contracts',
-          name: 'Contracts',
+          path: "contracts",
+          name: "Contracts",
           component: Contracts,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'products',
-          name: 'AdminProducts',
+          path: "products",
+          name: "AdminProducts",
           component: AdminProducts,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'categories',
-          name: 'Categories',
+          path: "categories",
+          name: "Categories",
           component: Categories,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'settlements',
-          name: 'AdminSettlements',
+          path: "settlements",
+          name: "AdminSettlements",
           component: AdminSettlements,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'notices',
-          name: 'AdminNotices',
-          component: AdminNotices,
+          path: "notices/form",
+          name: "AdminNoticesFrom",
+          component: AdminNoticesForm,
           meta: { requiresAuth: true, role: 'admin' },
         },
         {
-          path: 'setting',
-          name: 'AdminSetting',
+          path: "setting",
+          name: "AdminSetting",
           component: Setting,
           meta: { requiresAuth: true, role: 'admin' },
         },
-      ]
+      ],
     },
     {
-      path: '/',
-      name: 'UserLayout',
+      path: "/",
+      name: "UserLayout",
       component: BaseLayout,
       // meta: { requiresAuth: true, role: 'user' },
       children: [
         {
-          path: '',
-          name: 'UserDashBoard',
+          path: "",
+          name: "UserDashBoard",
           component: UserDashBoard,
           // meta: { requiresAuth: true, role: 'user' },        // 대시보드 진입을 위한 주석
         },
         {
-          path: 'accounts',
-          name: 'Accounts',
+          path: "accounts",
+          name: "Accounts",
           component: Accounts,
           meta: { requiresAuth: true, role: 'user' },
         },
         {
-          path: 'products',
-          name: 'UserProducts',
+          path: "products",
+          name: "UserProducts",
           component: Products,
           meta: { requiresAuth: true, role: 'user' },
         },
         {
-          path: 'orders',
-          name: 'UserOrders',
+          path: "orders",
+          name: "UserOrders",
           component: Orders,
           meta: { requiresAuth: true, role: 'user' },
         },
         {
-          path: 'delivery',
-          name: 'Delivery',
+          path: "delivery",
+          name: "Delivery",
           component: Deliverys,
           meta: { requiresAuth: true, role: 'user' },
         },
         {
-          path: 'settlements',
-          name: 'UserSettlements',
+          path: "settlements",
+          name: "UserSettlements",
           component: Settlements,
           meta: { requiresAuth: true, role: 'user' },
         },
         {
-          path: 'notices',
-          name: 'UserNotices',
+          path: "notices",
+          name: "UserNotices",
           component: Notices,
           meta: { requiresAuth: true, role: 'user' },
         },
-      ]
+        {
+          path: "notices/:id",
+          name: "UserNoticesDetail",
+          component: NoticesDetail,
+        },
+      ],
     },
     {
       path: "/:pathMatch(.*)",
@@ -181,9 +185,10 @@ const router = createRouter({
     {
       path: "/404",
       component: PageNotFound,
-    }
+    },
   ],
-})
+});
+
 
 // 로그인 상태 관리 (권한)
 router.beforeEach((to, from, next) => {
@@ -218,3 +223,4 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
+

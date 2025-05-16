@@ -6,15 +6,25 @@
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-      :userRole="isAdmin" />
+      :userRole="currentUserRole" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
       </template>
       <template #cell-createdAt="{ item }">
         {{ new Date(item.createdAt).toLocaleDateString() }}
+      </template>
+      <template #actions="{ item }">
+        <button @click="editUser(item.id)"
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+          {{ $t('btn.edit') }}
+        </button>
+        <button @click="deleteUser(item.id)"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+          {{ $t('btn.del') }}
+        </button>
       </template>
     </DynamicTable>
 
@@ -32,23 +42,18 @@ import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
-
-// 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-// ture 이면 admin | false이면 user
-const isAdmin = true;
 
 const router = useRouter();
 
 const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(0); // 총 페이지 수 상태 관리
-const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+const totalPages = ref(20); // 총 페이지 수 상태 관리
 
-const selectedUserIds = ref([]); // 선택된 항목 ID
+const searchQuery = ref(''); // 검색어 (ref로 변경)
+// const selectOption = ref(''); // 검색 옵션 (ref로 변경)
 
-const searchQuery = ref(''); // 검색어
-// const selectOption = ref(''); // 검색 옵션
+const currentUserRole = ref('admin'); // 현재 유저 권한
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
@@ -59,8 +64,10 @@ watch(selectedLang, (newLang) =>{
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
+  console.log('검색 데이터:', searchData);
+  // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
   searchQuery.value = searchData.searchQuery;
-  pageSize.value = searchData.size;
+  totalPages.value = searchData.size;
   currentPage.value = 1;
   fetchData();
 };
@@ -81,7 +88,7 @@ const actionButtons = ref([
   {
     label: t('btn.del'),
     color: "bg-gray-500 hover:bg-gray-700",
-    action: () => deleteItems(selectedUserIds.value.length),
+    action: (item) => console.log("삭제:", item),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   }
 ]);
@@ -99,12 +106,34 @@ const users = ref([
   { id: 2, title: '아무말이나 더미데이터로 넣어봅시다!', createdAt: '25-04-24' },
 ]);
 
+const editUser = (noticeId) => {
+  router.push({
+    name: "PostWrite",
+    query: {
+      postNo: post.value.postNo,
+      title: post.value.title,
+      content: post.value.content,
+      boardType: post.value.boardType,
+    },
+  });
+};
+
+const deleteUser = (noticeId) => {
+  console.log('삭제:', noticeId);
+};
+
+// ------- 페이지네이션 --------
+const handleSetPage = (page) => {
+  currentPage.value = page;
+  fetchData();
+};
+
 // 데이터 가져오는 함수
 const fetchData = async () => {
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
-        size: pageSize.value,
+        size: totalPages.value,
     };
 
     if (searchQuery.value) {
@@ -117,42 +146,13 @@ const fetchData = async () => {
             console.log(response.data.data);
             users.value = response.data.data.content; // 응답 데이터 할당
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+
         } else {
-            alert(t('errors.fetch_data_failed'));
+            alert("데이터 조회 실패");
         }
     } catch (err) {
-        console.error(t('errors.fetch_data_erro'), err);
+        console.error("데이터 조회 오류:", err);
     }
-};
-
-// ------- 페이지네이션 --------
-const handleSetPage = (page) => {
-  currentPage.value = page;
-  fetchData();
-};
-
-// ------ 기타 -------
-
-// 체크박스 선택된 항목 처리
-const handleSelectedItems = (selectedIds) => {
-  selectedUserIds.value = selectedIds;
-  console.log('선택된 아이템 ID:', selectedUserIds.value);
-  // selectedUserIds.value.length
-};
-
-// 게시글 삭제
-const deleteItems = async (selectedItemLength) => {
-  // try {
-  //   await apiClient.delete(`/notice/${noticeId}`);
-  //   alert("삭제 됐습니다.");
-  //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-  //   router.push("/notices/");
-  // } catch (error) {
-  //   alert(error.response.data.message);
-  // }
-  if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")){
-    alert('미구현!')
-  }
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
