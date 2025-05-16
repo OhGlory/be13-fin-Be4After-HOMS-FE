@@ -36,6 +36,8 @@ import apiClient from '@/api';
 import { ref , watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
+import { userStore } from '@/states/user';
+const isAdmin = userStore().isAdmin;
 
 const route = useRoute(); // 현재 URL 정보 가져옴
 const router = useRouter(); // 경로 이동 (라우트를 이동하거나 상태 변경할때 사용)
@@ -43,10 +45,6 @@ const noticeId = Number(route.params.id); // 경로에 포함된 번호를 가�
 const notice = ref({}); 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
-
-// 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-// ture 이면 admin | false이면 user
-const isAdmin = true;
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
