@@ -21,7 +21,7 @@
 import ClaimStatue from '@/components/dashboard/admin/ClaimStatue.vue';
 import OilPriceTrends from '@/components/dashboard/chart/OilPriceTrends.vue';
 import Order from '@/components/dashboard/user/Order.vue';
-import SettlementManagement from '@/components/dashboard/user/ SettlementManagement.vue';
+import SettlementManagement from '@/components/dashboard/user/SettlementManagement.vue';
 import UserDeliveryState from '@/components/dashboard/user/UserDeliveryState.vue';
 import Notice from '@/components/dashboard/user/notice.vue';
 
