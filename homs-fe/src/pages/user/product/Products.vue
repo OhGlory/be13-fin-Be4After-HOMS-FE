@@ -17,19 +17,19 @@
       <template #cell-category="{ item }">
         {{ item.category?.categoryId }}
       </template>
-      <template #cell-upperCategoryName="{ item }">
-        {{ item.category?.upperCategoryName }}
+      <template #cell-productDomain="{ item }">
+        {{ item.category?.productDomain }}
       </template>
-      <template #cell-categoryName="{ item }">
-        {{ item.category?.categoryName }}
+      <template #cell-productCategory="{ item }">
+        {{ item.category?.productCategory }}
       </template>
       <template #cell-minQuantity>10</template>
       <template #actions="{ item }">
-        <button @click="editUser(item.id)"
+        <button @click="editBtn(item.id)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
           {{ $t('btn.edit') }}
         </button>
-        <button @click="deleteUser(item.id)"
+        <button @click="deleteBtn(item.id)"
           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
           {{ $t('btn.del') }}
         </button>
@@ -91,7 +91,7 @@ const actionButtons = ref([
   {
     label: t('btn.add'),
     color: "bg-orange-500 hover:bg-orange-700",
-    action: () => router.push({name:"AdminNoticesFrom"}),
+    action: () => router.push({name:"ProductForm"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
   {
@@ -105,8 +105,8 @@ const actionButtons = ref([
 // ------- 테이블 --------
 const userColumns = ref([
   { label: '번호', key: 'productId' },
-  { label: '분야', key: 'upperCategoryName' },
-  { label: '분류', key: 'categoryName' },
+  { label: '분야', key: 'productDomain' },
+  { label: '분류', key: 'productCategory' },
   { label: '제품명', key: 'productName' },
   { label: '최소단위', key: 'minQuantity' },
   { label: '재고량', key: 'productQuantity' },
@@ -119,11 +119,11 @@ const users = ref([
     { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
 ]);
 
-const editUser = (user) => {
-  console.log('수정:', user);
+const editBtn = (id) => {
+  router.push({ name: 'ProductForm', params: { id: id } });
 };
 
-const deleteUser = (user) => {
+const deleteBtn = (user) => {
   console.log('삭제:', user);
 };
 

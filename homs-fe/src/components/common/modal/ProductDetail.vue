@@ -36,7 +36,7 @@
                         </div>
                         <label class="block text-gray-700 font-semibold mb-1">제조공정</label>
                         <div class="border border-gray-300 rounded-md py-2 px-3 text-gray-800">
-                            {{ productDetail?.category.processName || '-' }}
+                            {{ productDetail?.category.manufacturingProcess || '-' }}
                         </div>
                     </div>
                 </div>

@@ -14,6 +14,7 @@ import Clients from "@/pages/admin/clients/Clients.vue";
 import Contracts from "@/pages/admin/clients/Contracts.vue";
 import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
 import Login from "@/pages/common/login/Login.vue";
+import ProductForm from "@/pages/admin/product/ProductForm.vue";
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -88,12 +89,6 @@ const router = createRouter({
           component: Contracts,
           meta: {requiresAuth: true, role: "admin"},
         },
-        // {
-        //   path: "products",
-        //   name: "AdminProducts",
-        //   component: AdminProducts,
-        //   meta: {requiresAuth: true, role: "admin"},
-        // },
         {
           path: "categories",
           name: "Categories",
@@ -110,6 +105,12 @@ const router = createRouter({
           path: "notices/form",
           name: "AdminNoticesFrom",
           component: AdminNoticesForm,
+          meta: {requiresAuth: true, role: "admin"},
+        },
+        {
+          path: "products/form",
+          name: "ProductForm",
+          component: ProductForm,
           meta: {requiresAuth: true, role: "admin"},
         },
         {
