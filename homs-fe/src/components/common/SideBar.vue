@@ -1,5 +1,5 @@
 <template>
-    <aside class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white text-gray-900 h-screen transition-all duration-300 ease-in-out z-99999 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0">
+    <aside class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white text-gray-900 h-screen transition-all duration-300 ease-in-out z-100 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0">
       <!-- 로고 영역 -->
       <div class="py-8 flex justify-start">
         <router-link to="/" class="flex">
@@ -33,26 +33,48 @@
     </aside>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
+  <script setup lang="ts">
+  import { ref, computed } from 'vue'
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+  import { useUserStore } from '@/states/user'
   import logo from '@/assets/homsLogo.png'
 
-  // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-  // ture 이면 admin | false이면 user
-  const isAdmin = false;
+    // 메뉴 아이템 타입 정의
+  interface MenuChild {
+    name: string
+    path: string
+    adminOnly?: boolean
+  }
 
-  const basePath = isAdmin ? '/admin' : '';
+  interface MenuItem {
+    title: string
+    icon: number
+    open: boolean
+    children: MenuChild[]
+  }
+
+
+  // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
+  const userStore = useUserStore()
+  const isAdmin = computed(() => userStore.isAdmin)
+
+  const getPath = (basePath: string, adminOnly?: boolean): string => {
+  if (isAdmin.value) {
+    return `/admin${basePath}`
+  } else {
+    return basePath // 일반 유저는 그대로 사용
+  }
+}
 
   // 메뉴 관련 메뉴DB에서 받올 예정
-  const menuItems = ref([
+  const menuItems = ref<MenuItem[]>([
     {
       title: '주문 관리',
       icon: 1,
       open: false,
       children: [
-        { name: '주문 목록', path: `${basePath}/orders` },            // 관리자O, 사용자O
-        { name: '클레임 목록', path: `${basePath}/claims` },          // 관리자O, 사용자 X
+        { name: '주문 목록', path: getPath('/orders') },                           // 관리자O, 사용자O
+        { name: '클레임 목록', path: getPath('/claims'), adminOnly: true },          // 관리자O, 사용자 X
       ],
     },
     {
@@ -60,29 +82,29 @@
       icon: 2,
       open: false,
       children: [
-        { name: '상품 목록', path: `${basePath}/products` },           // 관리자O, 사용자O
-        { name: '카테고리 관리', path: `${basePath}/categories` },     // 관리자O, 사용자 X
+        { name: '상품 목록', path: getPath('/products') },          // 관리자O, 사용자O
+        { name: '카테고리 관리', path: getPath('/categories'), adminOnly: true },     // 관리자O, 사용자 X
       ],
     },
     {
       title: '정산 관리',
       icon: 3,
       open: false,
-      children: [{ name: '정산 현황', path: `${basePath}/settlements` }], // 관리자O, 사용자O
+      children: [{ name: '정산 현황', path: getPath('/settlements') }], // 관리자O, 사용자O
     },
     {
       title: '공지사항',
       icon: 4,
       open: false,
-      children: [{ name: '공지 사항', path: `${basePath}/notices` }],     // 관리자O, 사용자O
+      children: [{ name: '공지 사항', path: getPath('/notices') }],    // 관리자O, 사용자O
     },
     {
       title: '거래처 관리',
       icon: 5,
       open: false,
       children: [
-        { name: '거래처 목록', path: `${basePath}/clients` },             // 관리자O, 사용자 X
-        { name: '계약 관리', path: `${basePath}/contracts` },            // 관리자O, 사용자 X
+        { name: '거래처 목록', path: getPath('/clients'), adminOnly: true },             // 관리자O, 사용자 X
+        { name: '계약 관리', path: getPath('/contracts'), adminOnly: true },          // 관리자O, 사용자 X
       ],
     },
     {
@@ -90,17 +112,18 @@
       icon: 6,
       open: false,
       children: [
-        { name: '통합 계정 관리', path: `${basePath}/AdminAccount` },     // 관리자O, 사용자 X
-        { name: '메뉴 설정', path: `${basePath}/menu-settings` },       // 관리자O, 사용자 X
+        { name: '통합 계정 관리', path: getPath('/adminaccount'), adminOnly: true },     // 관리자O, 사용자 X
+        { name: '메뉴 설정', path: getPath('/menu-settings'), adminOnly: true },       // 관리자O, 사용자 X
       ],
     }
   ])
+
   
-  const toggleMenu = (index) => {
+  const toggleMenu = (index: number):void => {
     menuItems.value[index].open = !menuItems.value[index].open
   }
 
-  const getIconPath = (iconNumber) => {
+  const getIconPath = (iconNumber: number): string => {
     return new URL(`../../assets/menu/menu-icon-${iconNumber}.svg`, import.meta.url).href
   }
   </script>

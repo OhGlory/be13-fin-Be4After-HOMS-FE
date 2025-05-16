@@ -8,25 +8,37 @@
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" action="세금계산서">
+        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" action="세금계산서" >
             <template #cell-id="{ item }">
                 <strong>{{ item.id }}</strong>
             </template>
             <template #cell-name="{ item }">
                 {{ item.name }}
             </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
+            <template #cell-isSettled="{ item }">
+              <span
+                  :class="{
+                    'text-red-500': item.isSettled === '미정산',
+                    'text-yellow-500': item.isSettled === '대기',
+                    'text-green-500': item.isSettled === '완료'
+                  }"
+              >
+                  {{ item.isSettled }}
+              </span>
             </template>
             <template #actions="{ item }">
-                <button @click="editUser(item)"
-                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                <button @click="issuingTaxInvoices(item)"
+                    class=" bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
                     발행
                 </button>
             </template>
         </DynamicTable>
         <!-- 페이지 네비 -->
         <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+
+        <TaxInvoice :visible="showModal" @confirm="confirmModal" />
+
+
     </div>
 </template>
 
@@ -35,11 +47,13 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref } from 'vue';
+import TaxInvoice from '@/components/common/modal/TaxInvoice.vue';
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
 const currentUserRole = ref('admin'); // 현재 유저 권한
+const showModal = ref(false);
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -55,6 +69,7 @@ const handleSelectOption = ref([
 ]);
 
 // ------- 테이블 --------
+//헤더
 const userColumns = ref([
   { label: '순번', key: 'id' },
   { label: '발주번호', key: 'orderCode' },
@@ -66,19 +81,24 @@ const userColumns = ref([
   { label: '상태', key: 'orderStatus' },
 ]);
 
+// 데이터
 const users = ref([
     { id: 1, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'미정산', orderStatus: '-'},
     { id: 2, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'대기', orderStatus: '반품/교환'},
     { id: 3, orderCode: 'H-04-23', companyName: '하이젠버그', deliveryName: '미국', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'완료', orderStatus: '-'},
 ]);
 
-const editUser = (user) => {
-  console.log('수정:', user);
+const issuingTaxInvoices = (order) => {
+  showModal.value=true;
+  console.log('발행:', order);
 };
 
-const deleteUser = (user) => {
-  console.log('삭제:', user);
-};
+
+// 모달 영역
+function confirmModal(){
+  showModal.value=false;
+}
+
 
 // ------- 페이지네이션 --------
 const handleSetPage = (page) => {

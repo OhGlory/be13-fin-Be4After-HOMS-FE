@@ -13,11 +13,11 @@
                                 </th>
 
                                 <th v-for="column in columns" :key="column.key"
-                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    class="px-6 py-3 text-center text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200">
                                     {{ column.label }}
                                 </th>
                                 <th v-if="$slots.actions"
-                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    class="px-6 py-3 text-center text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200">
                                     {{ props.action }}
                                 </th>
                             </tr>
@@ -29,10 +29,10 @@
                                     <input type="checkbox" v-model="selectedItems" :value="item.id" />
                                 </td>
                                 <td v-for="column in columns" :key="column.key"
-                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                    class="px-6 py-4 text-center border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
-                                <td v-if="$slots.actions" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                <td v-if="$slots.actions" class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
                                     <slot name="actions" :item="item"></slot>
                                 </td>
                             </tr>
