@@ -31,13 +31,14 @@ import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
+import { userStore } from '@/states/user';
+const isAdmin = userStore().isAdmin;
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
 // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
 // ture 이면 admin | false이면 user
-const isAdmin = true;
 
 const router = useRouter();
 
