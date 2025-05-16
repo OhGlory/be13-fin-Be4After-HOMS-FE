@@ -1,86 +1,109 @@
 <template>
-    <div>
-        <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>상품관리 > 상품목록</span>
-        </div>
-        <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
-        <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
-            </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
-            </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-            </template>
-            <template #actions="{ item }">
-                <button @click="editUser(item)"
-                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                    수정
-                </button>
-                <button @click="deleteUser(item)"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-                    삭제
-                </button>
-            </template>
-        </DynamicTable>
-        <!-- 페이지 네비 -->
-        <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+  <div>
+    <!-- 제목 -->
+    <div class="text-3xl px-3 py-3">
+      <span>상품목록</span>
     </div>
+    <!-- 검색바 -->
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+      :userRole="isAdmin" />
+    <!-- 테이블 -->
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"
+      @row-click="handleRowClick">
+      <!-- 항목 상세 설정 -->
+      <template #cell-id="{ item }">
+        <strong>{{ item.id }}</strong>
+      </template>
+      <template #cell-category="{ item }">
+        {{ item.category?.categoryId }}
+      </template>
+      <template #cell-categoryParent="{ item }">
+        {{ item.category?.categoryParent }}
+      </template>
+      <template #cell-categoryName="{ item }">
+        {{ item.category?.categoryName }}
+      </template>
+      <template #cell-minQuantity>10</template>
+      <template #actions="{ item }">
+        <button @click="editUser(item.id)"
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+          {{ $t('btn.edit') }}
+        </button>
+        <button @click="deleteUser(item.id)"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+          {{ $t('btn.del') }}
+        </button>
+      </template>
+    </DynamicTable>
+
+    <!-- 페이지 네비 -->
+    <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"></PageNav>
+  </div>
 </template>
 
 <script setup>
+import apiClient from '@/api';
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
-import { ref } from 'vue';
+import { ref , watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n'
+import { userStore } from '@/states/user';
+const isAdmin = userStore().isAdmin;
 
-const searchResult = ref(null);
+const { t, locale } = useI18n()
+const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
+
+const router = useRouter();
+
 const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(20); // 총 페이지 수 상태 관리
-const currentUserRole = ref('admin'); // 현재 유저 권한
+const totalPages = ref(0); // 총 페이지 수 상태 관리
+const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+
+const selectedUserIds = ref([]); // 선택된 항목 ID
+
+const searchQuery = ref(''); // 검색어
+// const selectOption = ref(''); // 검색 옵션
+
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
-  console.log('검색 데이터:', searchData);
-  // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
-  searchResult.value = searchData;
+  searchQuery.value = searchData.searchQuery;
+  pageSize.value = searchData.size;
+  currentPage.value = 1;
+  fetchData();
 };
-
+// 검색 필터 목록
 const handleSelectOption = ref([
   { value: "", label: "전체" },
-  { value: "important", label: "중요" },
-  { value: "recent", label: "최근" },
+  // { value: 'TITLE', label: '제목' },
+  // { value: 'CONTENT', label: '내용' },
 ]);
-
+// 액션 버튼 정의
 const actionButtons = ref([
   {
-    label: "추가",
+    label: t('btn.add'),
     color: "bg-orange-500 hover:bg-orange-700",
-    action: (item) => console.log("추가:", item),
-    allowedRoles: ["admin", "editor"] // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
-  },
-  {
-    label: "일괄제거",
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: (item) => console.log("삭제:", item),
+    action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
+  {
+    label: t('btn.del'),
+    color: "bg-gray-500 hover:bg-gray-700",
+    action: () => deleteItems(selectedUserIds.value.length),
+    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
+  }
 ]);
 
 // ------- 테이블 --------
 const userColumns = ref([
-  { label: '순번', key: 'id' },
-  { label: '분야', key: 'categroy' },
-  { label: '분류', key: 'categroy2' },
+  { label: '번호', key: 'productId' },
+  { label: '분야', key: 'categoryParent' },
+  { label: '분류', key: 'categoryName' },
   { label: '제품명', key: 'productName' },
-  { label: '최소수량', key: 'minQuantity' },
-  { label: '재고량', key: 'inven' },
+  { label: '최소단위', key: 'minQuantity' },
+  { label: '재고량', key: 'productQuantity' },
 ]);
 
 const users = ref([
@@ -98,11 +121,78 @@ const deleteUser = (user) => {
   console.log('삭제:', user);
 };
 
+// 데이터 가져오는 함수
+const fetchData = async () => {
+    // 기본 요청 파라미터
+    const params = {
+        page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
+        size: pageSize.value,
+    };
+
+    if (searchQuery.value) {
+        params.title = searchQuery.value;
+    }
+
+    try {
+        const response = await apiClient.get("/product/", { params });
+        if (response.status === 200) {
+            console.log(response.data.data);
+            users.value = response.data.data.content; // 응답 데이터 할당
+            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+        } else {
+            alert(t('errors.fetch_data_failed'));
+        }
+    } catch (err) {
+        console.error(t('errors.fetch_data_erro'), err);
+    }
+};
+
+// 선택한 행에 대한 정보 처리
+const handleRowClick = (item) => {
+  console.log(item.productId);
+};
+
+// 컴포넌트가 마운트될 때 데이터 가져오기
+onMounted(() => {
+    fetchData();
+});
+
 // ------- 페이지네이션 --------
 const handleSetPage = (page) => {
-  console.log('페이지 변경 요청:', page);
   currentPage.value = page;
-  // 여기서 해당 페이지의 데이터를 불러오는 로직 등을 수행해야 합니다.
+  fetchData();
 };
+
+// ------ 기타 -------
+
+// 체크박스 선택된 항목 처리
+const handleSelectedItems = (selectedIds) => {
+  selectedUserIds.value = selectedIds;
+  console.log('선택된 아이템 ID:', selectedUserIds.value);
+  // selectedUserIds.value.length
+};
+
+// 게시글 삭제
+const deleteItems = async (selectedItemLength) => {
+  // try {
+  //   await apiClient.delete(`/notice/${noticeId}`);
+  //   alert("삭제 됐습니다.");
+  //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
+  //   router.push("/notices/");
+  // } catch (error) {
+  //   alert(error.response.data.message);
+  // }
+  if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")){
+    alert('미구현!')
+  }
+};
+
+// 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
+watch(selectedLang, (newLang) =>{
+    const langCode = newLang === 'KOR' ? 'ko' : 'en'
+    locale.value = langCode
+    localStorage.setItem('selectedLang', langCode)
+})
+
 
 </script>

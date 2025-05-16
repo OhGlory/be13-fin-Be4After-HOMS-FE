@@ -8,7 +8,6 @@ import BaseLayout from "@/components/common/BaseLayout.vue";
 import AdminOrders from "@/pages/admin/order/Order.vue";
 import Setting from "@/pages/common/Setting.vue";
 import Claims from "@/pages/admin/order/Claim.vue";
-import AdminProducts from "@/pages/admin/product/Products.vue";
 import Categories from "@/pages/admin/product/Categories.vue";
 import AdminSettlements from "@/pages/admin/settlement/settlements.vue";
 import Clients from "@/pages/admin/clients/Clients.vue";
@@ -89,12 +88,12 @@ const router = createRouter({
           component: Contracts,
           meta: {requiresAuth: true, role: "admin"},
         },
-        {
-          path: "products",
-          name: "AdminProducts",
-          component: AdminProducts,
-          meta: {requiresAuth: true, role: "admin"},
-        },
+        // {
+        //   path: "products",
+        //   name: "AdminProducts",
+        //   component: AdminProducts,
+        //   meta: {requiresAuth: true, role: "admin"},
+        // },
         {
           path: "categories",
           name: "Categories",

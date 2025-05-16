@@ -24,16 +24,18 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class=" hover:bg-gray-100">
+                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer"
+                                @click="$emit('row-click', item)">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <input type="checkbox" v-model="selectedItems" :value="item.id"
                                         @change="emitSelectedItems" />
                                 </td>
-                                <td v-for="column in columns" :key="column.key" @click="ditailPage(item.id)"
+                                <td v-for="column in columns" :key="column.key"
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
-                                <td v-if="$slots.actions" class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
+                                <td v-if="$slots.actions"
+                                    class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
                                     <slot name="actions" :item="item"></slot>
                                 </td>
                             </tr>
@@ -47,11 +49,8 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
-const route = useRoute();
-const router = useRouter();
-const emit = defineEmits(['selected']);
+const emit = defineEmits(['selected', 'row-click']);
 
 const selectedItems = ref([]);
 const allSelected = ref(false);
@@ -84,9 +83,9 @@ const props = defineProps({
 });
 
 // 상세 페이지 이동
-const ditailPage = (item) => {
-  router.push({ name: route.name+'Detail', params: { id: item } });
-};
+// const ditailPage = (item) => {
+//   router.push({ name: route.name+'Detail', params: { id: item } });
+// };
 
 // 전체 선택/해제 기능
 const toggleAll = () => {

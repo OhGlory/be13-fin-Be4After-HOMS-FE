@@ -84,7 +84,7 @@ const menuItems = ref<MenuItem[]>([
     icon: 2,
     open: false,
     children: [
-      { name: '상품 목록', path: getPath('/products') },          // 관리자O, 사용자O
+      { name: '상품 목록', path: '/products' },          // 관리자O, 사용자O
       { name: '카테고리 관리', path: getPath('/categories'), adminOnly: true },     // 관리자O, 사용자 X
     ],
   },
@@ -98,7 +98,7 @@ const menuItems = ref<MenuItem[]>([
     title: '공지사항',
     icon: 4,
     open: false,
-    children: [{ name: '공지 사항', path: ('/notices') }],    // 관리자O, 사용자O
+    children: [{ name: '공지 사항', path: '/notices' }],    // 관리자O, 사용자O
   },
   {
     title: '거래처 관리',
