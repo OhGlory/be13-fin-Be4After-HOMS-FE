@@ -13,7 +13,8 @@
                                 </th>
 
                                 <th v-for="column in columns" :key="column.key"
-                                    class="px-6 py-3 text-center text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200">
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200"
+                                    :class="columnClasses[column.key] || 'text-center' ">
                                     {{ column.label }}
                                 </th>
                                 <th v-if="$slots.actions"
@@ -30,7 +31,8 @@
                                         @change="emitSelectedItems" />
                                 </td>
                                 <td v-for="column in columns" :key="column.key" @click="ditailPage(item.id)"
-                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
+                                    :class="columnClasses[column.key] || 'text-center' ">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
                                 <td v-if="$slots.actions" class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
@@ -81,6 +83,10 @@ const props = defineProps({
     type: String,
     // 상세 페이지 URL
   },
+  columnClasses: {
+    type: Object,
+    default: () => ({}),
+  }
 });
 
 // 상세 페이지 이동

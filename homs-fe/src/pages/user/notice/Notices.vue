@@ -8,7 +8,11 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"
+        :column-classes="{
+          title: 'text-start font-semibold text-gray-700',
+          createdAt: 'text-start text-sm text-gray-500',
+          id: 'text-start'}">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -31,6 +35,8 @@ import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
+import { userStore } from '@/states/user';
+const userAuth = userStore();
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
@@ -158,6 +164,7 @@ const deleteItems = async (selectedItemLength) => {
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
     fetchData();
+    console.log(userAuth);
 });
 
 </script>

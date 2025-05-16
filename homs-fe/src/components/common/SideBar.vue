@@ -36,7 +36,7 @@
   <script setup lang="ts">
   import { ref, computed } from 'vue'
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-  import { useUserStore } from '@/states/user'
+  import { userStore } from '@/states/user'
   import logo from '@/assets/homsLogo.png'
 
     // 메뉴 아이템 타입 정의
@@ -55,8 +55,8 @@
 
 
   // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-  const userStore = useUserStore()
-  const isAdmin = computed(() => userStore.isAdmin)
+  const userAuth = userStore()
+  const isAdmin = computed(() => userAuth.isAdmin)
 
   const getPath = (basePath: string, adminOnly?: boolean): string => {
   if (isAdmin.value) {
@@ -90,13 +90,13 @@
       title: '정산 관리',
       icon: 3,
       open: false,
-      children: [{ name: '정산 현황', path: getPath('/settlements') }], // 관리자O, 사용자O
+      children: [{ name: '정산 현황', path: '/settlements' }], // 관리자O, 사용자O
     },
     {
       title: '공지사항',
       icon: 4,
       open: false,
-      children: [{ name: '공지 사항', path: getPath('/notices') }],    // 관리자O, 사용자O
+      children: [{ name: '공지 사항', path: '/notices' }],    // 관리자O, 사용자O
     },
     {
       title: '거래처 관리',

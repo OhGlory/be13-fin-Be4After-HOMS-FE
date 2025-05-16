@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useUserStore } from '@/states/user' // 유저 스토어
+import { userStore } from '@/states/user' // 유저 스토어
 import { storeToRefs } from 'pinia'
 
 import AdminDashBoard from '@/pages/admin/dashboard/AdminDashBoard.vue'
@@ -10,13 +10,10 @@ import Setting from '@/pages/common/Setting.vue'
 import Claims from '@/pages/admin/order/Claim.vue'
 import AdminProducts from '@/pages/admin/product/Products.vue'
 import Categories from '@/pages/admin/product/Categories.vue'
-import AdminSettlements from '@/pages/admin/settlement/settlements.vue'
-import AdminNotices from '@/pages/admin/notice/Notices.vue'
 import Clients from '@/pages/admin/clients/Clients.vue'
 import Contracts from '@/pages/admin/clients/Contracts.vue'
 import MenuSettings from '@/pages/admin/menu/MenuSettings.vue'
 import Login from '@/pages/common/login/Login.vue'
-
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -24,7 +21,7 @@ import Accounts from "@/pages/user/account/Account.vue";
 import Products from "@/pages/user/product/Products.vue";
 import Orders from "@/pages/user/order/Order.vue";
 import Deliverys from "@/pages/user/delivery/Delivery.vue";
-import Settlements from "@/pages/user/settlement/Settlements.vue";
+import Settlements from "@/pages/admin/settlement/Settlements.vue";
 import Notices from "@/pages/user/notice/Notices.vue";
 import NoticesDetail from "@/pages/user/notice/NoticesDetail.vue";
 import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
@@ -103,12 +100,7 @@ const router = createRouter({
           component: Categories,
           meta: { requiresAuth: true, role: 'admin' },
         },
-        {
-          path: "settlements",
-          name: "AdminSettlements",
-          component: AdminSettlements,
-          meta: { requiresAuth: true, role: 'admin' },
-        },
+
         {
           path: "notices/form",
           name: "AdminNoticesFrom",
@@ -169,7 +161,6 @@ const router = createRouter({
           path: "notices",
           name: "UserNotices",
           component: Notices,
-          meta: { requiresAuth: true, role: 'user' },
         },
         {
           path: "notices/:id",
@@ -192,8 +183,8 @@ const router = createRouter({
 
 // 로그인 상태 관리 (권한)
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-  const { role } = storeToRefs(userStore)
+  const userAuth = userStore()
+  const { role } = storeToRefs(userAuth)
 
   const requiresAuth = to.meta.requiresAuth
   const allowedRole = to.meta.role as 'admin' | 'user' | undefined
