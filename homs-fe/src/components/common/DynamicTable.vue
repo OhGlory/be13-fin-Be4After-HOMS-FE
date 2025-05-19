@@ -24,9 +24,9 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer">
+                            <tr v-for="item in items" :key="item[uniqueKey]" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                                    <input type="checkbox" v-model="selectedItems" :value="item.id"
+                                    <input type="checkbox" v-model="selectedItems" :value="item[uniqueKey]"
                                         @change="emitSelectedItems" />
                                 </td>
                                 <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
@@ -79,12 +79,17 @@ const props = defineProps({
     type: String,
     // 상세 페이지 URL
   },
+  uniqueKey: {
+    type: String,
+    default: 'id', // 기본값으로 'id' 설정
+    // 테이블에서 사용될 기본키 이름 설정
+  },
 });
 
 // 전체 선택/해제 기능
 const toggleAll = () => {
     if (allSelected.value) {
-        selectedItems.value = props.items.map(item => item.id);
+        selectedItems.value = props.items.map(item => item[props.uniqueKey]);
     } else {
         selectedItems.value = [];
     }

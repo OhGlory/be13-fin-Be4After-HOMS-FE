@@ -9,7 +9,7 @@
       :userRole="isAdmin" />
     <!-- 테이블 -->
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"
-      @row-click="handleRowClick">
+      @row-click="handleRowClick" uniqueKey="productId">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -24,15 +24,37 @@
         {{ item.category?.productCategory }}
       </template>
       <template #cell-minQuantity>10</template>
+      <template #cell-productQuantity="{ item }">
+        <div v-if="item && item.productQuantity === null">
+          데이터 없음
+        </div>
+        <div v-else-if="item && item.productQuantity !== undefined">
+          {{ item.productQuantity }}
+        </div>
+        <div v-else>
+          데이터 오류
+        </div>
+      </template>
       <template #actions="{ item }">
-        <button @click="editBtn(item.productId)"
-          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-          {{ $t('btn.edit') }}
-        </button>
-        <button @click="deleteBtn(item.productId)"
-          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-          {{ $t('btn.del') }}
-        </button>
+        <div v-if="isAdmin">
+          <button @click="editBtn(item.productId)"
+            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+            {{ $t('btn.edit') }}
+          </button>
+          <button @click="deleteBtn(item.productId)"
+            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+            {{ $t('btn.del') }}
+          </button>
+        </div>
+        <div v-else>
+          <input type="number"
+            class="rounded mr-2 border-1 border-gray-300 w-24 focus:border-orange-500 focus:outline-none" min="1"
+            max="9999" @mousedown.stop>
+          <button @click="editBtn(item.productId)"
+            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+            발주 추가
+          </button>
+        </div>
       </template>
     </DynamicTable>
 
@@ -70,36 +92,50 @@ const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 const selectedUserIds = ref([]); // 선택된 항목 ID
 
 const searchQuery = ref(''); // 검색어
-// const selectOption = ref(''); // 검색 옵션
-
+const selectOption = ref(''); // 검색 옵션
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
   searchQuery.value = searchData.searchQuery;
+  selectOption.value = searchData.selectOption;
   pageSize.value = searchData.size;
   currentPage.value = 1;
   fetchData();
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-  { value: "", label: "전체" },
-  // { value: 'TITLE', label: '제목' },
-  // { value: 'CONTENT', label: '내용' },
+  { value: "productName", label: "제품명" },
+  { value: 'productDomain', label: '분야' },
+  { value: 'productCategory', label: '분류' },
 ]);
 // 액션 버튼 정의
 const actionButtons = ref([
+  // 이 버튼은 'admin'만 볼 수 있음
   {
     label: t('btn.add'),
     color: "bg-orange-500 hover:bg-orange-700",
     action: () => router.push({name:"ProductForm"}),
-    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
+    allowedRoles: ["admin"] 
   },
   {
     label: t('btn.del'),
     color: "bg-gray-500 hover:bg-gray-700",
     action: () => deleteItems(selectedUserIds.value.length),
-    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
-  }
+    allowedRoles: ["admin"]
+  },
+  // 이 버튼은 'user'만 볼 수 있음
+  {
+    label: "일괄추가",
+    color: "bg-orange-500 hover:bg-orange-700",
+    action: () => router.push({name:"ProductForm"}),
+    allowedRoles: ["user"]
+  },
+  {
+    label: "발주목록",
+    color: "bg-gray-500 hover:bg-gray-700",
+    action: () => router.push({name:"ProductForm"}),
+    allowedRoles: ["user"]
+  },
 ]);
 
 // ------- 테이블 --------
@@ -149,8 +185,9 @@ const fetchData = async () => {
         size: pageSize.value,
     };
 
-    if (searchQuery.value) {
-        params.title = searchQuery.value;
+    if (searchQuery.value && selectOption.value) {
+        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
+        params[selectOption.value] = searchQuery.value; 
     }
 
     try {
