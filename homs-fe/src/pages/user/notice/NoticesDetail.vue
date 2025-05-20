@@ -10,6 +10,9 @@
         <p class="text-gray-500 text-sm">{{ new Date(notice.createdAt).toLocaleDateString() }}</p>
       </div>
       <hr class="my-2" />
+      <div v-if="notice.imagePath" class="mt-6">
+        <img :src="imagePath" alt="Notice Image" class="max-w-full rounded-md" />
+      </div>
       <p class="text-gray-700">{{ notice.content }}</p>
       <hr class="my-6" />
       <div class="flex items-center justify-end">
@@ -46,6 +49,10 @@ const notice = ref({});
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
+// 이미지 관련
+const basePath = import.meta.env.VITE_API_URL;
+const imagePath = ref('');
+
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
     const langCode = newLang === 'KOR' ? 'ko' : 'en'
@@ -62,9 +69,8 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get(`/notice/${noticeId}`);
         if (response.status === 200) {
-            console.log(response.data.data);
             notice.value = response.data.data; // 응답 데이터 할당
-
+            imagePath.value = basePath+`/files/view?key=${notice.value.imagePath}`
         } else {
             alert(t('errors.fetch_data_failed'));
         }
@@ -75,17 +81,13 @@ const fetchData = async () => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
-    fetchData();
+  fetchData();
 });
 
 const goToEditPage = (notice) => {
   router.push({
     name: "AdminNoticesFrom",
-    query: {
-      noticesId: notice.id,
-      title: notice.title,
-      content: notice.content,
-    },
+    query: { noticesId: notice.id },
   });
 };
 
@@ -99,6 +101,12 @@ const confirmDelete = (noticeId) => {
 // 게시글 삭제
 const deletePostData = async (noticeId) => {
   try {
+    // 이미지가 있다면 먼저 제거
+    if (notice.value.imagePath){
+      const response = await apiClient.delete(`/files/delete?key=${notice.value.imagePath}`);
+      console.log(response.data);
+    }
+
     await apiClient.delete(`/notice/${noticeId}`);
     router.push("/notices/");
   } catch (error) {
