@@ -27,6 +27,3 @@ const userAuth = userStore()
 userAuth.setRole('admin')
 
 app.mount('#app')
-
-
-app.mount("#app");
