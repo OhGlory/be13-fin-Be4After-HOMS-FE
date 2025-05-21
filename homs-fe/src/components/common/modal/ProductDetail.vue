@@ -11,11 +11,11 @@
                         제품 상세 정보
                     </p>
                     <div class="ml-auto">
-                        <button @click=" goToEditPage(notice)"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                        <button v-if="productFiles?.s3Msds" @click="downloadFile(productFiles.s3Msds)"
+                            class=" bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                             MSDS
                         </button>
-                        <button @click=" goToEditPage(notice)"
+                        <button v-if="productFiles?.s3Tds1" @click="downloadFile(productFiles.s3Tds1)"
                             class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                             TDS
                         </button>
@@ -23,9 +23,9 @@
                 </div>
 
                 <div class="mb-8 flex">
-                    <img v-if="productDetail?.imageUrl" :src="productDetail.imageUrl"
-                        :alt="productDetail.productName || '제품 이미지'"
-                        class="w-full max-h-96 object-contain rounded-md shadow-md" />
+                    <img v-if="productFiles?.s3Image" :src="productFiles.s3Image"
+                        :alt="productFiles.s3Image || '제품 이미지'"
+                        class="w-full h-48 object-contain rounded-md shadow-md" />
                     <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-md shadow-md">
                         <span class="text-gray-500">이미지 없음</span>
                     </div>
@@ -92,6 +92,8 @@ function onClose() {
 }
 
 const productDetail = ref(null);
+const productFiles = ref(null);
+const basePath = import.meta.env.VITE_API_URL;
 
 // 데이터 가져오는 함수
 const fetchData = async (productId) => {
@@ -106,6 +108,23 @@ const fetchData = async (productId) => {
     } catch (err) {
         console.error(t('errors.fetch_data_error'), err);
     }
+
+    try {
+        const response = await apiClient.get(`/product/files/${productId}`);
+        if (response.status === 200) {
+            console.log(response.data.data);
+            productFiles.value = response.data.data;
+
+            if(productFiles.value.s3Image){
+                productFiles.value.s3Image = basePath+`/files/view?key=${productFiles.value.s3Image}`
+            }
+        } else {
+            alert(t('errors.fetch_data_failed'));
+        }
+    } catch (err) {
+        console.error(t('errors.fetch_data_error'), err);
+        productFiles.value = null;
+    }
 };
 
 // 모달이 열릴 때 감지해서 데이터 로딩
@@ -116,6 +135,23 @@ watch(() => props.visible, (newVisible) => {
         productDetail.value = null;
     }
 });
+
+// 파일 다운로드
+const downloadFile = (fileKey) => {
+    if (!fileKey) {
+        alert("다운로드할 파일이 없습니다.");
+        return;
+    }
+
+    // 백엔드 다운로드 API의 전체 URL을 구성합니다.
+    // 'fileKey'는 MSDS나 TDS 파일의 S3 키(예: "msds/example.pdf")가 될 것입니다.
+    // 백엔드 API가 /api/download?key={fileKey} 이런 형태라고 가정합니다.
+    const downloadUrl = basePath+`/files/download?key=${(fileKey)}`;
+    
+    // 새 탭에서 열어 다운로드 시작
+    // 대부분의 경우 브라우저가 자동으로 다운로드를 처리합니다.
+    window.open(downloadUrl, '_blank');
+};
 
 onMounted(() => {
     if (props.visible && props.product.id) {
