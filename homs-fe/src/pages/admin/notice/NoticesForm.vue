@@ -73,7 +73,7 @@ const notice = ref({});
 const title = ref("");
 const content = ref("");
 const isEditMode = ref(route.query.noticesId);
-const basePath = import.meta.env.VITE_API_URL;
+
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
@@ -88,6 +88,7 @@ const imageUrl = ref('');
 const uploadProgress = ref(0);
 const uploadError = ref(false);
 const uploadErrorMessage = ref('');
+const basePath = import.meta.env.VITE_API_URL;
 
 // 이미지 미리보기
 const handleImageChange = (event) => {
