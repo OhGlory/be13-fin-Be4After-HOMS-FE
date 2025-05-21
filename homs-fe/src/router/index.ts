@@ -8,7 +8,7 @@ import BaseLayout from '@/components/common/BaseLayout.vue'
 import AdminOrders from '@/pages/admin/order/Order.vue'
 import Setting from '@/pages/common/Setting.vue'
 import Claims from '@/pages/admin/order/Claim.vue'
-import AdminProducts from '@/pages/admin/product/Products.vue'
+import ProductForm from '@/pages/admin/product/ProductForm.vue'
 import Categories from '@/pages/admin/product/Categories.vue'
 import Clients from '@/pages/admin/clients/Clients.vue'
 import Contracts from '@/pages/admin/clients/Contracts.vue'
@@ -136,7 +136,7 @@ const router = createRouter({
           path: "products",
           name: "UserProducts",
           component: Products,
-          meta: {requiresAuth: true, role: "user"},
+          // meta: {requiresAuth: true, role: "user"},
         },
         {
           path: "orders",

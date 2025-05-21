@@ -7,18 +7,38 @@
         <div class="p-6 bg-white rounded-md shadow-md">
             <h4 class="text-xl font-bold mb-4">{{ isEditMode ? $t('btn.edit') : $t('btn.create') }}</h4>
             <form @submit.prevent="submitForm">
+                <!-- 제목 -->
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700">{{ $t('data.title') }}</label>
                     <input type="text" id="title" :placeholder="$t('placeholder.title_input')" v-model="title"
                         class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
-
+                <!-- 내용 -->
                 <div class="mb-4 my-4">
                     <label for="content" class="block text-sm font-medium text-gray-700">{{ $t('data.content')
                     }}</label>
                     <textarea id="content" :placeholder="$t('placeholder.content_input')" v-model="content"
                         class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[25rem]"></textarea>
                 </div>
+                <!-- 이미지 업로드 -->
+                <div class="mb-4">
+                    <label for="image" class="block text-sm font-medium text-gray-700">이미지 업로드</label>
+                    <input type="file" id="image" @change="handleImageChange" accept="image/*"
+                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                    <div v-if="imageUrl" class="mt-2">
+                        <img :src="imageUrl" alt="Uploaded Image" class="max-h-48 rounded-md" />
+                    </div>
+                    <!-- 업로드 진행바 -->
+                    <div v-if="uploadProgress > 0" class="mt-2">
+                        {{ $t('message.uploading') }}: {{ uploadProgress }}%
+                        <progress :value="uploadProgress" max="100" class="w-full"></progress>
+                    </div>
+                    <!-- 업로드 실패 메세지 -->
+                    <div v-if="uploadError" class="mt-2 text-red-500">
+                        {{ $t('message.upload_failed') }}: {{ uploadErrorMessage }}
+                    </div>
+                </div>
+                <!-- 하단 버튼 -->
                 <div class="flex items-center justify-end">
                     <button type="submit"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
@@ -29,6 +49,7 @@
                         {{ $t('btn.cancel') }}
                     </button>
                 </div>
+
             </form>
         </div>
     </div>
@@ -48,9 +69,11 @@ const route = useRoute();
 const router = useRouter();
 
 const noticesId = Number(route.query.noticesId || "");
-const title = ref(route.query.title || "");
-const content = ref(route.query.content || "");
-const isEditMode = ref(!!route.query.title);
+const notice = ref({}); 
+const title = ref("");
+const content = ref("");
+const isEditMode = ref(route.query.noticesId);
+
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
@@ -59,12 +82,70 @@ watch(selectedLang, (newLang) =>{
     localStorage.setItem('selectedLang', langCode)
 })
 
+// 이미지 업로드 관련 상태
+const selectedImage = ref(null);
+const imageUrl = ref('');
+const uploadProgress = ref(0);
+const uploadError = ref(false);
+const uploadErrorMessage = ref('');
+const basePath = import.meta.env.VITE_API_URL;
+
+// 이미지 미리보기
+const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    selectedImage.value = file;
+        if (file) {
+    imageUrl.value = URL.createObjectURL(file); // 미리보기 URL 생성
+        } else {
+    imageUrl.value = '';
+    }
+};
+
+// 저장
 const submitForm = async () => {
     const params = {
         title: title.value,
         content: content.value,
     };
 
+    // 이미지 업로드
+    try{
+        if (selectedImage.value) {
+            // 만약에 수정모드면 원본 이미지 제거
+            if (isEditMode.value){
+                const response = await apiClient.delete(`/files/delete?key=${notice.value.imagePath}`);
+                console.log(response.data);
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedImage.value);
+            formData.append('key', `notices/${Date.now()}_${selectedImage.value.name}`);
+
+            const response = await apiClient.post(`/files/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            // 업로드 진행바 계산
+            onUploadProgress: (progressEvent) => {
+                uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            },
+            });
+            
+            if (response.status === 200) {
+                // 성공하면 파일의 경로를 저장
+                params.imagePath = response.data;
+            }
+        }
+    } catch(error){
+        uploadError.value = true;
+        uploadErrorMessage.value = `${t('message.image_upload_error')}: ${error.message}`;
+        console.error('이미지 업로드 오류:', error);
+    } finally {
+        selectedImage.value = null; // 업로드 후 파일 선택 초기화 (선택 사항)
+        uploadProgress.value = 0;
+    }
+    
+    // 게시글 내용 저장
     try {
         if (isEditMode.value) {
             await apiClient.put(`/notice/${noticesId}`, params);
@@ -79,6 +160,26 @@ const submitForm = async () => {
         alert(error.response?.data.message || "알 수 없는 오류 발생");
     }
 };
+
+// 데이터 가져오는 함수
+const fetchData = async () => {
+    if(isEditMode.value){
+        const response = await apiClient.get(`/notice/${isEditMode.value}`);
+        if (response.status === 200) {
+            notice.value = response.data.data;
+            title.value = notice.value.title;
+            content.value = notice.value.content;
+            imageUrl.value = basePath+`/files/view?key=${notice.value.imagePath}`
+        } else {
+            alert(t('errors.fetch_data_failed'));
+        }
+    }
+};
+
+// 컴포넌트가 마운트될 때 데이터 가져오기
+onMounted(() => {
+    fetchData();
+});
 
 const goBack = () => {
     router.go(-1);

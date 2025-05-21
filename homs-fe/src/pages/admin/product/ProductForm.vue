@@ -10,20 +10,20 @@
                 <div class="flex gap-10">
                     <!-- 이미지 -->
                     <div class="mb-4 my-4 w-60">
-                        <img v-if="productDetail?.imageUrl" :src="productDetail.imageUrl"
-                            :alt="productDetail.productName || '제품 이미지'"
+                        <img v-if="imageUrl" :src="imageUrl" alt="제품 이미지"
                             class="w-full max-h-96 object-contain rounded-md shadow-md" />
                         <div v-else
                             class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-md shadow-md">
                             <span class="text-gray-500">이미지 없음</span>
                         </div>
                         <div class="mt-10 flex justify-center">
-                            <button @click="onSave"
-                                class=" w-40 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold  hover:bg-orange-700 transition">
+                            <input type="file" id="imageInput" ref="imageInput"
+                                @change="handleFileChange('s3Image', $event)" accept="image/*" class="hidden" />
+                            <button @click="triggeFileInput(imageInput)" type="button"
+                                class=" w-40 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold  hover:bg-orange-700 transition cursor-pointer">
                                 업로드
                             </button>
                         </div>
-
                     </div>
                     <!-- 제품 정보 -->
                     <div>
@@ -74,22 +74,45 @@
                         </div>
                     </div>
                     <!-- 적용 용도 / 제품 특징 -->
-                    <div class="w-full">
-                        <div class=" mb-4">
+                    <div>
+                        <div class=" mb-2">
                             <label for="productUsage" class="block text-sm font-medium text-gray-700">적용 용도</label>
                             <textarea id="productUsage" :placeholder="$t('placeholder.content_input')"
                                 v-model="productUsage"
-                                class="w-[30rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
+                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
                         </div>
                         <div class="mb-4 my-4">
                             <label for="productFeature" class="block text-sm font-medium text-gray-700">제품 특징</label>
                             <textarea id="productFeature" :placeholder="$t('placeholder.content_input')"
                                 v-model="productFeature"
-                                class="w-[30rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
+                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
+                        </div>
+                    </div>
+                    <!-- 파일 업로드 -->
+                    <div>
+                        <div class="mb-4">
+                            <label for="msdsInput" class="block text-sm font-medium text-gray-700">MSDS</label>
+                            <input type="file" id="msdsInput" ref="msdsInput"
+                                @change="handleFileChange('s3Msds', $event)" accept="application/pdf" class="hidden" />
+                            <button @click="triggeFileInput(msdsInput)" type="button"
+                                class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                                파일 선택
+                            </button>
+                            <p v-if="selectedFiles.s3Msds">선택된 파일: {{ selectedFiles.s3Msds.name }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <label for="tds1Input" class="block text-sm font-medium text-gray-700">TDS</label>
+                            <input type="file" id="tds1Input" ref="tds1Input"
+                                @change="handleFileChange('s3Tds1', $event)" accept="application/pdf" class="hidden" />
+                            <button @click="triggeFileInput(tds1Input)" type="button"
+                                class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                                파일 선택
+                            </button>
+                            <p v-if="selectedFiles.s3Tds1">선택된 파일: {{ selectedFiles.s3Tds1.name }}</p>
                         </div>
                     </div>
                 </div>
-
+                <!-- 저장/취소 버튼 -->
                 <div class="flex items-center justify-end">
                     <button type="submit"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
@@ -100,6 +123,7 @@
                         {{ $t('btn.cancel') }}
                     </button>
                 </div>
+
             </form>
 
         </div>
@@ -120,12 +144,13 @@ const route = useRoute();
 const router = useRouter();
 
 // 수정용 데이터
-const productsId = Number("");
+const productsId = Number(route.query.productId || "");
 const productName = ref("");
 const productUsage = ref("");
 const productFeature = ref("");
 const minQuantity = ref("");
 const isEditMode = ref(route.query.productId);
+const productId = ref(null);
 
 // 데이터 속성 정의
 const categoryData = ref([]);
@@ -137,6 +162,21 @@ const selectedCategoryLevel2 = ref(null);
 const selectedCategoryLevel3 = ref(null);
 const selectedCategoryId = ref(null);
 
+// 이미지 업로드 관련 상태
+const imageUrl = ref('');
+const uploadProgress = ref(0);
+const uploadError = ref(false);
+const uploadErrorMessage = ref('');
+const basePath = import.meta.env.VITE_API_URL;
+const filePath = ref({});
+
+// 파일 선택 관련 상태
+const imageInput = ref(null);
+const msdsInput = ref(null);
+const tds1Input = ref(null);
+
+const selectedFiles = ref({}); // 모든 선택된 파일을 저장할 객체
+
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) =>{
     const langCode = newLang === 'KOR' ? 'ko' : 'en'
@@ -144,6 +184,29 @@ watch(selectedLang, (newLang) =>{
     localStorage.setItem('selectedLang', langCode)
 })
 
+const handleFileChange = (fileName, event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFiles.value[fileName] = file;
+  } else {
+    // 파일 선택 취소 시 해당 타입의 파일 제거
+    delete selectedFiles.value[fileName];
+  }
+  if(fileName === 's3Image'){
+    imageUrl.value = URL.createObjectURL(file);
+  }
+  event.target.value = ''; // input 초기화
+  console.log(selectedFiles.value);
+  console.log(file);
+  console.log(selectedFiles.value.s3Msds);
+};
+
+// "업로드" 버튼을 클릭했을 때 실행될 함수
+const triggeFileInput = (inputRef) => {
+    inputRef.click();
+};
+
+// 글 저장
 const submitForm = async () => {
 
     if(selectedCategoryLevel3.value){
@@ -167,17 +230,95 @@ const submitForm = async () => {
     try {
         if (isEditMode.value) {
             await apiClient.put(`/product/${productsId}`, params);
-            alert(t('messages.updated_successfully'));
-            router.push(`/products/`);
+            alert(t('messages.updated_successfully', { itemName: t('title.product') }));
+            // router.push(`/products/`);
         } else {
-            await apiClient.post("/product/", params);
+            const response = await apiClient.post("/product/", params);
             alert("상품이 추가되었습니다.");
-            router.push(`/products/`);
+            productId.value = response.data.data.productId;
+            console.log(productId);
+            // router.push(`/products/`);
         }
+        await fileUpload();
+
     } catch (error) {
         alert(error.response?.data.message || "알 수 없는 오류 발생");
     }
 };
+
+const fileUpload = async () => {
+    // 파일 업로드
+    try{
+        // 만약에 수정모드면 원본 이미지 제거
+        // if (isEditMode.value){
+        //     const response = await apiClient.delete(`/files/delete?key=${notice.value.imagePath}`);
+        //     console.log(response.data);
+        // }
+        console.log(selectedFiles.value);
+        console.log("체크111111111111111");
+
+        const formData = new FormData();
+        // s3Image 파일이 존재할 때만 formData에 추가
+        if (selectedFiles.value.s3Image) {
+            formData.append('s3Image', selectedFiles.value.s3Image);
+        }
+        // s3Msds 파일이 존재할 때만 formData에 추가
+        if (selectedFiles.value.s3Msds) {
+            formData.append("s3Msds", selectedFiles.value.s3Msds);
+        }
+        // s3Tds1 파일이 존재할 때만 formData에 추가
+        if (selectedFiles.value.s3Tds1) {
+            formData.append("s3Tds1", selectedFiles.value.s3Tds1);
+        }
+
+        console.log("체크2");
+
+        const response = await apiClient.post(`/files/upload-multiple/${productId.value}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        // 업로드 진행바 계산
+        onUploadProgress: (progressEvent) => {
+            uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        },
+        });
+        console.log("체크3");
+        
+        if (response.status === 200) {
+            // 성공하면 파일의 경로를 저장
+            console.log(response.data);
+            const params = {
+                productId: productId.value,
+                s3Image: response.data.s3Image,
+                s3Msds: response.data.s3Msds,
+                s3Tds1: response.data.s3Tds1,
+            }
+            console.log(params);
+            console.log("체크4");
+            try {
+                if (isEditMode.value) {
+                    await apiClient.put(`/product/files`, params);
+                    alert(t('messages.updated_successfully', { itemName: t('title.product') }));
+                    // router.push(`/products/`);
+                } else {
+                    await apiClient.post("/product/files", params);
+                    console.log(productId);
+                    router.push(`/products/`);
+                }
+            } catch (error) {
+                alert(error.response?.data.message || "알 수 없는 오류 발생");
+            }
+        }
+    } catch(error){
+        uploadError.value = true;
+        uploadErrorMessage.value = `${t('message.image_upload_error')}: ${error.message}`;
+        console.error('파일 업로드 오류:', error);
+    } finally {
+        // selectedImage.value = null; // 업로드 후 파일 선택 초기화 (선택 사항)
+        uploadProgress.value = 0;
+    }
+    console.log("체크4");
+}
 
 const goBack = () => {
     router.go(-1);
@@ -201,12 +342,12 @@ const fetchData = async () => {
     if(isEditMode.value){
         const response = await apiClient.get(`/product/${isEditMode.value}`);
         if (response.status === 200) {
-            console.log(response.data.data);
-            productName.value = response.data.data.productName;
-            productUsage.value = response.data.data.productUsage;
-            productFeature.value = response.data.data.productFeature;
+            const products = response.data.data;
+            productName.value = products.productName;
+            productUsage.value = products.productUsage;
+            productFeature.value = products.productFeature;
             minQuantity.value = 10;
-            selectedCategoryLevel1.value = response.data.data.category.categoryId;
+            selectedCategoryLevel1.value = products.category.categoryId;
             loadSecondLevelCategories();
             loadThirdLevelCategories();
         } else {

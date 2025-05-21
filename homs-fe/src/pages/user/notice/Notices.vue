@@ -8,7 +8,8 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"  
+    @row-click="handleRowClick"
         :column-classes="{
           title: 'text-start font-semibold text-gray-700',
           createdAt: 'text-start text-sm text-gray-500',
@@ -37,6 +38,7 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 import { userStore } from '@/states/user';
 const userAuth = userStore();
+const isAdmin = userStore().isAdmin;
 
 
 const { t, locale } = useI18n()
