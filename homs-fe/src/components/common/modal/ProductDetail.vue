@@ -109,6 +109,7 @@ const fetchData = async (productId) => {
         console.error(t('errors.fetch_data_error'), err);
     }
 
+    // 파일 데이터 가져오기
     try {
         const response = await apiClient.get(`/product/files/${productId}`);
         if (response.status === 200) {
@@ -122,7 +123,8 @@ const fetchData = async (productId) => {
             alert(t('errors.fetch_data_failed'));
         }
     } catch (err) {
-        console.error(t('errors.fetch_data_error'), err);
+        // console.error(t('errors.fetch_data_error'), err);
+        console.log("파일 데이터 없음");
         productFiles.value = null;
     }
 };
@@ -144,8 +146,6 @@ const downloadFile = (fileKey) => {
     }
 
     // 백엔드 다운로드 API의 전체 URL을 구성합니다.
-    // 'fileKey'는 MSDS나 TDS 파일의 S3 키(예: "msds/example.pdf")가 될 것입니다.
-    // 백엔드 API가 /api/download?key={fileKey} 이런 형태라고 가정합니다.
     const downloadUrl = basePath+`/files/download?key=${(fileKey)}`;
     
     // 새 탭에서 열어 다운로드 시작

@@ -144,13 +144,15 @@ const route = useRoute();
 const router = useRouter();
 
 // 수정용 데이터
-const productsId = Number(route.query.productId || "");
+const productsId = ref(route.query.productId || "");
 const productName = ref("");
 const productUsage = ref("");
 const productFeature = ref("");
 const minQuantity = ref("");
 const isEditMode = ref(route.query.productId);
-const productId = ref(null);
+const orginImage = ref("");
+const orginMsds = ref("");
+const orginTds1 = ref("");
 
 // 데이터 속성 정의
 const categoryData = ref([]);
@@ -167,8 +169,6 @@ const imageUrl = ref('');
 const uploadProgress = ref(0);
 const uploadError = ref(false);
 const uploadErrorMessage = ref('');
-const basePath = import.meta.env.VITE_API_URL;
-const filePath = ref({});
 
 // 파일 선택 관련 상태
 const imageInput = ref(null);
@@ -194,6 +194,7 @@ const handleFileChange = (fileName, event) => {
   }
   if(fileName === 's3Image'){
     imageUrl.value = URL.createObjectURL(file);
+    console.log(imageUrl.value);
   }
   event.target.value = ''; // input 초기화
   console.log(selectedFiles.value);
@@ -228,34 +229,47 @@ const submitForm = async () => {
     };
 
     try {
-        if (isEditMode.value) {
-            await apiClient.put(`/product/${productsId}`, params);
-            alert(t('messages.updated_successfully', { itemName: t('title.product') }));
-            // router.push(`/products/`);
+        if (isEditMode.value) { // 수정모드라면
+            await apiClient.put(`/product/${productsId.value}`, params);
         } else {
             const response = await apiClient.post("/product/", params);
-            alert("상품이 추가되었습니다.");
-            productId.value = response.data.data.productId;
-            console.log(productId);
-            // router.push(`/products/`);
+            productsId.value = response.data.data.productId;
         }
-        await fileUpload();
+        
+        // 만약에 파일이 존재하면 파일 저장
+        if(selectedFiles.value.s3Image || selectedFiles.value.s3Msds || selectedFiles.value.s3Tds1){
+            await fileUpload();
+        } else{ // 없으면 그대로 돌려보냄
+            if(isEditMode.value){
+                alert(t('messages.updated_successfully', { itemName: t('title.product') }));
+                router.push(`/products/`);
+            } else{
+                alert("상품이 추가되었습니다.");
+                router.push(`/products/`);
+            }
+        }
 
     } catch (error) {
         alert(error.response?.data.message || "알 수 없는 오류 발생");
     }
 };
 
+// 파일 업로드
 const fileUpload = async () => {
     // 파일 업로드
     try{
-        // 만약에 수정모드면 원본 이미지 제거
-        // if (isEditMode.value){
-        //     const response = await apiClient.delete(`/files/delete?key=${notice.value.imagePath}`);
-        //     console.log(response.data);
-        // }
-        console.log(selectedFiles.value);
-        console.log("체크111111111111111");
+        // 만약에 수정모드면 원본 파일 제거
+        if (isEditMode.value){
+            if (selectedFiles.value.s3Image) {
+                await apiClient.delete(`/files/delete?key=${orginImage.value}`);
+            }
+            if (selectedFiles.value.s3Msds) {
+                await apiClient.delete(`/files/delete?key=${orginMsds.value}`);
+            }
+            if (selectedFiles.value.s3Tds1) {
+                await apiClient.delete(`/files/delete?key=${orginTds1.value}`);
+            }
+        }
 
         const formData = new FormData();
         // s3Image 파일이 존재할 때만 formData에 추가
@@ -271,38 +285,32 @@ const fileUpload = async () => {
             formData.append("s3Tds1", selectedFiles.value.s3Tds1);
         }
 
-        console.log("체크2");
-
-        const response = await apiClient.post(`/files/upload-multiple/${productId.value}`, formData, {
+        const response = await apiClient.post(`/files/upload-multiple/${productsId.value}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-        // 업로드 진행바 계산
-        onUploadProgress: (progressEvent) => {
-            uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        },
+            // 업로드 진행바 계산
+            onUploadProgress: (progressEvent) => {
+                uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            },
         });
-        console.log("체크3");
         
         if (response.status === 200) {
             // 성공하면 파일의 경로를 저장
-            console.log(response.data);
             const params = {
-                productId: productId.value,
+                productId: productsId.value,
                 s3Image: response.data.s3Image,
                 s3Msds: response.data.s3Msds,
                 s3Tds1: response.data.s3Tds1,
             }
-            console.log(params);
-            console.log("체크4");
             try {
-                if (isEditMode.value) {
+                if (isEditMode.value) { // 상품 수정
                     await apiClient.put(`/product/files`, params);
                     alert(t('messages.updated_successfully', { itemName: t('title.product') }));
-                    // router.push(`/products/`);
-                } else {
+                    router.push(`/products/`);
+                } else { // 상품 등록
                     await apiClient.post("/product/files", params);
-                    console.log(productId);
+                    alert("상품이 추가되었습니다.");
                     router.push(`/products/`);
                 }
             } catch (error) {
@@ -317,7 +325,6 @@ const fileUpload = async () => {
         // selectedImage.value = null; // 업로드 후 파일 선택 초기화 (선택 사항)
         uploadProgress.value = 0;
     }
-    console.log("체크4");
 }
 
 const goBack = () => {
@@ -326,7 +333,7 @@ const goBack = () => {
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
-    try {
+    try { // 카테고리 데이터 가져오기
         const response = await apiClient.get("/productCategory/");
         if (response.status === 200) {
             console.log(response.data.data);
@@ -339,7 +346,7 @@ const fetchData = async () => {
         console.error(t('errors.fetch_data_erro'), err);
     }
 
-    if(isEditMode.value){
+    if(isEditMode.value){ // 수정 모드일 때 수정데이터 가져오기
         const response = await apiClient.get(`/product/${isEditMode.value}`);
         if (response.status === 200) {
             const products = response.data.data;
@@ -347,11 +354,31 @@ const fetchData = async () => {
             productUsage.value = products.productUsage;
             productFeature.value = products.productFeature;
             minQuantity.value = 10;
-            selectedCategoryLevel1.value = products.category.categoryId;
+            selectedCategoryLevel1.value = products.category.domainId;
+            selectedCategoryLevel2.value = products.category.categoryId;
+            if(products.category.processId){
+                selectedCategoryLevel3.value = products.category.processId;
+            }
             loadSecondLevelCategories();
             loadThirdLevelCategories();
         } else {
             alert(t('errors.fetch_data_failed'));
+        }
+
+        try{
+            const response = await apiClient.get(`/product/files/${productsId.value}`);
+            if(response.status === 200){
+                const basePath = import.meta.env.VITE_API_URL;
+                orginImage.value = response.data.data.s3Image;
+                orginMsds.value = response.data.data.s3Msds;
+                orginTds1.value = response.data.data.s3Tds1;
+
+                if(orginImage.value){
+                    imageUrl.value = basePath+`/files/view?key=${orginImage.value}`
+                }
+        } 
+        }catch{
+            console.log("불러올 파일이 없음");
         }
     }
 };
@@ -365,8 +392,6 @@ const loadSecondLevelCategories = () => {
     if (selectedTopLevelCategory && selectedTopLevelCategory.children) {
       secondLevelCategories.value = [...selectedTopLevelCategory.children].sort((a, b) => a.sortNo - b.sortNo);
       thirdLevelCategories.value = [];
-      selectedCategoryLevel2.value = null;
-      selectedCategoryLevel3.value = null;
     } else {
       secondLevelCategories.value = [];
       thirdLevelCategories.value = [];
@@ -389,7 +414,7 @@ const loadThirdLevelCategories = () => {
     );
     if (selectedSecondLevelCategory && selectedSecondLevelCategory.children) {
       thirdLevelCategories.value = [...selectedSecondLevelCategory.children].sort((a, b) => a.sortNo - b.sortNo);
-      selectedCategoryLevel3.value = null;
+    //   selectedCategoryLevel3.value = null;
     } else {
       thirdLevelCategories.value = [];
       selectedCategoryLevel3.value = null;
