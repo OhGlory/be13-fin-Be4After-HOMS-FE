@@ -38,12 +38,9 @@ import { useI18n } from 'vue-i18n'
 import { userStore } from '@/states/user';
 const userAuth = userStore();
 
+
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
-
-// 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-// ture 이면 admin | false이면 user
-const isAdmin = true;
 
 const router = useRouter();
 
@@ -129,6 +126,11 @@ const fetchData = async () => {
     } catch (err) {
         console.error(t('errors.fetch_data_erro'), err);
     }
+};
+
+// 선택한 행에 대한 정보 처리
+const handleRowClick = (item) => {
+  router.push({ name: 'UserNoticesDetail', params: { id: item.id } });
 };
 
 // ------- 페이지네이션 --------

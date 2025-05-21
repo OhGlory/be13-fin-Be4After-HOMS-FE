@@ -25,17 +25,17 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class=" hover:bg-gray-100">
+                            <tr v-for="item in items" :key="item[uniqueKey]" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                                    <input type="checkbox" v-model="selectedItems" :value="item.id"
+                                    <input type="checkbox" v-model="selectedItems" :value="item[uniqueKey]"
                                         @change="emitSelectedItems" />
                                 </td>
-                                <td v-for="column in columns" :key="column.key" @click="ditailPage(item.id)"
-                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
-                                    :class="columnClasses[column.key] || 'text-center' ">
+                                <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
-                                <td v-if="$slots.actions" class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
+                                <td v-if="$slots.actions"
+                                    class="px-6 py-4 flex justify-center border-b border-gray-200 whitespace-nowrap">
                                     <slot name="actions" :item="item"></slot>
                                 </td>
                             </tr>
@@ -48,12 +48,9 @@
 </template>
 
 <script setup>
-import { ref, watch,defineProps } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, watch } from 'vue';
 
-const route = useRoute();
-const router = useRouter();
-const emit = defineEmits(['selected']);
+const emit = defineEmits(['selected', 'row-click']);
 
 const selectedItems = ref([]);
 const allSelected = ref(false);
@@ -83,21 +80,17 @@ const props = defineProps({
     type: String,
     // 상세 페이지 URL
   },
-  columnClasses: {
-    type: Object,
-    default: () => ({}),
-  }
+  uniqueKey: {
+    type: String,
+    default: 'id', // 기본값으로 'id' 설정
+    // 테이블에서 사용될 기본키 이름 설정
+  },
 });
-
-// 상세 페이지 이동
-const ditailPage = (item) => {
-  router.push({ name: route.name+'Detail', params: { id: item } });
-};
 
 // 전체 선택/해제 기능
 const toggleAll = () => {
     if (allSelected.value) {
-        selectedItems.value = props.items.map(item => item.id);
+        selectedItems.value = props.items.map(item => item[props.uniqueKey]);
     } else {
         selectedItems.value = [];
     }
