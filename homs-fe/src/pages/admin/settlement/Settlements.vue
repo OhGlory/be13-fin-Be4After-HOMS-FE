@@ -26,19 +26,32 @@
                   {{ item.isSettled }}
               </span>
             </template>
-            <template #actions="{ item }">
-                <button @click="issuingTaxInvoices(item)"
-                    class=" bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
-                    발행
-                </button>
-            </template>
+              <template #actions="{ item }">
+                <div v-if="role === 'admin'">
+                  <button @click="issuingTaxInvoices(item)"
+                      class=" bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                      발행
+                  </button>
+                </div>
+                <div v-else-if="role === 'user'">
+                  <span class="text-gray-500">
+                    <button @click="checkTaxInvoice(item)"
+                      :disabled="item.isSettled === '미정산'"
+                      :class="[ 'font-bold py-2 px-4 rounded text-sm',
+                                 item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white'
+                        ]">
+                      확인
+                    </button>
+                </span>
+
+                </div>
+              </template>
         </DynamicTable>
         <!-- 페이지 네비 -->
         <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
 
-        <TaxInvoice :visible="showModal" @confirm="confirmModal" />
-
-
+        <TaxInvoice :visible="showTIModal" @confirm="confirmModal" />
+        <CheckTaxInvoice :visible="showCheckModal" @confirm="confirmCheckTaxInvoice" ></CheckTaxInvoice>
     </div>
 </template>
 
@@ -46,14 +59,23 @@
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
-import { ref } from 'vue';
 import TaxInvoice from '@/components/common/modal/TaxInvoice.vue';
+import CheckTaxInvoice from '@/components/common/modal/CheckTaxInvoice.vue';
+import { ref } from 'vue';
+import { userStore } from '@/states/user';
+import { storeToRefs } from 'pinia'
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
-const currentUserRole = ref('admin'); // 현재 유저 권한
-const showModal = ref(false);
+// 모달 관련
+const showTIModal = ref(false);
+const showCheckModal = ref(false);
+// 사용자 권한 관련
+const store = userStore()
+const { role, isAdmin } = storeToRefs(store)
+
+
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -89,14 +111,20 @@ const users = ref([
 ]);
 
 const issuingTaxInvoices = (order) => {
-  showModal.value=true;
+  showTIModal.value=true;
   console.log('발행:', order);
 };
 
+const checkTaxInvoice =  (order) =>{
+  showCheckModal.value =  true;
+}
 
-// 모달 영역
 function confirmModal(){
-  showModal.value=false;
+  showTIModal.value=false;
+}
+
+const confirmCheckTaxInvoice = (order) => {
+  showCheckModal.value = false
 }
 
 

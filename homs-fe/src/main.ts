@@ -22,8 +22,11 @@ app.use(router);
 app.component("font-awesome-icon", FontAwesomeIcon);
 
 // 권한 관련
-import {userStore} from "./states/user";
-const userAuth = userStore();
-userAuth.setRole("user");
+import { userStore } from './states/user'
+const userAuth = userStore()
+userAuth.setRole('admin')
+
+app.mount('#app')
+
 
 app.mount("#app");

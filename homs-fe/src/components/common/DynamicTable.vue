@@ -13,7 +13,8 @@
                                 </th>
 
                                 <th v-for="column in columns" :key="column.key"
-                                    class="px-6 py-3 text-center text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200">
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider uppercase bg-gray-100 border-b border-gray-200"
+                                    :class="columnClasses[column.key] || 'text-center' ">
                                     {{ column.label }}
                                 </th>
                                 <th v-if="$slots.actions"
