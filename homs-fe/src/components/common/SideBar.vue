@@ -93,7 +93,7 @@ const getPath = (basePath: string, adminOnly?: boolean): string => {
       title: '정산 관리',
       icon: 3,
       open: false,
-      children: [{ name: '정산 현황', path: '/settlements' }], // 관리자O, 사용자O
+      children: [{ name: '정산 현황', path: getPath('/settlements'), adminOnly:true }], // 관리자O, 사용자O
     },
     {
       title: '공지사항',

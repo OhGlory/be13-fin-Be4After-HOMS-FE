@@ -40,16 +40,16 @@
             </div>
 
             <!-- 업태 -->
-            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">업종</label>
+            <!-- <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">업종</label>
             <div class="col-span-2 p-2 border border-gray-300">
                 <input v-model="invoiceForm.typeOfBusiness" type="text" class="flex w-1/3 border border-gray-300 text-md">
-            </div>
+            </div> -->
 
             <!-- 종류 -->
-            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">종류</label>
+            <!-- <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">종류</label>
             <div class="col-span-2 p-2 border border-gray-300">
                 <input v-model="invoiceForm.industry" type="text" class="flex w-1/3 border border-gray-300 text-md">
-            </div>
+            </div> -->
         </div>
 
         <p class="mt-8 mx-10 text-gray-700 text-md font-extrabold">
@@ -73,11 +73,13 @@
 <script setup>
 import xmark from '@/assets/xmark.svg';
 import DynamicTable from '../DynamicTable.vue';
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
+import apiClient from '@/api';
 
 
-defineProps({
-    visible: Boolean
+const props = defineProps({
+    visible: Boolean,
+    orderId: Number
 })
 const emit = defineEmits(['confirm'])
 
@@ -94,13 +96,10 @@ function onIssued() {
 }
 
 const invoiceForm = reactive({
-    contury:'',
     companyName:'',
     companyNumber: '',
     ceoName:'',
     companyAdress:'',
-    typeOfBusiness:'',
-    industry:'',
 })
 
 const orderColumns = ref([
@@ -108,10 +107,10 @@ const orderColumns = ref([
   { label: '일', key: 'day' },
   { label: '품목', key: 'product' },
   { label: '수량', key: 'quantity' },
-  { label: '단가', key: 'unitPrice' },
-  { label: '공급가액', key: 'supplyPrice' },
-  { label: '세액', key: 'taxPrice' },
-  { label: '상태', key: 'orderStatus' },
+//   { label: '단가', key: 'unitPrice' },
+//   { label: '공급가액', key: 'supplyPrice' },
+//   { label: '세액', key: 'taxPrice' },
+//   { label: '상태', key: 'orderStatus' },
 ]);
 
 const orderList = ref([
@@ -119,5 +118,45 @@ const orderList = ref([
     { month: 1, day: '23', product: 'LLDP-C', quantity: '10', unitPrice: '2,000', supplyPrice: '20,000', taxPrice:'2,000', orderStatus: '-'},
     { month: 1, day: '23', product: 'C-PPLP', quantity: '50', unitPrice: '10,000', supplyPrice: '500,000', taxPrice:'50,000', orderStatus: '-'},
 ]);
+
+const fetchData = async() => {
+    if(!props.orderId) return;
+
+    try{
+        const companyRes = await apiClient.get(`/settlement/${props.orderId}/companyInfo`);
+        const companyData = companyRes.data.data;
+        console.log("주문별 거래처 조회",companyData);
+        Object.assign(invoiceForm, {
+            companyName: companyData.companyName,
+            companyNumber: companyData.registrationNumber,
+            ceoName: companyData.representName,
+            companyAdress: companyData.address
+        });
+
+        const orderRes = await apiClient.get(`/settlement/${props.orderId}/orderInfo`);
+        const orderData = orderRes.data.data
+        console.log("주문별 주문상품 조회", orderData);
+        orderList.value = orderData.map(item => ({
+            month: new Date(item.orderDate).getMonth(),
+            day: new Date(item.orderDate).getDate(),
+            product: item.productName,
+            quantity: item.quantity,
+            // unitPrice: item.unitPrice,
+            // supplyPrice: item.supplyPrice,
+            // taxPrice: item.taxPrice,
+            // orderStatus: item.orderStatus
+        }));
+    }catch(error){
+        console.log("주문 거래처 정보 불러오기 실패",error)
+    }
+}
+
+
+watch(() => props.orderId, (newVal) => {
+  if (newVal) fetchData();
+});
+
+
+
   </script>
   
