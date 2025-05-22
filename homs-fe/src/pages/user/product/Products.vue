@@ -23,7 +23,6 @@
       <template #cell-productCategory="{ item }">
         {{ item.category?.productCategory }}
       </template>
-      <template #cell-minQuantity>10</template>
       <template #cell-productQuantity="{ item }">
         <div v-if="item && item.productQuantity === null">
           데이터 없음
@@ -144,15 +143,15 @@ const userColumns = ref([
   { label: '분야', key: 'productDomain' },
   { label: '분류', key: 'productCategory' },
   { label: '제품명', key: 'productName' },
-  { label: '최소단위', key: 'minQuantity' },
+  { label: '최소단위', key: 'productMinQuantity' },
   { label: '재고량', key: 'productQuantity' },
 ]);
 
 const users = ref([
-    { id: 1, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
-    { id: 2, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
-    { id: 3, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
-    { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', minQuantity: '10', inven: '9999'},
+    { id: 1, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
+    { id: 2, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
+    { id: 3, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
+    { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
 ]);
 
 const editBtn = (productId) => {

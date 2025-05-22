@@ -68,8 +68,8 @@
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="minQuantity" class="block text-sm font-medium text-gray-700">최소 수량</label>
-                            <input type="text" id="minQuantity" :placeholder="'ex) 10'" v-model="minQuantity"
+                            <label for="productMinQuantity" class="block text-sm font-medium text-gray-700">최소 수량</label>
+                            <input type="text" id="productMinQuantity" :placeholder="'ex) 10'" v-model="productMinQuantity"
                                 class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                         </div>
                     </div>
@@ -148,7 +148,7 @@ const productsId = ref(route.query.productId || "");
 const productName = ref("");
 const productUsage = ref("");
 const productFeature = ref("");
-const minQuantity = ref("");
+const productMinQuantity = ref("");
 const isEditMode = ref(route.query.productId);
 const orginImage = ref("");
 const orginMsds = ref("");
@@ -225,6 +225,7 @@ const submitForm = async () => {
         productName: productName.value,
         productUsage: productUsage.value,
         productFeature: productFeature.value,
+        productMinQuantity: productMinQuantity.value,
         categoryId: selectedCategoryId.value
     };
 
@@ -353,7 +354,7 @@ const fetchData = async () => {
             productName.value = products.productName;
             productUsage.value = products.productUsage;
             productFeature.value = products.productFeature;
-            minQuantity.value = 10;
+            productMinQuantity.value = products.productMinQuantity;
             selectedCategoryLevel1.value = products.category.domainId;
             selectedCategoryLevel2.value = products.category.categoryId;
             if(products.category.processId){
