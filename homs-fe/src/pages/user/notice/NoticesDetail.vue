@@ -70,7 +70,9 @@ const fetchData = async () => {
         const response = await apiClient.get(`/notice/${noticeId}`);
         if (response.status === 200) {
             notice.value = response.data.data; // 응답 데이터 할당
-            imagePath.value = basePath+`/files/view?key=${notice.value.imagePath}`
+            if(notice.value.imagePath){
+              imagePath.value = basePath+`/files/view?key=${notice.value.imagePath}`
+            }
         } else {
             alert(t('errors.fetch_data_failed'));
         }

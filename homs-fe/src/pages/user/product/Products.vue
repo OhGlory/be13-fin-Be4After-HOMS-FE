@@ -169,6 +169,28 @@ const deleteBtn = (productId) => {
 // 상품 삭제
 const deletePostData = async (productId) => {
   try {
+    const response = await apiClient.get(`/product/files/${productId}`);
+    const files = response.data.data
+    console.log(files);
+    // 반복문으로 files에서 key값을 기준으로 value를 가져옴
+    Object.keys(files).forEach(async key => {
+      const value = files[key];
+      if (value !== null && value !== undefined && value !== '') {
+        // s3로 시작하는 key값의 value를 가져옴
+        if (key.startsWith('s3')) {
+          await apiClient.delete(`/files/delete?key=${value}`);
+        }
+      }
+    });
+
+    const response2 = await apiClient.delete(`/product/files/${productId}`);
+    console.log(response2.data);
+
+  } catch (error) {
+    console.log("파일이 없습니다.");
+  }
+
+  try {
     await apiClient.delete(`/product/${productId}`);
     router.push("/products/");
     fetchData();
