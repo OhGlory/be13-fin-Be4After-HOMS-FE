@@ -14,6 +14,7 @@ import Clients from '@/pages/admin/clients/Clients.vue'
 import Contracts from '@/pages/admin/clients/Contracts.vue'
 import MenuSettings from '@/pages/admin/menu/MenuSettings.vue'
 import Login from '@/pages/common/login/Login.vue'
+import AdminSettlements from '@/pages/admin/settlement/Settlements.vue'
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -21,7 +22,7 @@ import Accounts from "@/pages/user/account/Account.vue";
 import Products from "@/pages/user/product/Products.vue";
 import Orders from "@/pages/user/order/Order.vue";
 import Deliverys from "@/pages/user/delivery/Delivery.vue";
-import Settlements from "@/pages/admin/settlement/Settlements.vue";
+import Settlements from "@/pages/user/settlement/Settlements.vue";
 import Notices from "@/pages/user/notice/Notices.vue";
 import NoticesDetail from "@/pages/user/notice/NoticesDetail.vue";
 import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
@@ -56,6 +57,12 @@ const router = createRouter({
           path: "adminaccount",
           name: "AdminAccount",
           component: AdminAccount,
+          meta: {requiresAuth: true, role: "admin"},
+        },
+        {
+          path: "settlements",
+          name: "AdminSettlement",
+          component: AdminSettlements,
           meta: {requiresAuth: true, role: "admin"},
         },
         {

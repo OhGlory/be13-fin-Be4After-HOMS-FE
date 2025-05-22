@@ -27,30 +27,17 @@
               </span>
             </template>
               <template #actions="{ item }">
-                <div v-if="role === 'admin'">
+
                   <button @click="issuingTaxInvoices(item)"
                       class=" bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
                       발행
                   </button>
-                </div>
-                <div v-else-if="role === 'user'">
-                  <span class="text-gray-500">
-                    <button @click="checkTaxInvoice(item)"
-                      :disabled="item.isSettled === '미정산'"
-                      :class="[ 'font-bold py-2 px-4 rounded text-sm',
-                                 item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white'
-                        ]">
-                      확인
-                    </button>
-                </span>
-
-                </div>
               </template>
         </DynamicTable>
         <!-- 페이지 네비 -->
         <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
 
-        <TaxInvoice :visible="showTIModal" @confirm="confirmModal" />
+        <TaxInvoice :visible="showTIModal" :order-id="selectedOrderId" @confirm="confirmModal" />
         <CheckTaxInvoice :visible="showCheckModal" @confirm="confirmCheckTaxInvoice" ></CheckTaxInvoice>
     </div>
 </template>
@@ -61,9 +48,8 @@ import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import TaxInvoice from '@/components/common/modal/TaxInvoice.vue';
 import CheckTaxInvoice from '@/components/common/modal/CheckTaxInvoice.vue';
-import { ref } from 'vue';
-import { userStore } from '@/states/user';
-import { storeToRefs } from 'pinia'
+import { ref,onMounted } from 'vue';
+import apiClient from '@/api';
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -71,10 +57,55 @@ const totalPages = ref(20); // 총 페이지 수 상태 관리
 // 모달 관련
 const showTIModal = ref(false);
 const showCheckModal = ref(false);
-// 사용자 권한 관련
-const store = userStore()
-const { role, isAdmin } = storeToRefs(store)
 
+const selectedOrderId = ref(null);
+
+
+// 데이터
+const users = ref([
+    { id: 1, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'미정산', orderStatus: '-'},
+    { id: 2, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'대기', orderStatus: '반품/교환'},
+    { id: 3, orderCode: 'H-04-23', companyName: '하이젠버그', deliveryName: '미국', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'완료', orderStatus: '-'},
+]);
+
+const handleSelectOption = ref([
+  { value: "", label: "전체" },
+  { value: "important", label: "중요" },
+  { value: "recent", label: "최근" },
+]);
+
+const fetchData = async() => {
+  try{
+    const response = await apiClient.get('/settlement/');
+    const data = response.data.data;
+    console.log("정산 데이터", data);
+    users.value = data.map((item, index) => ({
+      id: index +1,
+      orderCode: item.orderCode,
+      companyName: item.companyName,
+      deliveryName: item.companyAddress,
+      orderDate: new Date(item.orderDate).toISOString().split('T')[0] ,
+      settlementDate: new Date(item.settlementDate).toISOString().split('T')[0],
+      isSettled: mapSettlementStatus(item.isSettled),
+      orderStatus: item.orderStatus ?? '-',
+    }));
+  }catch(error) {
+    console.log('정산 테이블을 불러오는데 실패 하였습니다', error);
+  }
+}
+
+const mapSettlementStatus = (status) => {
+  switch (status) {
+    case 'SETTLED':
+      return '완료';
+    case 'UNSETTLED':
+      return '미정산';
+    case 'WAITING':
+      return '대기';
+    default:
+      return '알 수 없음'; // 예외 처리
+  }
+};
 
 
 // ------- 검색바 --------
@@ -83,12 +114,6 @@ const handleSearch = (searchData) => {
   // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
   searchResult.value = searchData;
 };
-
-const handleSelectOption = ref([
-  { value: "", label: "전체" },
-  { value: "important", label: "중요" },
-  { value: "recent", label: "최근" },
-]);
 
 // ------- 테이블 --------
 //헤더
@@ -103,16 +128,16 @@ const userColumns = ref([
   { label: '상태', key: 'orderStatus' },
 ]);
 
-// 데이터
-const users = ref([
-    { id: 1, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'미정산', orderStatus: '-'},
-    { id: 2, orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'대기', orderStatus: '반품/교환'},
-    { id: 3, orderCode: 'H-04-23', companyName: '하이젠버그', deliveryName: '미국', orderDate: '25-04-02', settlementDate: '25-04-11', isSettled:'완료', orderStatus: '-'},
-]);
+// ------- 페이지네이션 --------
+const handleSetPage = (page) => {
+  console.log('페이지 변경 요청:', page);
+  currentPage.value = page;
+  // 여기서 해당 페이지의 데이터를 불러오는 로직 등을 수행해야 합니다.
+};
 
 const issuingTaxInvoices = (order) => {
   showTIModal.value=true;
-  console.log('발행:', order);
+  selectedOrderId.value = order.id;
 };
 
 const checkTaxInvoice =  (order) =>{
@@ -127,12 +152,7 @@ const confirmCheckTaxInvoice = (order) => {
   showCheckModal.value = false
 }
 
-
-// ------- 페이지네이션 --------
-const handleSetPage = (page) => {
-  console.log('페이지 변경 요청:', page);
-  currentPage.value = page;
-  // 여기서 해당 페이지의 데이터를 불러오는 로직 등을 수행해야 합니다.
-};
-
+onMounted(() =>{
+  fetchData();
+})
 </script>
