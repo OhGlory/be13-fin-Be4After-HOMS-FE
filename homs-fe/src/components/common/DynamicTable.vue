@@ -33,7 +33,8 @@
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
-                                <td v-if="$slots.actions" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                <td v-if="$slots.actions"
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-right">
                                     <slot name="actions" :item="item"></slot>
                                 </td>
                             </tr>

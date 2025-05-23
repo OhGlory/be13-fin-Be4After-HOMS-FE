@@ -153,7 +153,7 @@ const router = createRouter({
           meta: {requiresAuth: true, role: "user"},
         },
         {
-          path: "orders/item",
+          path: "orders/list",
           name: "OrderItemList",
           component: OrderItemList,
           meta: {requiresAuth: true, role: "user"},
