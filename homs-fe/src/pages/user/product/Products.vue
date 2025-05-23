@@ -165,7 +165,6 @@ const orderBtn = (productId,quantity) => {
 
 const orderData = async (productId,quantity) => {
   if (confirm("상품을 주문목록에 추가하시겠습니까?")) {
-
     const params = {
         productId: productId,
         quantity: quantity
@@ -175,12 +174,13 @@ const orderData = async (productId,quantity) => {
       await apiClient.post(`/orderitem/${orderId.value}`,params)
       router.push({name:"OrderItemList", query: { orderId: orderId.value } })
     }else{
-      console.log("새 주문 생성");
-      const order = await apiClient.post("/order/")
-      orderId.value = order.data.data.orderId
+      if (confirm("새로운 주문목록을 생성하시겠습니까?")) {
+        const order = await apiClient.post("/order/")
+        orderId.value = order.data.data.orderId
 
-      await apiClient.post(`/orderitem/${order.data.data.orderId}`,params)
-      router.push({name:"OrderItemList", query: { orderId: orderId.value } })
+        await apiClient.post(`/orderitem/${order.data.data.orderId}`,params)
+        router.push({name:"OrderItemList", query: { orderId: orderId.value } })
+      }
     }
   }
 }
