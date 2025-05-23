@@ -50,7 +50,7 @@
           </button>
         </div>
         <div v-else>
-          <button @click="deleteBtn(item.orderId)"
+          <button v-if="item.approved !== true" @click="deleteBtn(item.orderId)"
             class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
             취소
           </button>
