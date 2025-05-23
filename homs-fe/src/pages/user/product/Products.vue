@@ -2,7 +2,7 @@
   <div>
     <!-- 제목 -->
     <div class="text-3xl px-3 py-3">
-      <span>상품목록</span>
+      <span>상품관리 > 상품목록</span>
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
@@ -48,8 +48,8 @@
         <div v-else>
           <input type="number"
             class="rounded mr-2 border-1 border-gray-300 w-24 focus:border-orange-500 focus:outline-none" min="1"
-            max="9999" @mousedown.stop>
-          <button @click="editBtn(item.productId)"
+            max="9999" v-model.number="item.quantityToOrder" @mousedown.stop>
+          <button @click="orderBtn(item.productId, item.quantityToOrder)"
             class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
             발주 추가
           </button>
@@ -71,7 +71,7 @@ import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import ProductDetail from '@/components/common/modal/ProductDetail.vue';
 import { ref , watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 import { userStore } from '@/states/user';
 const isAdmin = userStore().isAdmin;
@@ -80,6 +80,9 @@ const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
 const router = useRouter();
+const route = useRoute();
+
+const orderId = ref(route.query.orderId || ""); // 추가 주문 여부
 
 const showModal = ref(false); // 모달 상태 관리
 const selectedId = ref(null); // 선택된 항목 ID
@@ -154,6 +157,35 @@ const users = ref([
     { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
 ]);
 
+const orderBtn = (productId,quantity) => {
+  console.log(`상품 ID: ${productId}, 추가할 수량: ${quantity}`);
+  
+  orderData(productId,quantity);
+}
+
+const orderData = async (productId,quantity) => {
+  if (confirm("상품을 주문목록에 추가하시겠습니까?")) {
+
+    const params = {
+        productId: productId,
+        quantity: quantity
+      }
+
+    if (orderId.value){
+      await apiClient.post(`/orderitem/${orderId.value}`,params)
+      router.push({name:"OrderItemList", query: { orderId: orderId.value } })
+    }else{
+      console.log("새 주문 생성");
+      const order = await apiClient.post("/order/")
+      orderId.value = order.data.data.orderId
+
+      await apiClient.post(`/orderitem/${order.data.data.orderId}`,params)
+      router.push({name:"OrderItemList", query: { orderId: orderId.value } })
+    }
+  }
+}
+
+
 const editBtn = (productId) => {
   router.push({ name: 'ProductForm', query: { productId: productId } });
 };
@@ -215,7 +247,10 @@ const fetchData = async () => {
         const response = await apiClient.get("/product/", { params });
         if (response.status === 200) {
             console.log(response.data.data);
-            users.value = response.data.data.content; // 응답 데이터 할당
+            users.value = response.data.data.content.map(item => ({
+                ...item, // 기존 item의 모든 속성을 복사
+                quantityToOrder: 1 // 각 상품마다 고유한 quantityToOrder 속성 추가 (기본값 1)
+            })); // 응답 데이터 할당
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
             alert(t('errors.fetch_data_failed'));
@@ -256,7 +291,7 @@ const handleSelectedItems = (selectedIds) => {
   // selectedUserIds.value.length
 };
 
-// 게시글 삭제
+// 다중 삭제
 const deleteItems = async (selectedItemLength) => {
   // try {
   //   await apiClient.delete(`/notice/${noticeId}`);

@@ -2,7 +2,7 @@
     <div>
         <!-- 제목 -->
         <div class="text-3xl px-3 py-3">
-            <span>상품목록</span>
+            <span>상품 관리 > 상품 목록</span>
         </div>
         <div class="p-6 bg-white rounded-md shadow-md">
             <h4 class="text-xl font-bold mb-4">{{ isEditMode ? $t('btn.edit') : '추가' }}</h4>
