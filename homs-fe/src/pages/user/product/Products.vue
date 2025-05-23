@@ -11,8 +11,8 @@
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"
       @row-click="handleRowClick" uniqueKey="productId">
       <!-- 항목 상세 설정 -->
-      <template #cell-id="{ item }">
-        <strong>{{ item.id }}</strong>
+      <template #cell-productId="{ item }">
+        <strong>{{ item.productId }}</strong>
       </template>
       <template #cell-category="{ item }">
         {{ item.category?.categoryId }}
