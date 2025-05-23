@@ -24,11 +24,10 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer" 
-                                >
+                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                                    <input type="checkbox" v-model="selectedItems" :value="item.id" 
-                                    @change="emitSelectedItems"/>
+                                    <input type="checkbox" :checked="selectedItems.includes(item[props.uniqueKey])"
+                                        @change="toggleIndividualCheckbox(item)" @click.stop />
                                 </td>
                                 <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
@@ -48,6 +47,7 @@
 
 <script setup>
 import { ref, watch,defineProps } from 'vue';
+import { defineEmits } from 'vue';
 
 const props = defineProps({
   columns: {
@@ -70,7 +70,13 @@ const props = defineProps({
     type: String,
     // 액션 부분 헤더
   },
+  uniqueKey: {
+        type: String,
+        default: 'id'
+    }
 });
+
+const emit = defineEmits(['selected', 'row-click']);
 
 const selectedItems = ref([]);
 const allSelected = ref(false);
@@ -78,11 +84,23 @@ const allSelected = ref(false);
 // 전체 선택/해제 기능
 const toggleAll = () => {
     if (allSelected.value) {
-        selectedItems.value = props.items.map(item => item.id);
+        selectedItems.value = props.items.map(item => item[props.uniqueKey]);
     } else {
         selectedItems.value = [];
     }
     emitSelectedItems();
+};
+
+const toggleIndividualCheckbox = (item) => {
+    const itemId = item[props.uniqueKey]; // uniqueKey 사용
+    const index = selectedItems.value.indexOf(itemId);
+
+    if (index === -1) {
+        selectedItems.value.push(itemId);
+    } else {
+        selectedItems.value.splice(index, 1);
+    }
+    emitSelectedItems(); // selectedItems 변경 후 emit
 };
 
 const emitSelectedItems = () => {
@@ -91,7 +109,25 @@ const emitSelectedItems = () => {
 
 // 전체 선택 상태 감시
 watch(selectedItems, () => {
-    allSelected.value = selectedItems.value.length === props.items.length;
-});
+    allSelected.value = props.items.length > 0 && selectedItems.value.length === props.items.length;
+    if (props.items.length === 0) {
+            allSelected.value = false;
+        }
+    },{ deep: true });
+
+// props.items가 변경될 때 (예: 페이지 이동, 검색 결과 변경 등) selectedItems 동기화 및 allSelected 재계산
+watch(() => props.items, (newItems) => {
+    // 새 items 배열에 포함되지 않는 기존 선택 항목은 selectedItems에서 제거
+    selectedItems.value = selectedItems.value.filter(id =>
+        newItems.some(item => item[props.uniqueKey] === id)
+    );
+    // items가 변경되면 allSelected 상태도 재계산
+    allSelected.value = newItems.length > 0 && selectedItems.value.length === newItems.length;
+
+    // 만약 새 items가 비어있으면 allSelected도 false로
+    if (newItems.length === 0) {
+        allSelected.value = false;
+    }
+}, { deep: true });
 
 </script>
