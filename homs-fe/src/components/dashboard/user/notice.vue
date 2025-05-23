@@ -5,7 +5,7 @@
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 공지 사항
             </h5>
-            <a href="#" class="text-sm font-medium hover:underline ">
+            <a href="#" class="text-sm font-medium hover:underline" @click.prevent = "goToNotice">
                 +
             </a>
         </div>
@@ -30,13 +30,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import apiClient from '@/api'
+import { onMounted, ref } from 'vue'
+import {  useRouter } from 'vue-router'
+
+const router = useRouter();
+
 // 나중에 DB에서 받아서 할 예정
 const NoticeList = ref([
   { title: '한화 솔루션 케미컬에서 알립니다.', date: '2025-04-24' },
   { title: '구매 이용 방법', date: '2025-02-19' },
   { title: '발주 방법 공지 사항', date: '2025-01-10' },
 ])
+
+const goToNotice = () => {
+  router.push('/notices') // 유저 전용 정산 페이지 경로
+}
+
+const fetchData = async () => {
+    const response = await apiClient('notice/');
+    const data = response.data.data
+    console.log("대시보드 공지사항 조회", data);
+    NoticeList.value = data.content.map((item,index)=> ({
+        title : item.title,
+        date : item.createdAt.split('T')[0],
+    }));
+}
+
+onMounted (
+    () => {
+        fetchData();
+    }    
+)
 
 </script>
 

@@ -8,7 +8,7 @@
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true">
+        <DynamicTable :columns="userColumns" :items="client" :showCheckbox="true">
             <template #cell-id="{ item }">
                 <strong>{{ item.id }}</strong>
             </template>
@@ -19,7 +19,7 @@
                 <a :href="`mailto:${item.email}`">{{ item.email }}</a>
             </template>
             <template #actions="{ item }">
-                <button @click="deleteUser(item)"
+                <button @click="detailClient(item)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                     조회
                 </button>
@@ -34,7 +34,9 @@
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import apiClient from '@/api';
+
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -80,21 +82,30 @@ const userColumns = ref([
   { label: '분류', key: 'categroy' },
 ]);
 
-const users = ref([
+const client = ref([
     { id: 1, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
-    { id: 2, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
-    { id: 3, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
-    { id: 4, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
-    { id: 5, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
-
 ]);
 
-const editUser = (user) => {
-  console.log('수정:', user);
-};
+const fetchData =  async () => {
+  const response =  await apiClient.get('admin/company')
+  const data = response.data.data;
+  console.log("거래처 데이터 받아오기", data);
+  client.value = data.map((item, index) => ({
+    id: item.companyId,
+    companyName: item.companyName,
+    productName: "LDPE",                          // 백엔드 수정 요청
+    contract: '2025-02-10 ~ 2026-02-10',          // 백엔드 수정 요청
+    deptName: '구매',                              // 백엔드 수정 요청
+    managerName: item.representManagerName,
+    categroy: 'PO'                                // 백엔드 수정 요청 
+  }));
+}
 
-const deleteUser = (user) => {
-  console.log('삭제:', user);
+const detailClient = (client) => {
+  console.log('거래처 상세조회:', client);  
+  console.log('거래처 id 정보', client.id);
+  console.log('거래처 회사명 조회', client.companyName);
+
 };
 
 // ------- 페이지네이션 --------
@@ -103,5 +114,9 @@ const handleSetPage = (page) => {
   currentPage.value = page;
   // 여기서 해당 페이지의 데이터를 불러오는 로직 등을 수행해야 합니다.
 };
+
+onMounted (() => {
+  fetchData();
+})
 
 </script>

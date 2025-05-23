@@ -84,7 +84,7 @@ const fetchData = async() => {
 try{
   // 나중에 유저 연결했을때 유저 정보 받아오는 부분
   // const response = await apiClient.get('settlement/user/{userId.value}');
-  const response = await apiClient.get('/settlement/user/2');
+  const response = await apiClient.get('/settlement/user/1');
   const data = response.data.data;
   console.log("정산 데이터", data);
   users.value = data.map((item, index) => ({

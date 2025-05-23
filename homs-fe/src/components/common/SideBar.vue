@@ -2,7 +2,7 @@
     <aside class="fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white text-gray-900 h-screen transition-all duration-300 ease-in-out z-1 border-r border-gray-200 lg:w-[290px] -translate-x-full lg:translate-x-0">
       <!-- 로고 영역 -->
       <div class="py-8 flex justify-start">
-        <router-link to="/" class="flex">
+        <router-link :to="logoPath" class="flex">
           <img :src="logo" width="50px" height="30px" alt="" />
           <span class="text-[20px] font-bold ml-2">HOMS</span>
         </router-link>
@@ -68,6 +68,10 @@ const getPath = (basePath: string, adminOnly?: boolean): string => {
     return basePath // 일반 유저는 그대로 사용
   }
 }
+
+const logoPath = computed(() => {
+  return isAdmin.value ? '/admin' : '/';
+});
 
   // 메뉴 관련 메뉴DB에서 받올 예정
   const menuItems = ref<MenuItem[]>([
