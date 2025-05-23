@@ -122,7 +122,8 @@ async function onSubmit(): Promise<void> {
   try {
     // 1) 로그인 → 토큰 발급
     const { data: tokens } = await apiClient.post<SignInResponseDto>('/auth/signin', payload)
-    authStore.setTokens(tokens.accessToken, tokens.refreshToken)
+    authStore.setTokens(tokens.data.accessToken, tokens.data.refreshToken)
+
 
     // // 2) 내 프로필 조회
     // const { data: profile } = await apiClient.get<UserProfile>('/user/')

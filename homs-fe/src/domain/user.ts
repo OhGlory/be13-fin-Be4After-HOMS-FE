@@ -6,8 +6,12 @@
   }
   
   export type SignInResponseDto = {
-    accessToken: string
-    refreshToken: string
+    statusCode: number;
+    message: string;
+    data: {
+      accessToken: string;
+      refreshToken: string;
+    };
   }
 
   export type UserRole = 'ROLE_ADMIN' | 'ROLE_USER';

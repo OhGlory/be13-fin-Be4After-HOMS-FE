@@ -88,11 +88,11 @@ apiClient.interceptors.response.use(
           { refreshToken: authStore.refreshToken }
         )
         // 2) 스토어에 토큰 업데이트
-        authStore.setTokens(data.accessToken, data.refreshToken)
+        authStore.setTokens(data.data.accessToken, data.data.refreshToken)
         // 3) 대기 중인 요청들 재실행 신호
-        processQueue(null, data.accessToken)
+        processQueue(null, data.data.accessToken)
         // 4) 원래 요청도 새로운 헤더로 재실행
-        originalRequest.headers!['Authorization'] = `Bearer ${data.accessToken}`
+        originalRequest.headers!['Authorization'] = `Bearer ${data.data.accessToken}`
         return apiClient(originalRequest)
       } catch (refreshError) {
         // 리프레시 실패 시 스토어 초기화 후 로그인 페이지로

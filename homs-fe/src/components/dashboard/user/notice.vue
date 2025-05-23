@@ -31,8 +31,10 @@
 
 <script setup>
 import apiClient from '@/api'
+import { useAuthStore } from '@/states/auth';
 import { onMounted, ref } from 'vue'
 import {  useRouter } from 'vue-router'
+useAuthStore
 
 const router = useRouter();
 
@@ -48,6 +50,10 @@ const goToNotice = () => {
 }
 
 const fetchData = async () => {
+    const authStore = useAuthStore()
+    console.log("fetchData 진입 - accessToken:", authStore.accessToken)
+
+    try{
     const response = await apiClient('notice/');
     const data = response.data.data
     console.log("대시보드 공지사항 조회", data);
@@ -55,11 +61,15 @@ const fetchData = async () => {
         title : item.title,
         date : item.createdAt.split('T')[0],
     }));
+    }catch(err){
+        console.error("공지사항 요청 실패", err.response?.status)
+    }
 }
 
 onMounted (
     () => {
         fetchData();
+        
     }    
 )
 
