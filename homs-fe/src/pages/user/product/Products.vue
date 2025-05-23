@@ -133,9 +133,9 @@ const actionButtons = ref([
     allowedRoles: ["user"]
   },
   {
-    label: "발주목록",
+    label: "주문목록",
     color: "bg-gray-500 hover:bg-gray-700",
-    action: () => router.push({name:"ProductForm"}),
+    action: () => router.push({name:"UserOrders"}),
     allowedRoles: ["user"]
   },
 ]);
