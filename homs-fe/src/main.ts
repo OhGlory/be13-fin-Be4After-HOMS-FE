@@ -30,4 +30,4 @@ const userAuth = userStore()
 // userAuth.setRole('user')
 
 
-app.mount('#app')
+app.mount("#app");

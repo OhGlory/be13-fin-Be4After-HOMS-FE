@@ -4,25 +4,26 @@ import { userStore } from '@/states/user' // 유저 스토어
 import { storeToRefs } from 'pinia'
 import { fetchUserProfile } from '@/api/user';
 
-import AdminDashBoard from '@/pages/admin/dashboard/AdminDashBoard.vue'
-import AdminAccount from '@/pages/admin/account/AdminAccount.vue'
-import BaseLayout from '@/components/common/BaseLayout.vue'
-import AdminOrders from '@/pages/admin/order/Order.vue'
-import Setting from '@/pages/common/Setting.vue'
-import Claims from '@/pages/admin/order/Claim.vue'
-import ProductForm from '@/pages/admin/product/ProductForm.vue'
-import Categories from '@/pages/admin/product/Categories.vue'
-import Clients from '@/pages/admin/clients/Clients.vue'
-import Contracts from '@/pages/admin/clients/Contracts.vue'
-import MenuSettings from '@/pages/admin/menu/MenuSettings.vue'
-import Login from '@/pages/common/login/Login.vue'
-import AdminSettlements from '@/pages/admin/settlement/Settlements.vue'
+import AdminDashBoard from "@/pages/admin/dashboard/AdminDashBoard.vue";
+import AdminAccount from "@/pages/admin/account/AdminAccount.vue";
+import BaseLayout from "@/components/common/BaseLayout.vue";
+import AdminOrders from "@/pages/admin/order/Order.vue";
+import Setting from "@/pages/common/Setting.vue";
+import Claims from "@/pages/admin/order/Claim.vue";
+import ProductForm from "@/pages/admin/product/ProductForm.vue";
+import Categories from "@/pages/admin/product/Categories.vue";
+import Clients from "@/pages/admin/clients/Clients.vue";
+import Contracts from "@/pages/admin/clients/Contracts.vue";
+import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
+import Login from "@/pages/common/login/Login.vue";
+import AdminSettlements from "@/pages/admin/settlement/Settlements.vue";
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
 import Accounts from "@/pages/user/account/Account.vue";
 import Products from "@/pages/user/product/Products.vue";
 import Orders from "@/pages/user/order/Order.vue";
+import OrderItemList from "@/pages/user/order/OrderItemList.vue";
 import Deliverys from "@/pages/user/delivery/Delivery.vue";
 import Settlements from "@/pages/user/settlement/Settlements.vue";
 import Notices from "@/pages/user/notice/Notices.vue";

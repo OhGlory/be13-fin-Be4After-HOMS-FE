@@ -80,57 +80,57 @@ const logoPath = computed(() => {
   return isAdmin.value ? '/admin' : '/';
 });
 
-  // 메뉴 관련 메뉴DB에서 받올 예정
-  const menuItems = ref<MenuItem[]>([
-    {
-      title: '주문 관리',
-      icon: 1,
-      open: false,
-      children: [
-        { name: '주문 목록', path: getPath('/orders') },                           // 관리자O, 사용자O
-        { name: '클레임 목록', path: getPath('/claims'), adminOnly: true },          // 관리자O, 사용자 X
-      ],
-    },
-    {
-      title: '상품 관리',
-      icon: 2,
-      open: false,
-      children: [
-        { name: '상품 목록', path: '/products' },          // 관리자O, 사용자O
-        { name: '카테고리 관리', path: getPath('/categories'), adminOnly: true },     // 관리자O, 사용자 X
-      ],
-    },
-    {
-      title: '정산 관리',
-      icon: 3,
-      open: false,
-      children: [{ name: '정산 현황', path: getPath('/settlements'), adminOnly:true }], // 관리자O, 사용자O
-    },
-    {
-      title: '공지사항',
-      icon: 4,
-      open: false,
-      children: [{ name: '공지 사항', path: '/notices' }],    // 관리자O, 사용자O
-    },
-    {
-      title: '거래처 관리',
-      icon: 5,
-      open: false,
-      children: [
-        { name: '거래처 목록', path: getPath('/clients'), adminOnly: true },             // 관리자O, 사용자 X
-        { name: '계약 관리', path: getPath('/contracts'), adminOnly: true },          // 관리자O, 사용자 X
-      ],
-    },
-    {
-      title: '계정 관리',
-      icon: 6,
-      open: false,
-      children: [
-        { name: '통합 계정 관리', path: getPath('/adminaccount'), adminOnly: true },     // 관리자O, 사용자 X
-        { name: '메뉴 설정', path: getPath('/menu-settings'), adminOnly: true },       // 관리자O, 사용자 X
-      ],
-    }
-  ])
+// 메뉴 관련 메뉴DB에서 받올 예정
+const menuItems = ref<MenuItem[]>([
+  {
+    title: '주문 관리',
+    icon: 1,
+    open: false,
+    children: [
+      { name: '주문 목록', path: getPath('/orders') },                           // 관리자O, 사용자O
+      { name: '클레임 목록', path: getPath('/claims'), adminOnly: true },          // 관리자O, 사용자 X
+    ],
+  },
+  {
+    title: '상품 관리',
+    icon: 2,
+    open: false,
+    children: [
+      { name: '상품 목록', path: '/products' },          // 관리자O, 사용자O
+      { name: '카테고리 관리', path: getPath('/categories'), adminOnly: true },     // 관리자O, 사용자 X
+    ],
+  },
+  {
+    title: '정산 관리',
+    icon: 3,
+    open: false,
+    children: [{ name: '정산 현황', path: getPath('/settlements'), adminOnly: true }], // 관리자O, 사용자O
+  },
+  {
+    title: '공지사항',
+    icon: 4,
+    open: false,
+    children: [{ name: '공지 사항', path: '/notices' }],    // 관리자O, 사용자O
+  },
+  {
+    title: '거래처 관리',
+    icon: 5,
+    open: false,
+    children: [
+      { name: '거래처 목록', path: getPath('/clients'), adminOnly: true },             // 관리자O, 사용자 X
+      { name: '계약 관리', path: getPath('/contracts'), adminOnly: true },          // 관리자O, 사용자 X
+    ],
+  },
+  {
+    title: '계정 관리',
+    icon: 6,
+    open: false,
+    children: [
+      { name: '통합 계정 관리', path: getPath('/adminaccount'), adminOnly: true },     // 관리자O, 사용자 X
+      { name: '메뉴 설정', path: getPath('/menu-settings'), adminOnly: true },       // 관리자O, 사용자 X
+    ],
+  }
+])
 
 
 const toggleMenu = (index: number): void => {

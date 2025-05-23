@@ -1,37 +1,37 @@
 <template>
-    <div>
-        <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 발주목록</span>
-        </div>
-        <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
-        <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" action="승인여부">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
-            </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
-            </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-            </template>
-            <template #actions="{ item }">
-                <button @click="editUser(item)"
-                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                    승인
-                </button>
-                <button @click="deleteUser(item)"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-                    거부
-                </button>
-            </template>
-        </DynamicTable>
-        <!-- 페이지 네비 -->
-        <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+  <div>
+    <!-- 제목 -->
+    <div class="text-3xl px-3 py-3">
+      <span>주문관리 > 주문목록</span>
     </div>
+    <!-- 검색바 -->
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+      :userRole="isAdmin" />
+    <!-- 테이블 -->
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" action="승인여부">
+      <template #cell-id="{ item }">
+        <strong>{{ item.id }}</strong>
+      </template>
+      <template #cell-name="{ item }">
+        {{ item.name }}
+      </template>
+      <template #cell-email="{ item }">
+        <a :href="`mailto:${item.email}`">{{ item.email }}</a>
+      </template>
+      <template #actions="{ item }">
+        <button @click="editUser(item)"
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+          승인
+        </button>
+        <button @click="deleteUser(item)"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+          거부
+        </button>
+      </template>
+    </DynamicTable>
+    <!-- 페이지 네비 -->
+    <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+  </div>
 </template>
 
 <script setup>
@@ -39,11 +39,12 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref } from 'vue';
+import { userStore } from '@/states/user';
+const isAdmin = userStore().isAdmin;
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
-const currentUserRole = ref('admin'); // 현재 유저 권한
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
