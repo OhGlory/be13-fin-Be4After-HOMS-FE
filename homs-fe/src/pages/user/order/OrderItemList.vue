@@ -5,84 +5,76 @@
             <span>주문관리 > 주문목록 > 상세주문</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems"
-            @row-click="handleRowClick" uniqueKey="productId">
-            <p>{{ item }} </p>
+        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
+            <p>{{ item }}</p>
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{ item }">
+            <template #cell-id="{item}">
                 <strong>{{ item.produt.productId }}</strong>
             </template>
-            <template #cell-category="{ item }">
+            <template #cell-category="{item}">
                 {{ item.category?.categoryId }}
             </template>
-            <template #cell-productDomain="{ item }">
+            <template #cell-productDomain="{item}">
                 {{ item.category?.productDomain }}
             </template>
-            <template #cell-productCategory="{ item }">
+            <template #cell-productCategory="{item}">
                 {{ item.category?.productCategory }}
             </template>
-            <template #cell-productQuantity="{ item }">
+            <template #cell-productQuantity="{item}">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                    }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop>
+                        min="1"
+                        max="9999"
+                        v-model.number="item.productQuantity"
+                        @click.stop
+                        @mousedown.stop
+                    />
                 </div>
-                <div v-else>
-                    데이터 오류
-                </div>
+                <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <div v-if="isAdmin">
-                    <button @click="editBtn(item.editMode)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                        거부
-                    </button>
-                    <button @click="deleteBtn(item.productId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-                        승인
-                    </button>
+                    <button @click="editBtn(item.editMode)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                 </div>
                 <div v-else>
-                    <button @click="editBtn(item)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                        {{ item.isEditing ? '완료' : $t('btn.edit') }}
+                    <button @click="editBtn(item)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                        {{ item.isEditing ? "완료" : $t("btn.edit") }}
                     </button>
-                    <button @click="deleteBtn(item.productId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-                        {{ $t('btn.del') }}
+                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        {{ $t("btn.del") }}
                     </button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 모달 -->
         <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
     </div>
 </template>
 
 <script setup>
-import apiClient from '@/api';
-import SearchBox from '@/components/common/SaerchBar.vue';
-import DynamicTable from '@/components/common/DynamicTable.vue';
-import PageNav from '@/components/common/PageNav.vue';
-import ProductDetail from '@/components/common/modal/ProductDetail.vue';
-import { ref , watch, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n'
-import { userStore } from '@/states/user';
+import apiClient from "@/api";
+import SearchBox from "@/components/common/SaerchBar.vue";
+import DynamicTable from "@/components/common/DynamicTable.vue";
+import PageNav from "@/components/common/PageNav.vue";
+import ProductDetail from "@/components/common/modal/ProductDetail.vue";
+import {ref, watch, onMounted, toRaw} from "vue";
+import {useRouter, useRoute} from "vue-router";
+import {useI18n} from "vue-i18n";
+import {userStore} from "@/states/user";
 const isAdmin = userStore().isAdmin;
 
-const { t, locale } = useI18n()
-const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
+const {t, locale} = useI18n();
+const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
 
 const router = useRouter();
 const route = useRoute();
@@ -98,109 +90,128 @@ const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 
 const selectedUserIds = ref([]); // 선택된 항목 ID
 
-const searchQuery = ref(''); // 검색어
-const selectOption = ref(''); // 검색 옵션
+const searchQuery = ref(""); // 검색어
+const selectOption = ref(""); // 검색 옵션
 
 // const products = ref({});
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
-searchQuery.value = searchData.searchQuery;
-selectOption.value = searchData.selectOption;
-pageSize.value = searchData.size;
-currentPage.value = 1;
-fetchData();
+    searchQuery.value = searchData.searchQuery;
+    selectOption.value = searchData.selectOption;
+    pageSize.value = searchData.size;
+    currentPage.value = 1;
+    fetchData();
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-{ value: "productName", label: "제품명" },
-{ value: 'productDomain', label: '분야' },
-{ value: 'productCategory', label: '분류' },
+    {value: "productName", label: "제품명"},
+    {value: "productDomain", label: "분야"},
+    {value: "productCategory", label: "분류"},
 ]);
 // 액션 버튼 정의
 const actionButtons = ref([
-// 이 버튼은 'admin'만 볼 수 있음
-{
-    label: t('btn.add'),
-    color: "bg-orange-500 hover:bg-orange-700",
-    action: () => router.push({name:"ProductForm"}),
-    allowedRoles: ["admin"] 
-},
-{
-    label: t('btn.del'),
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => deleteItems(selectedUserIds.value.length),
-    allowedRoles: ["admin"]
-},
-// 이 버튼은 'user'만 볼 수 있음
-{
-    label: "엑셀다운",
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => router.push({name:"ProductForm"}),
-    allowedRoles: ["user"]
-},
-{
-    label: "엑셀주문",
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => router.push({name:"ProductForm"}),
-    allowedRoles: ["user"]
-},
-{
-    label: "상품목록",
-    color: "bg-orange-500 hover:bg-orange-700",
-    action: () => router.push({name:"UserProducts", query: { orderId: orderId.value }}),
-    allowedRoles: ["user"]
-},
-{
-    label: "일괄삭제",
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => deleteItems(selectedUserIds.value.length),
-    allowedRoles: ["user"]
-},
+    // 이 버튼은 'admin'만 볼 수 있음
+    {
+        label: t("btn.add"),
+        color: "bg-orange-500 hover:bg-orange-700",
+        action: () => router.push({name: "ProductForm"}),
+        allowedRoles: ["admin"],
+    },
+    {
+        label: t("btn.del"),
+        color: "bg-gray-500 hover:bg-gray-700",
+        action: () => deleteItems(selectedUserIds.value.length),
+        allowedRoles: ["admin"],
+    },
+    // 이 버튼은 'user'만 볼 수 있음
+    {
+        label: "엑셀다운",
+        color: "bg-gray-500 hover:bg-gray-700",
+        action: () => router.push({name: "ProductForm"}),
+        allowedRoles: ["user"],
+    },
+    {
+        label: "엑셀주문",
+        color: "bg-gray-500 hover:bg-gray-700",
+        action: () => router.push({name: "ProductForm"}),
+        allowedRoles: ["user"],
+    },
+    {
+        label: "상품목록",
+        color: "bg-orange-500 hover:bg-orange-700",
+        action: () => router.push({name: "UserProducts", query: {orderId: orderId.value}}),
+        allowedRoles: ["user"],
+    },
+    {
+        label: "일괄삭제",
+        color: "bg-gray-500 hover:bg-gray-700",
+        action: () => deleteItems(selectedUserIds),
+        allowedRoles: ["user"],
+    },
 ]);
 
 // ------- 테이블 --------
 const userColumns = ref([
-{ label: '번호', key: 'productId' },
-{ label: '분야', key: 'productDomain' },
-{ label: '분류', key: 'productCategory' },
-{ label: '제품명', key: 'productName' },
-{ label: '최소단위', key: 'productMinQuantity' },
-{ label: '주문수량', key: 'productQuantity' },
+    {label: "번호", key: "productId"},
+    {label: "분야", key: "productDomain"},
+    {label: "분류", key: "productCategory"},
+    {label: "제품명", key: "productName"},
+    {label: "최소단위", key: "productMinQuantity"},
+    {label: "주문수량", key: "productQuantity"},
 ]);
 
 const products = ref([
-    { id: 1, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
-    { id: 2, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
-    { id: 3, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
-    { id: 4, categroy: 'PO', categroy2: 'LDPE', productName: '303', productMinQuantity: '10', inven: '9999'},
+    {id: 1, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
+    {id: 2, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
+    {id: 3, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
+    {id: 4, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
 ]);
 
 const orders = ref([]);
 
 const editBtn = async (item) => {
-    if(item){
+    if (item) {
         item.isEditing = !item.isEditing;
-        if(item.isEditing === false){
+        if (item.isEditing === false) {
             await apiClient.put(`/orderitem/${orders.value.orderId}/renew/${item.productId}?quantity=${item.productQuantity}`);
         }
     }
 };
 
+// 주문 단일 취소
 const deleteBtn = (productId) => {
-if (confirm(t('script.delete'))) {
-    // 삭제 처리 로직 호출
-    deletePostData(productId);
-}
+    if (confirm(t("script.delete"))) {
+        deletePostData([productId]);
+    }
 };
 
-// 상품 삭제
-const deletePostData = async (productId) => {
+// 주문 일괄 취소
+const deleteItems = async (selectedItems) => {
+    if (selectedItems.value.length <= 0) {
+        alert("항목을 선택해주세요!");
+    } else if (confirm(selectedItems.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
+        const rowSelectedItems = toRaw(selectedItems.value);
+        deletePostData(rowSelectedItems);
+    }
+    selectedItems.value = []; // 초기화
+};
+
+// 주문 취소 처리
+const deletePostData = async (params) => {
     try {
-        await apiClient.delete(`/orderitem/${orders.value.orderId}/out/${productId}`);
+        await apiClient.delete(`/orderitem/${orders.value.orderId}/out`, {
+            params: {productIds: params}, // 리스트 데이터를 직접 전달
+            // 쿼리 스트링 직접 변환
+            paramsSerializer: (params) => {
+                return params.productIds.map((id) => `productIds=${id}`).join("&"); // 배열을 올바르게 직렬화
+            },
+        });
+
         fetchData();
     } catch (error) {
-        alert(error.response.data.message);
+        console.log(error);
+        alert(error);
     }
 };
 
@@ -214,21 +225,21 @@ const fetchData = async () => {
 
     if (searchQuery.value && selectOption.value) {
         // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value; 
+        params[selectOption.value] = searchQuery.value;
     }
 
     try {
-        const response = await apiClient.get(`/orderitem/${orderId.value}`, { params });
+        const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
         if (response.status === 200) {
             console.log(response.data.message);
             console.log(response.data.data);
-            products.value = response.data.data.map(item => ({
+            products.value = response.data.data.map((item) => ({
                 productId: item.product.productId,
                 category: item.product.category,
                 productName: item.product.productName,
                 productMinQuantity: item.product.productMinQuantity,
                 productQuantity: item.product.productQuantity,
-                isEditing: false // 수정 모드 초기화
+                isEditing: false, // 수정 모드 초기화
             }));
             orders.value = response.data.data[0].order;
             /*
@@ -248,64 +259,47 @@ const fetchData = async () => {
             console.log(orders.value);
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
-            alert(t('errors.fetch_data_failed'));
+            alert(t("errors.fetch_data_failed"));
         }
     } catch (err) {
-        console.error(t('errors.fetch_data_erro'), err);
+        console.error(t("errors.fetch_data_erro"), err);
     }
 };
 
 // 선택한 행에 대한 정보 처리
 const handleRowClick = (item) => {
-selectedId.value = item.productId; // 선택된 항목 ID 업데이트
-showModal.value = true;
+    selectedId.value = item.productId; // 선택된 항목 ID 업데이트
+    showModal.value = true;
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
-// 모달 상태를 localstorage에 넣어서 상태 관리
-const modalConfirmed = localStorage.getItem('modalConfirmed')
-if (modalConfirmed === 'true') {
-    showModal.value = false
-}
+    // 모달 상태를 localstorage에 넣어서 상태 관리
+    const modalConfirmed = localStorage.getItem("modalConfirmed");
+    if (modalConfirmed === "true") {
+        showModal.value = false;
+    }
     fetchData();
 });
 
 // ------- 페이지네이션 --------
 const handleSetPage = (page) => {
-currentPage.value = page;
-fetchData();
+    currentPage.value = page;
+    fetchData();
 };
 
 // ------ 기타 -------
 
 // 체크박스 선택된 항목 처리
 const handleSelectedItems = (selectedIds) => {
-selectedUserIds.value = selectedIds;
-console.log('선택된 아이템 ID:', selectedUserIds.value);
-// selectedUserIds.value.length
-};
-
-// 게시글 삭제
-const deleteItems = async (selectedItemLength) => {
-// try {
-//   await apiClient.delete(`/notice/${noticeId}`);
-//   alert("삭제 됐습니다.");
-//   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-//   router.push("/notices/");
-// } catch (error) {
-//   alert(error.response.data.message);
-// }
-if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")){
-    alert('미구현!')
-}
+    selectedUserIds.value = selectedIds;
+    // selectedUserIds.value.length
 };
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
-watch(selectedLang, (newLang) =>{
-    const langCode = newLang === 'KOR' ? 'ko' : 'en'
-    locale.value = langCode
-    localStorage.setItem('selectedLang', langCode)
-})
-
+watch(selectedLang, (newLang) => {
+    const langCode = newLang === "KOR" ? "ko" : "en";
+    locale.value = langCode;
+    localStorage.setItem("selectedLang", langCode);
+});
 </script>
