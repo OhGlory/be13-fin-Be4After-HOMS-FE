@@ -5,7 +5,6 @@ import {storeToRefs} from "pinia";
 import AdminDashBoard from "@/pages/admin/dashboard/AdminDashBoard.vue";
 import AdminAccount from "@/pages/admin/account/AdminAccount.vue";
 import BaseLayout from "@/components/common/BaseLayout.vue";
-import AdminOrders from "@/pages/admin/order/Order.vue";
 import Setting from "@/pages/common/Setting.vue";
 import Claims from "@/pages/admin/order/Claim.vue";
 import ProductForm from "@/pages/admin/product/ProductForm.vue";
@@ -64,12 +63,6 @@ const router = createRouter({
           path: "settlements",
           name: "AdminSettlement",
           component: AdminSettlements,
-          meta: {requiresAuth: true, role: "admin"},
-        },
-        {
-          path: "orders",
-          name: "AdminOrders",
-          component: AdminOrders,
           meta: {requiresAuth: true, role: "admin"},
         },
         {

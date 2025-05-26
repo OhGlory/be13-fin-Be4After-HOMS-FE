@@ -5,53 +5,57 @@
             <span>주문관리 > 주문목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
+        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
+            @row-click="handleRowClick" uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{item}">
+            <template #cell-id="{ item }">
                 <strong>{{ item.orderId }}</strong>
             </template>
-            <template #cell-orderDate="{item}">
+            <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
-            <template #cell-dueDate="{item}">
+            <template #cell-dueDate="{ item }">
                 {{ new Date(item.dueDate).toLocaleDateString() }}
             </template>
-            <template #cell-approved="{item}">
+            <template #cell-approved="{ item }">
                 <strong v-if="item.approved === true">승인</strong>
                 <strong v-else-if="item.approved === false">거부</strong>
                 <strong v-else>미승인</strong>
             </template>
-            <template #cell-productQuantity="{item}">
+            <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
+                }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input
-                        type="number"
+                    <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1"
-                        max="9999"
-                        v-model.number="item.productQuantity"
-                        @click.stop
-                        @mousedown.stop
-                    />
+                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{item}">
-                <div v-if="isAdmin">
-                    <button @click="editBtn(item.editMode)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+            <template #actions="{ item }">
+                <div v-if="isAdmin && item.approved === false">
+                    <button @click="editBtn(item.editMode)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                    <button @click="deleteBtn(item.productId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                </div>
+                <div v-else-if="isAdmin && item.approved === true">
+                    <strong>승인됨</strong>
                 </div>
                 <div v-else>
-                    <button v-if="item.approved !== true" @click="deleteBtn(item.orderId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
+                    <button v-if="item.approved !== true" @click="deleteBtn(item.orderId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
     </div>
 </template>
 
@@ -98,20 +102,20 @@ const handleSelectOption = ref([
     {value: "productCategory", label: "분류"},
 ]);
 // 액션 버튼 정의
-const actionButtons = ref([
-    {
-        label: "일괄승인",
-        color: "bg-orange-500 hover:bg-orange-700",
-        action: (item) => console.log("추가:", item),
-        allowedRoles: ["admin", "editor"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
-    },
-    {
-        label: "일괄제거",
-        color: "bg-gray-500 hover:bg-gray-700",
-        action: (item) => console.log("삭제:", item),
-        allowedRoles: ["admin"], // 이 버튼은 'admin'만 볼 수 있음
-    },
-]);
+// const actionButtons = ref([
+//     {
+//         label: "일괄승인",
+//         color: "bg-orange-500 hover:bg-orange-700",
+//         action: (item) => console.log("추가:", item),
+//         allowedRoles: ["admin", "editor"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
+//     },
+//     {
+//         label: "일괄제거",
+//         color: "bg-gray-500 hover:bg-gray-700",
+//         action: (item) => console.log("삭제:", item),
+//         allowedRoles: ["admin"], // 이 버튼은 'admin'만 볼 수 있음
+//     },
+// ]);
 
 // ------- 테이블 --------
 const orderColumns = ref([
@@ -166,12 +170,7 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get("/order/");
         if (response.status === 200) {
-            console.log(response.data.message);
-            console.log(response.data.data);
-
             orders.value = response.data.data;
-
-            console.log(orders.value);
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));

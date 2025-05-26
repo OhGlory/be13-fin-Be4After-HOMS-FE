@@ -8,7 +8,7 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"  
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"  
     @row-click="handleRowClick"
         :column-classes="{
           title: 'text-start font-semibold text-gray-700',
@@ -83,12 +83,12 @@ const actionButtons = ref([
     action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
-  {
-    label: t('btn.del'),
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => deleteItems(selectedUserIds.value.length),
-    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
-  }
+  // {
+  //   label: t('btn.del'),
+  //   color: "bg-gray-500 hover:bg-gray-700",
+  //   action: () => deleteItems(selectedUserIds.value.length),
+  //   allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
+  // }
 ]);
 
 // ------- 테이블 --------
