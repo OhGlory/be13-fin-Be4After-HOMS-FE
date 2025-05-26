@@ -52,6 +52,7 @@ const goToNotice = () => {
 const fetchData = async () => {
     const authStore = useAuthStore()
     console.log("fetchData 진입 - accessToken:", authStore.accessToken)
+    console.log(authStore.user)
 
     try{
     const response = await apiClient('notice/');

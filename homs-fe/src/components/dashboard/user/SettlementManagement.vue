@@ -37,11 +37,14 @@
   <script setup>
   import apiClient from '@/api'
   import { userStore } from '@/states/user'
+  import { useAuthStore } from '@/states/auth';
   import { storeToRefs } from 'pinia';
   import { onMounted, ref } from 'vue'
   import { useRouter } from 'vue-router'
 
+
   const store = userStore();
+  const authstore = useAuthStore();
   const {userId} = storeToRefs(store);
   const router = useRouter()
   
@@ -77,8 +80,7 @@
   }
 
   const fetchData = async () => {
-    // const response = apiClient.get(`settlement/userId/${userId.value}`)
-    const response = await apiClient.get(`settlement/user/1`)
+    const response = await apiClient.get(`settlement/user/${authstore.user.userId}`)
     const data = response.data.data
     console.log("대시보드 정산 관리 데이터:",data)
     settlementsList.value = data.map((item,index)=>({
