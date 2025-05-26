@@ -32,7 +32,8 @@
           <span class="overflow-hidden rounded-full h-11 w-11">
             <img :src="logoImg" alt="logo" class="object-cover w-full h-full" />
           </span>
-          <div>영광상사</div>
+          <div v-if="authStore.user">{{ authStore.user.managerName ?? '사용자'}}</div>
+          <div v-else>로그인 중...</div>
           <div class="cursor-pointer hover:underline" @click="Logout">Logout</div>
         </div>
       </div>
@@ -44,17 +45,31 @@ import logoImg from '@/assets/homsLogo.png'
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/states/auth';
+import apiClient from '@/api';
 
 const { t } = useI18n()
-const LoginStatus = ref('Login')
 const isOpen = ref(false)
 const router = useRouter();
+const authStore = useAuthStore();
 
   
 // 로그 아웃 기능 구현
-function Logout(){
-  router.push('/login');
-
+async function Logout(){
+  
+  try {
+    // accessToken을 Authorization 헤더에 담아서 보내기
+    await apiClient.post('/auth/signout', null, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      }
+    });
+  } catch (err) {
+    console.error('Logout API error', err);
+  } finally {
+    authStore.clearAuth();  // 상태 초기화 (토큰, 유저정보 등)
+    router.push('/login');  // 로그인 페이지로 이동
+  }
 }
 
 function toggleDropdown() {

@@ -56,6 +56,7 @@ import { ref,onMounted } from 'vue';
 import { userStore } from '@/states/user';
 import { storeToRefs } from 'pinia'
 import apiClient from '@/api';
+import { useAuthStore } from '@/states/auth';
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -65,7 +66,7 @@ const showTIModal = ref(false);
 const showCheckModal = ref(false);
 // 계정 관련
 const store = userStore();
-const { userId } = storeToRefs(store); 
+const authstore = useAuthStore();
 
 // 데이터
 const users = ref([
@@ -83,10 +84,8 @@ const handleSelectOption = ref([
 const fetchData = async() => {
 try{
   // 나중에 유저 연결했을때 유저 정보 받아오는 부분
-  // const response = await apiClient.get('settlement/user/{userId.value}');
-  const response = await apiClient.get('/settlement/user/1');
+  const response = await apiClient.get(`settlement/user/${authstore.user.userId}`);
   const data = response.data.data;
-  console.log("정산 데이터", data);
   users.value = data.map((item, index) => ({
     id: index +1,
     orderCode: item.orderCode,

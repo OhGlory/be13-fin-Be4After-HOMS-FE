@@ -77,10 +77,16 @@
   import { useI18n } from 'vue-i18n'
   import apiClient from '@/api';
   import { useAuthStore } from '@/states/auth';
-  import { type SignInDto, type SignInResponseDto } from '@/domain/user';
+  import { type SignInDto, type SignInResponseDto, type UserRole } from '@/domain/user';
   import { type UserProfile } from '@/domain/user';
+  import { fetchUserProfile } from '@/api/user';
+  import  {jwtDecode}  from 'jwt-decode';
+  import { userStore } from '@/states/user';
+
+  
 
   const authStore = useAuthStore();
+  const store = userStore();
   
   const { locale } = useI18n()
   const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
@@ -88,11 +94,21 @@
   const showRegisterModal = ref(false)
   const showPasswordResetModal = ref(false)
   const router = useRouter();
-
+  
   interface Credentials {
     username: string;
     password: string;
   }
+
+  interface JwtPayload{
+  "sub": string,
+  "role": UserRole,
+  "iss": string,
+  "jti": string,
+  "iat": string,
+  "exp": string
+}
+
 
   const credentials = ref<Credentials>({
     username: '',
@@ -113,6 +129,7 @@
 
 async function onSubmit(): Promise<void> {
     errorMessage.value = '';
+    console.log("로그인 시도");
 
     const payload: SignInDto = {
         userName: credentials.value.username,
@@ -122,15 +139,41 @@ async function onSubmit(): Promise<void> {
   try {
     // 1) 로그인 → 토큰 발급
     const { data: tokens } = await apiClient.post<SignInResponseDto>('/auth/signin', payload)
-    authStore.setTokens(tokens.data.accessToken, tokens.data.refreshToken)
+    const {accessToken, refreshToken, userId} = tokens.data;
 
+    console.log('tokens.data', tokens.data);
+
+    const decoded: JwtPayload = jwtDecode(accessToken);
+    const userRole = decoded.role;
+
+    console.log("authStore.user?.role 권한은 뭘까용??", authStore.user?.role);
+    console.log("authStore.user 권한은 뭘까용??", authStore.user);
+    console.log("userRole 권한은 뭘까용??", userRole);   //이거로 ROLE_ADMIN나옴
+    console.log("decoded 권한은 뭘까용??", decoded);
+
+    authStore.setTokens(accessToken,refreshToken);    
 
     // // 2) 내 프로필 조회
-    // const { data: profile } = await apiClient.get<UserProfile>('/user/')
-    // authStore.setUser(profile)
+    const  profile  = await fetchUserProfile(userId);
+    console.log("profile 응답 내용:", profile); // role이 포함되어 있는지 확인
+    const userWithRole: UserProfile = {
+      ...profile,
+      role: userRole
+    };
+    authStore.setUser(userWithRole);
 
+
+    store.setRole(profile.role)
+    
     // 3) 홈으로 이동
-    router.push({ name: 'UserDashBoard' })
+    // router.push({ name: 'UserDashBoard' })
+    
+    const role = authStore.user?.role;
+    if(role=='ROLE_ADMIN'){
+      router.push({name: 'AdminDashBoard'})
+      }else if(role=='ROLE_USER'){
+          router.push({name: 'UserDashBoard'})
+    }
   } catch (err: any) {
     if (err.response?.status === 401) {
       errorMessage.value =

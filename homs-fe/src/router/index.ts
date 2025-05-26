@@ -1,6 +1,8 @@
+import { useAuthStore } from '@/states/auth';
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { userStore } from '@/states/user' // 유저 스토어
 import { storeToRefs } from 'pinia'
+import { fetchUserProfile } from '@/api/user';
 
 import AdminDashBoard from '@/pages/admin/dashboard/AdminDashBoard.vue'
 import AdminAccount from '@/pages/admin/account/AdminAccount.vue'
@@ -45,79 +47,79 @@ const router = createRouter({
       path: "/admin",
       name: "AdminLayout",
       component: BaseLayout,
-      // meta: { requiresAuth: true, role: 'admin' },       // 대시보드 진입을 위한 주석
+      meta: { requiresAuth: true, role: 'ROLE_ADMIN' },       // 대시보드 진입을 위한 주석
       children: [
         {
           path: "",
           name: "AdminDashBoard",
           component: AdminDashBoard,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "adminaccount",
           name: "AdminAccount",
           component: AdminAccount,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "settlements",
           name: "AdminSettlement",
           component: AdminSettlements,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "orders",
           name: "AdminOrders",
           component: AdminOrders,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "claims",
           name: "AdminClaims",
           component: Claims,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "menu-settings",
           name: "MenuSettings",
           component: MenuSettings,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "clients",
           name: "Clients",
           component: Clients,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "contracts",
           name: "Contracts",
           component: Contracts,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "categories",
           name: "Categories",
           component: Categories,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "notices/form",
           name: "AdminNoticesFrom",
           component: AdminNoticesForm,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "products/form",
           name: "ProductForm",
           component: ProductForm,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
           path: "setting",
           name: "AdminSetting",
           component: Setting,
-          meta: {requiresAuth: true, role: "admin"},
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
       ],
     },
@@ -125,48 +127,49 @@ const router = createRouter({
       path: "/",
       name: "UserLayout",
       component: BaseLayout,
-      // meta: { requiresAuth: true, role: 'user' },
+      meta: { requiresAuth: true, role: 'ROLE_USER' },
       children: [
         {
           path: "",
           name: "UserDashBoard",
           component: UserDashBoard,
-          // meta: { requiresAuth: true, role: 'user' },        // 대시보드 진입을 위한 주석
+          meta: { requiresAuth: true, role: 'ROLE_USER' },        // 대시보드 진입을 위한 주석
         },
         {
           path: "accounts",
           name: "Accounts",
           component: Accounts,
-          meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
           path: "products",
           name: "UserProducts",
           component: Products,
-          // meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: false},
         },
         {
           path: "orders",
           name: "UserOrders",
           component: Orders,
-          meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
           path: "delivery",
           name: "Delivery",
           component: Deliverys,
-          meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
           path: "settlements",
           name: "UserSettlements",
           component: Settlements,
-          meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
           path: "notices",
           name: "UserNotices",
           component: Notices,
+          meta: {requiresAuth: false},
         },
         {
           path: "notices/:id",
@@ -188,34 +191,40 @@ const router = createRouter({
 
 // 로그인 상태 관리 (권한)
 router.beforeEach((to, from, next) => {
-  const userAuth = userStore()
-  const { role } = storeToRefs(userAuth)
+  // const userAuth = userStore()
+  // const { role } = storeToRefs(userAuth)
+
+  const authStore = useAuthStore();
+  const role = authStore.user?.role;
 
 
   const requiresAuth = to.meta.requiresAuth;
-  const allowedRole = to.meta.role as "admin" | "user" | undefined;
+  const allowedRole = to.meta.role as "ROLE_ADMIN" | "ROLE_USER" | undefined;
+
+  console.log('라우팅 가드: role =', role);
+  console.log('라우팅 가드: 이동하려는 페이지 =', to.fullPath);
 
   // 인증
-  // if (requiresAuth) {
-  //   if (!role.value) {
-  //     // 인증 정보 없음
-  //     return next({ path: '/login' })
-  //   }
+  if (requiresAuth) {
+    if (!role) {
+      // 인증 정보 없음
+      return next({ path: '/login' })
+    }
 
-  //   if (allowedRole && role.value !== allowedRole) {
-  //     // 권한 없음
-  //     return next({ path: '/login' })
-  //   }
-  // }
+    if (allowedRole && role !== allowedRole) {
+      // 권한 없음
+      return next({ path: '/login' })
+    }
+  }
 
   // 나중에 권한에 따라 페이지 리다이렉트 하는 코드임
-  // if (to.path === '/') {
-  //   if (role.value === 'admin') {
-  //     return next({ path: '/admin' })
-  //   } else if (role.value === 'user') {
-  //     return next({ path: '/' })
-  //   }
-  // }
+  if (to.path === '/') {
+    if (role === 'ROLE_ADMIN') {
+      return next({ path: '/admin' });
+    } else if (role === 'ROLE_USER' && to.name !== 'UserDashBoard') {
+      return next({ name: 'UserDashBoard' });
+    }
+  }
   return next();
 });
 

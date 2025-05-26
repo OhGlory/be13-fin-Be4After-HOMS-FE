@@ -6,15 +6,18 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {fas} from "@fortawesome/free-solid-svg-icons";
 import {far} from "@fortawesome/free-regular-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from "@/App.vue";
 import router from "@/router";
 import i18n from "@/i18n";
+import { userStore } from './states/user'
 
 library.add(fas, far);
 
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 const app = createApp(App);
-const pinia = createPinia();
 
 app.use(i18n);
 app.use(pinia);
@@ -22,8 +25,9 @@ app.use(router);
 app.component("font-awesome-icon", FontAwesomeIcon);
 
 // 권한 관련
-import { userStore } from './states/user'
+
 const userAuth = userStore()
 // userAuth.setRole('user')
+
 
 app.mount('#app')

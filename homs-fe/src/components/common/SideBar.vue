@@ -40,6 +40,7 @@ import { ref, computed } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { userStore } from '@/states/user'
 import logo from '@/assets/homsLogo.png'
+import { useAuthStore } from '@/states/auth'
 
 // 메뉴 아이템 타입 정의
 interface MenuChild {
@@ -57,8 +58,14 @@ interface MenuItem {
 
 
   // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-  const userAuth = userStore()
-  const isAdmin = computed(() => userAuth.isAdmin)
+  // const userAuth = userStore()
+  // const isAdmin = computed(() => userAuth.isAdmin)
+
+  const authStore = useAuthStore();
+  const role = computed(() => authStore.user?.role)
+  const isAdmin = computed(() => role.value === 'ROLE_ADMIN')
+
+  console.log("role++++", role)
 
 
 const getPath = (basePath: string, adminOnly?: boolean): string => {
@@ -124,7 +131,6 @@ const logoPath = computed(() => {
       ],
     }
   ])
-
 
 
 const toggleMenu = (index: number): void => {
