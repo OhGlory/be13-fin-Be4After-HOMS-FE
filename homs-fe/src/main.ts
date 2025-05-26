@@ -26,8 +26,10 @@ app.component("font-awesome-icon", FontAwesomeIcon);
 
 // 권한 관련
 
+
 const userAuth = userStore()
 // userAuth.setRole('user')
+
 
 
 app.mount("#app");

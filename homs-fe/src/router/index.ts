@@ -1,8 +1,10 @@
+
 import { useAuthStore } from '@/states/auth';
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { userStore } from '@/states/user' // 유저 스토어
 import { storeToRefs } from 'pinia'
 import { fetchUserProfile } from '@/api/user';
+
 
 import AdminDashBoard from "@/pages/admin/dashboard/AdminDashBoard.vue";
 import AdminAccount from "@/pages/admin/account/AdminAccount.vue";
@@ -155,6 +157,12 @@ const router = createRouter({
           meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
+          path: "orders/list",
+          name: "OrderItemList",
+          component: OrderItemList,
+          meta: {requiresAuth: true, role: "user"},
+        },
+        {
           path: "delivery",
           name: "Delivery",
           component: Deliverys,
@@ -192,6 +200,7 @@ const router = createRouter({
 
 // 로그인 상태 관리 (권한)
 router.beforeEach((to, from, next) => {
+
   // const userAuth = userStore()
   // const { role } = storeToRefs(userAuth)
 
