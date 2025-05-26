@@ -5,8 +5,7 @@
             <span>주문관리 > 주문목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
             @row-click="handleRowClick" uniqueKey="orderId">
@@ -41,10 +40,10 @@
                 <div v-if="authStore.isAdmin">
                     <!-- 미승인 상태 -->
                     <div v-if="item.approved === false && item.rejectReason === null">
-                    <button @click="rejectOrder(item.orderId)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                    <button @click="approveOrder(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                        <button @click="rejectOrder(item.orderId)"
+                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                        <button @click="approveOrder(item.orderId)"
+                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                     </div>
 
                     <div v-else-if="item.approved === false && item.rejectReason !== null">
@@ -56,13 +55,15 @@
                         <strong>승인됨</strong>
                     </div>
                 </div>
-                
+
                 <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved === false && item.rejectReason === null" @click="cancleBtn(item.orderId)"
+                    <button v-if="item.approved === false && item.rejectReason === null"
+                        @click="cancleBtn(item.orderId)"
                         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
-                    <button v-else-if="item.approved === false && item.rejectReason !== null" @click="cancleBtn(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">사유</button>
+                    <button v-else-if="item.approved === false && item.rejectReason !== null"
+                        @click="rejectReasonView(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white
+                        font-bold py-2 px-4 rounded text-sm">사유</button>
                 </div>
             </template>
         </DynamicTable>
@@ -71,14 +72,9 @@
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
         </PageNav>
         <!-- 알림 모달 -->
-        <Notify
-            :visible="showModal"
-            :text="modalText"
-            :showTextArea="showTextAreaInput"
-            :textAreaPlaceholder="textAreaHint"
-            @update:visible="showModal = $event"
-            @confirm="confirmModal"
-            @cancel="showModal = false"/>
+        <Notify :visible="showModal" :text="modalText" :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint" @update:visible="showModal = $event" @confirm="confirmModal"
+            @cancel="showModal = false" />
     </div>
 </template>
 
@@ -203,6 +199,19 @@ const cancleBtn = async (orderId) => {
         }
     }
 };
+
+const rejectReasonView = async (orderId) => {
+    try {
+        const response = await apiClient.get(`/order/${orderId}`);
+        if (response.status === 200) {
+            alert(response.data.data.rejectReason);
+        } else {
+            alert(t("errors.fetch_data_failed"));
+        }
+    } catch (err) {
+        console.error(t("errors.fetch_data_erro"), err);
+    }
+}
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
