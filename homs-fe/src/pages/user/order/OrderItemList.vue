@@ -2,7 +2,7 @@
     <div>
         <!-- 제목 -->
         <div class="text-3xl px-3 py-3">
-            <span>상품관리 > 상품목록</span>
+            <span>주문관리 > 주문목록 > 상세주문</span>
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
@@ -12,9 +12,10 @@
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems"
             @row-click="handleRowClick" uniqueKey="productId">
+            <p>{{ item }}</p>
             <!-- 항목 상세 설정 -->
-            <template #cell-productId="{ item }">
-                <strong>{{ item.productId }}</strong>
+            <template #cell-id="{ item }">
+                <strong>{{ item.produt.productId }}</strong>
             </template>
             <template #cell-category="{ item }">
                 {{ item.category?.categoryId }}
@@ -27,29 +28,31 @@
             </template>
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined">
-                    {{ item.productQuantity }}
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
+                    }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
+                    <input type="number"
+                        class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
+                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
             <template #actions="{ item }">
                 <div v-if="isAdmin">
-                    <button @click="editBtn(item.productId)"
+                    <button @click="editBtn(item.editMode)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                    <button @click="deleteBtn(item.productId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                </div>
+                <div v-else>
+                    <button @click="editBtn(item)"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                        {{ $t("btn.edit") }}
+                        {{ item.isEditing ? "완료" : $t("btn.edit") }}
                     </button>
                     <button @click="deleteBtn(item.productId)"
                         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.del") }}
                     </button>
-                </div>
-                <div v-else>
-                    <input type="number"
-                        class="rounded mr-2 border-1 border-gray-300 w-24 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.quantityToOrder" @mousedown.stop />
-                    <button @click="orderBtn(item.productId, item.quantityToOrder)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">발주
-                        추가</button>
                 </div>
             </template>
         </DynamicTable>
@@ -81,7 +84,7 @@ const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
 const router = useRouter();
 const route = useRoute();
 
-const orderId = ref(route.query.orderId || ""); // 추가 주문 여부
+const orderId = ref(route.query.orderId || "");
 
 const showModal = ref(false); // 모달 상태 관리
 const selectedId = ref(null); // 선택된 항목 ID
@@ -90,7 +93,7 @@ const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(0); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 
-const selectedProductId = ref([]); // 선택된 항목 ID
+const selectedUserIds = ref([]); // 선택된 항목 ID
 
 const searchQuery = ref(""); // 검색어
 const selectOption = ref(""); // 검색 옵션
@@ -103,6 +106,7 @@ const handleExcelUploadClick = () => {
   excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
+// const products = ref({});
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -130,15 +134,15 @@ const actionButtons = ref([
     {
         label: t("btn.del"),
         color: "bg-gray-500 hover:bg-gray-700",
-        action: () => deleteItems(selectedProductId.value.length),
+        action: () => deleteItems(selectedUserIds.value.length),
         allowedRoles: ["admin"],
     },
     // 이 버튼은 'user'만 볼 수 있음
     {
-        label: "전체목록",
+        label: "주문목록",
         color: "bg-gray-500 hover:bg-gray-700",
         action: () => excelDown(),
-        allowedRoles: ["admin","user"],
+        allowedRoles: ["user"],
     },
     {
         label: "엑셀주문",
@@ -147,15 +151,15 @@ const actionButtons = ref([
         allowedRoles: ["user"],
     },
     {
-        label: "일괄추가",
+        label: "상품목록",
         color: "bg-orange-500 hover:bg-orange-700",
-        action: () => addItems(selectedProductId.value),
+        action: () => router.push({name: "UserProducts", query: {orderId: orderId.value}}),
         allowedRoles: ["user"],
     },
     {
-        label: "주문목록",
+        label: "일괄삭제",
         color: "bg-gray-500 hover:bg-gray-700",
-        action: () => orderListBtn(),
+        action: () => deleteItems(selectedUserIds),
         allowedRoles: ["user"],
     },
 ]);
@@ -167,7 +171,7 @@ const userColumns = ref([
     {label: "분류", key: "productCategory"},
     {label: "제품명", key: "productName"},
     {label: "최소단위", key: "productMinQuantity"},
-    {label: "재고량", key: "productQuantity"},
+    {label: "주문수량", key: "productQuantity"},
 ]);
 
 const products = ref([
@@ -177,107 +181,113 @@ const products = ref([
     {id: 4, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
 ]);
 
-// 개별 추가
-const orderBtn = async (productId, quantity) => {
-    if (confirm("상품을 주문목록에 추가하시겠습니까?")) {
-        const selectedProductIds = ref([]);
-        selectedProductIds.value.push({
-            productId: productId,
-            quantity: quantity,
-        });
+const orders = ref([]);
 
-        if (!orderId.value) {
-            if (confirm("새로운 주문목록을 생성하시겠습니까?")) {
-                const order = await apiClient.post("/order/");
-                orderId.value = order.data.data.orderId;
-            }
+const editBtn = async (item) => {
+    if (item) {
+        item.isEditing = !item.isEditing;
+        if (item.isEditing === false) {
+            await apiClient.put(`/orderitem/${orders.value.orderId}/renew/${item.productId}?quantity=${item.productQuantity}`);
         }
-        orderItemPost(orderId, selectedProductIds.value);
     }
 };
 
-// 일괄 추가
-const addItems = async (selectedItem) => {
-    if (selectedItem.length <= 0) {
-        alert("항목을 선택해주세요!");
-    } else if (confirm(selectedItem.length + "개의 항목을 추가하시겠습니까?")) {
-        const selectedProductIds = ref([]);
-
-        // 반복문으로 Id값을 비교하여 개수 가져와 할당
-        selectedItem.forEach((selectedItem) => {
-            const foundProduct = products.value.find((product) => product.productId === selectedItem);
-            if (foundProduct) {
-                selectedProductIds.value.push({
-                    productId: foundProduct.productId,
-                    quantity: foundProduct.quantityToOrder,
-                });
-            }
-        });
-
-        if (!orderId.value) {
-            if (confirm("새로운 주문목록을 생성하시겠습니까?")) {
-                const order = await apiClient.post("/order/");
-                orderId.value = order.data.data.orderId;
-            }
-        }
-        orderItemPost(orderId, selectedProductIds.value);
-    }
-};
-
-// 주문한 아이템을 저장하는 메서드
-const orderItemPost = async (orderId, params) => {
-    // toRaw를 사용하여 원본 자바스크립트 객체로 변환
-    const rawParams = toRaw(params);
-    await apiClient.post(`/orderitem/${orderId.value}`, rawParams);
-    router.push({name: "OrderItemList", query: {orderId: orderId.value}});
-};
-
-const editBtn = (productId) => {
-    router.push({name: "ProductForm", query: {productId: productId}});
-};
-
+// 주문 단일 취소
 const deleteBtn = (productId) => {
     if (confirm(t("script.delete"))) {
-        // 삭제 처리 로직 호출
-        deletePostData(productId);
+        deletePostData([productId]);
     }
 };
 
-// 상품 삭제
-const deletePostData = async (productId) => {
+// 주문 일괄 취소
+const deleteItems = async (selectedItems) => {
+    if (selectedItems.value.length <= 0) {
+        alert("항목을 선택해주세요!");
+    } else if (confirm(selectedItems.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
+        const rowSelectedItems = toRaw(selectedItems.value);
+        deletePostData(rowSelectedItems);
+    }
+    selectedItems.value = []; // 초기화
+};
+
+// 주문 취소 처리
+const deletePostData = async (params) => {
     try {
-        const response = await apiClient.get(`/product/files/${productId}`);
-        const files = response.data.data;
-        console.log(files);
-        // 반복문으로 files에서 key값을 기준으로 value를 가져옴
-        Object.keys(files).forEach(async (key) => {
-            const value = files[key];
-            if (value !== null && value !== undefined && value !== "") {
-                // s3로 시작하는 key값의 value를 가져옴
-                if (key.startsWith("s3")) {
-                    await apiClient.delete(`/files/delete?key=${value}`);
-                }
-            }
+        await apiClient.delete(`/orderitem/${orders.value.orderId}/out`, {
+            params: {productIds: params}, // 리스트 데이터를 직접 전달
+            // 쿼리 스트링 직접 변환
+            paramsSerializer: (params) => {
+                return params.productIds.map((id) => `productIds=${id}`).join("&"); // 배열을 올바르게 직렬화
+            },
         });
 
-        const response2 = await apiClient.delete(`/product/files/${productId}`);
-        console.log(response2.data);
+        fetchData();
     } catch (error) {
-        console.log("파일이 없습니다.");
+        console.log(error);
+        alert(error);
+    }
+};
+
+// 데이터 가져오는 함수
+const fetchData = async () => {
+    // 기본 요청 파라미터
+    const params = {
+        page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
+        size: pageSize.value,
+    };
+
+    if (searchQuery.value && selectOption.value) {
+        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
+        params[selectOption.value] = searchQuery.value;
     }
 
     try {
-        await apiClient.delete(`/product/${productId}`);
-        router.push("/products/");
-        fetchData();
-    } catch (error) {
-        alert(error.response.data.message);
+        const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
+        if (response.status === 200) {
+            console.log(response.data.message);
+            console.log(response.data.data);
+            products.value = response.data.data.map((item) => ({
+                productId: item.product.productId,
+                category: item.product.category,
+                productName: item.product.productName,
+                productMinQuantity: item.product.productMinQuantity,
+                productQuantity: item.product.productQuantity,
+                isEditing: false, // 수정 모드 초기화
+            }));
+            orders.value = response.data.data[0].order;
+            /*
+            .map(item => ({
+                orderCode: item.order.orderCode,
+                orderDate: item.order.orderDate,
+                orderStatus: item.order.orderStatus,
+                orderId: item.order.orderId,
+                dueDate: item.order.dueDate,
+                approved: item.order.approved,
+                parentOrderId: item.order.parentOrderId,
+                rejectReason: item.order.rejectReason
+            }));
+            */
+
+            console.log(products.value);
+            console.log(orders.value);
+            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+        } else {
+            alert(t("errors.fetch_data_failed"));
+        }
+    } catch (err) {
+        console.error(t("errors.fetch_data_erro"), err);
     }
+};
+
+// 선택한 행에 대한 정보 처리
+const handleRowClick = (item) => {
+    selectedId.value = item.productId; // 선택된 항목 ID 업데이트
+    showModal.value = true;
 };
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    const url = basePath+`/excel/download?type=ALL`;
+    const url = basePath+`/excel/download?type=ORDER&orderId=${orderId.value}`;
     window.open(url, '_blank'); // 새 탭 또는 팝업으로 다운로드 시작
 }
 
@@ -288,16 +298,6 @@ const excelUpload = async (event) => {
     if (!file) {
         console.warn("파일이 선택되지 않았습니다.");
         return;
-    }
-
-    if (!orderId.value) {
-        if (confirm("새로운 주문목록을 생성하시겠습니까?")) {
-            const order = await apiClient.post("/order/");
-            orderId.value = order.data.data.orderId;
-        } else{
-            // 취소를 눌렀을 때 종료되도록 설정
-            return 0;
-        }
     }
 
     // FormData 객체 생성: 파일을 서버로 보낼 때 사용합니다.
@@ -315,7 +315,6 @@ const excelUpload = async (event) => {
 
         console.log("파일 업로드 성공:", response.data);
         alert("엑셀 파일이 성공적으로 업로드되었습니다!");
-        router.push({name: "OrderItemList", query: {orderId: orderId.value}});
 
     } catch (error) {
         console.error("파일 업로드 실패:", error);
@@ -325,44 +324,13 @@ const excelUpload = async (event) => {
         } else {
             alert(`엑셀 파일 업로드 실패: ${error.message}`);
         }
+    } finally {
+        // 업로드 후 input 파일 선택을 초기화하여 같은 파일 재선택 가능하게 함
+        event.target.value = '';
+        fetchData();
     }
 }
 
-// 데이터 가져오는 함수
-const fetchData = async () => {
-    // 기본 요청 파라미터
-    const params = {
-        page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
-        size: pageSize.value,
-    };
-
-    if (searchQuery.value && selectOption.value) {
-        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value;
-    }
-
-    try {
-        const response = await apiClient.get("/product/", {params});
-        if (response.status === 200) {
-            console.log(response.data.data);
-            products.value = response.data.data.content.map((item) => ({
-                ...item, // 기존 item의 모든 속성을 복사
-                quantityToOrder: 1, // 각 상품마다 고유한 quantityToOrder 속성 추가 (기본값 1)
-            })); // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
-        } else {
-            alert(t("errors.fetch_data_failed"));
-        }
-    } catch (err) {
-        console.error(t("errors.fetch_data_erro"), err);
-    }
-};
-
-// 선택한 행에 대한 정보 처리
-const handleRowClick = (item) => {
-    selectedId.value = item.productId; // 선택된 항목 ID 업데이트
-    showModal.value = true;
-};
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
@@ -384,30 +352,8 @@ const handleSetPage = (page) => {
 
 // 체크박스 선택된 항목 처리
 const handleSelectedItems = (selectedIds) => {
-    selectedProductId.value = selectedIds;
-    console.log("선택된 아이템 ID:", selectedProductId.value);
-};
-
-const orderListBtn = () => {
-    if (orderId.value) {
-        router.push({name: "OrderItemList", query: {orderId: orderId.value}});
-    } else router.push({name: "UserOrders"});
-};
-
-
-// 다중 삭제
-const deleteItems = async (selectedItemLength) => {
-    // try {
-    //   await apiClient.delete(`/notice/${noticeId}`);
-    //   alert("삭제 됐습니다.");
-    //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-    //   router.push("/notices/");
-    // } catch (error) {
-    //   alert(error.response.data.message);
-    // }
-    if (confirm(selectedProductId.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
-        alert("미구현!");
-    }
+    selectedUserIds.value = selectedIds;
+    // selectedUserIds.value.length
 };
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음

@@ -2,7 +2,7 @@
     <div>
         <!-- 제목 -->
         <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 발주목록</span>
+            <span>주문관리 > 주문목록</span>
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
