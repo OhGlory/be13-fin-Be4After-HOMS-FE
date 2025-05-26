@@ -24,6 +24,6 @@ app.component("font-awesome-icon", FontAwesomeIcon);
 // 권한 관련
 import {userStore} from "./states/user";
 const userAuth = userStore();
-userAuth.setRole("user");
+// userAuth.setRole('user')
 
 app.mount("#app");

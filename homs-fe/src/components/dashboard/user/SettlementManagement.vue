@@ -2,7 +2,7 @@
     <div class="w-full max-w-1/2 p-4 bg-white border border-gray-300 rounded-3xl shadow-lg sm:p-8">
       <div class="flex items-center justify-between mb-4">
         <h5 class="text-xl font-bold leading-none text-gray-900">정산 관리</h5>
-        <a href="#" class="text-sm font-medium hover:underline">+</a>
+        <a href="#" class="text-sm font-medium hover:underline" @click.prevent="goToSettlementPage">+</a>
       </div>
   
       <div class="flow-root">
@@ -35,7 +35,15 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import apiClient from '@/api'
+  import { userStore } from '@/states/user'
+  import { storeToRefs } from 'pinia';
+  import { onMounted, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  const store = userStore();
+  const {userId} = storeToRefs(store);
+  const router = useRouter()
   
   const settlementsList = ref([
     {
@@ -64,18 +72,52 @@
     },
   ])
 
+  const goToSettlementPage = () => {
+    router.push('/settlements') // 유저 전용 정산 페이지 경로
+  }
+
+  const fetchData = async () => {
+    // const response = apiClient.get(`settlement/userId/${userId.value}`)
+    const response = await apiClient.get(`settlement/user/1`)
+    const data = response.data.data
+    console.log("대시보드 정산 관리 데이터:",data)
+    settlementsList.value = data.map((item,index)=>({
+      orderId : item.orderCode,
+      orderDate : new Date(item.orderDate).toISOString().split('T')[0],
+      settlementDate: new Date(item.settlementDate).toISOString().split('T')[0],
+      status : mapSettlementStatus(item.isSettled)
+    }));
+  }
+
   const getColor = (status) =>{
     switch(status) {
-        case "정산":
+        case "완료":
             return "text-green-700"
         case "미정산":
             return "text-red-600"
-        case "정산 대기":
+        case "대기":
             return "text-yellow-400"
         default:
             return "text-gray-900"
     }
   }
+
+  const mapSettlementStatus = (status) => {
+  switch (status) {
+    case 'SETTLED':
+      return '완료';
+    case 'UNSETTLED':
+      return '';
+    case 'WAITING':
+      return '대기';
+    default:
+      return '알 수 없음'; // 예외 처리
+  }
+};
+
+  onMounted(() =>{
+    fetchData();
+  })
   </script>
   
   <style lang="scss" scoped>

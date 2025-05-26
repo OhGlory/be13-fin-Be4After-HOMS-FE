@@ -17,15 +17,27 @@
                     @click="selectedLang = 'ENG'">ENG</span>
             </div>
             <!-- 로그인 폼 -->
-            <form>
+            <form @submit.prevent="onSubmit">
                 <div class="mb-4">
-                    <input placeholder="ID" type="text" class="w-full px-4 py-3  bg-gray-300 font-bold" />
+                    <input 
+                        v-model="credentials.username"
+                        placeholder="ID" 
+                        type="text" 
+                        class="w-full px-4 py-3  bg-gray-300 font-bold" 
+                    />
                 </div>
                 <div class="mb-6">
-                    <input placeholder="PW" type="password" class="w-full px-4 py-3 bg-gray-300 font-bold" />
+                    <input
+                        v-model="credentials.password" 
+                        placeholder="PW" 
+                        type="password" 
+                        class="w-full px-4 py-3 bg-gray-300 font-bold" 
+                    />
                 </div>
-                <button type="submit"
-                    class="w-full bg-orange-500 text-white py-4 hover:bg-orange-600 transition font-bold cursor-pointer">
+                <button 
+                    type="submit"
+                    class="w-full bg-orange-500 text-white py-4 hover:bg-orange-600 transition font-bold cursor-pointer"
+                    >
                     {{ $t('login') }}
                 </button>
             </form>
@@ -55,19 +67,38 @@
 
 </template>
 
-<script setup>
+<script setup lang="ts">
   import backgroundVideo from '@/assets/hanwha_chemical.mp4'
   import Modal from '@/components/common/modal/Modal.vue';
   import PartnerRegisterModal from '@/components/common/modal/PartnerRegisterModal.vue';
   import PasswordResetModal from '@/components/common/modal/PasswordResetModal.vue';
   import { ref, watch, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import { useI18n } from 'vue-i18n'
+  import apiClient from '@/api';
+  import { useAuthStore } from '@/states/auth';
+  import { type SignInDto, type SignInResponseDto } from '@/domain/user';
+  import { type UserProfile } from '@/domain/user';
+
+  const authStore = useAuthStore();
   
   const { locale } = useI18n()
   const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
   const showModal = ref(true)
   const showRegisterModal = ref(false)
   const showPasswordResetModal = ref(false)
+  const router = useRouter();
+
+  interface Credentials {
+    username: string;
+    password: string;
+  }
+
+  const credentials = ref<Credentials>({
+    username: '',
+    password: ''
+  });
+  const errorMessage = ref<string>('');
 
   // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
   watch(selectedLang, (newLang) =>{
@@ -79,6 +110,41 @@
   function confirmModal() {
     showModal.value = false
   }
+
+async function onSubmit(): Promise<void> {
+    errorMessage.value = '';
+
+    const payload: SignInDto = {
+        userName: credentials.value.username,
+        password: credentials.value.password
+    };
+
+  try {
+    // 1) 로그인 → 토큰 발급
+    const { data: tokens } = await apiClient.post<SignInResponseDto>('/auth/signin', payload)
+    authStore.setTokens(tokens.data.accessToken, tokens.data.refreshToken)
+
+
+    // // 2) 내 프로필 조회
+    // const { data: profile } = await apiClient.get<UserProfile>('/user/')
+    // authStore.setUser(profile)
+
+    // 3) 홈으로 이동
+    router.push({ name: 'UserDashBoard' })
+  } catch (err: any) {
+    if (err.response?.status === 401) {
+      errorMessage.value =
+        locale.value === 'ko'
+          ? '아이디 또는 비밀번호가 올바르지 않습니다.'
+          : 'Invalid username or password.'
+    } else {
+      errorMessage.value =
+        locale.value === 'ko'
+          ? '로그인 중 오류가 발생했습니다.'
+          : 'An error occurred during login.'
+    }
+  }
+}
 
     // 모달 상태를 localstorage에 넣어서 상태 관리
   onMounted(() => {

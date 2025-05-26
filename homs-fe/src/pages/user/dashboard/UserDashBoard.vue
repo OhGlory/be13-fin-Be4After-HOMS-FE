@@ -7,10 +7,10 @@
         </div>
         <div class="flex gap-5 mt-10">
             <UserDeliveryState></UserDeliveryState>
-            <Notice></Notice>   
+            <ClaimStatue></ClaimStatue>
         </div>
         <div class="flex gap-5 mt-10">
-            <ClaimStatue></ClaimStatue>
+            <Notice></Notice>  
             <OilPriceTrends></OilPriceTrends>
         </div>
     </div>

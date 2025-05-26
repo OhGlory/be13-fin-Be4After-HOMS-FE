@@ -33,7 +33,7 @@
             <img :src="logoImg" alt="logo" class="object-cover w-full h-full" />
           </span>
           <div>영광상사</div>
-          <div class="cursor-pointer hover:underline" @click="toggleLogin">Logout</div>
+          <div class="cursor-pointer hover:underline" @click="Logout">Logout</div>
         </div>
       </div>
     </header>
@@ -43,14 +43,18 @@
 import logoImg from '@/assets/homsLogo.png'
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n()
 const LoginStatus = ref('Login')
 const isOpen = ref(false)
+const router = useRouter();
 
   
-function toggleLogin(){
-  // 로그 아웃 기능 구현
+// 로그 아웃 기능 구현
+function Logout(){
+  router.push('/login');
+
 }
 
 function toggleDropdown() {
