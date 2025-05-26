@@ -7,9 +7,6 @@
 import { RouterView } from 'vue-router'
 import AppHeader from './components/common/AppHeader.vue';
 import SideBar from './components/common/SideBar.vue';
-
-
-
 </script>
 
 

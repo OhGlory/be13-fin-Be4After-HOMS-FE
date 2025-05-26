@@ -1,12 +1,12 @@
 import {ref, computed} from "vue";
 import {defineStore} from "pinia";
 
-type UserRole = "admin" | "user";
+type UserRole = "ROLE_ADMIN" | "ROLE_USER";
 
 export const userStore = defineStore('user', () => {
-  const role = ref<UserRole>('user') // 기본값은 'user'
-  const isAdmin = computed(() => role.value === 'admin') 
+  const role = ref<UserRole|"">('')
 
+  const isAdmin = computed(() => role.value === 'ROLE_ADMIN') 
 
   function setRole(newRole: UserRole) {
     role.value = newRole;

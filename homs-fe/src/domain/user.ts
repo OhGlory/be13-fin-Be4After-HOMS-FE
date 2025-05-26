@@ -11,6 +11,7 @@
     data: {
       accessToken: string;
       refreshToken: string;
+      userId : number;
     };
   }
 
