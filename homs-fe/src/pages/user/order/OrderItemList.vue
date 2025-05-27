@@ -91,7 +91,7 @@
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -156,6 +156,9 @@ const selectOption = ref(""); // 검색 옵션
 
 // input 요소에 접근하기 위한 ref
 const excelFileInput = ref(null);
+
+// 날짜 입력받을 ref
+const editedDueDate = ref(''); // 초기값은 빈 문자열로 설정
 
 // 버튼 클릭 시 파일 선택 다이얼로그를 띄우는 함수
 const handleExcelUploadClick = () => {
