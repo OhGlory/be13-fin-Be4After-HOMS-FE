@@ -56,16 +56,17 @@ const authStore = useAuthStore();
   
 // 로그 아웃 기능 구현
 async function Logout(){
-  
   try {
     // accessToken을 Authorization 헤더에 담아서 보내기
-    await apiClient.post('/auth/signout', null, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      }
-    });
+    if(authStore.accessToken){
+      await apiClient.post('/auth/signout', null, {
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`
+        }
+      });
+    }
   } catch (err) {
-    console.error('Logout API error', err);
+    console.warn('Logout API failed (probably due to expired token):', err)
   } finally {
     authStore.clearAuth();  // 상태 초기화 (토큰, 유저정보 등)
     router.push('/login');  // 로그인 페이지로 이동
