@@ -6,7 +6,7 @@
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="isAdmin" />
+            :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none;" accept=".xlsx, .xls" />
         <!-- 테이블 -->
@@ -33,7 +33,7 @@
                 <div v-else>데이터 오류</div>
             </template>
             <template #actions="{ item }">
-                <div v-if="isAdmin">
+                <div v-if="authStore.isAdmin">
                     <button @click="editBtn(item.productId)"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ $t("btn.edit") }}
@@ -71,8 +71,9 @@ import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {userStore} from "@/states/user";
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 const basePath = import.meta.env.VITE_API_URL;
 
 const {t, locale} = useI18n();
@@ -103,7 +104,6 @@ const handleExcelUploadClick = () => {
   excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
-
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
     searchQuery.value = searchData.searchQuery;
@@ -127,12 +127,12 @@ const actionButtons = ref([
         action: () => router.push({name: "ProductForm"}),
         allowedRoles: ["admin"],
     },
-    {
-        label: t("btn.del"),
-        color: "bg-gray-500 hover:bg-gray-700",
-        action: () => deleteItems(selectedProductId.value.length),
-        allowedRoles: ["admin"],
-    },
+    // {
+    //     label: t("btn.del"),
+    //     color: "bg-gray-500 hover:bg-gray-700",
+    //     action: () => deleteItems(selectedProductId.value.length),
+    //     allowedRoles: ["admin"],
+    // },
     // 이 버튼은 'user'만 볼 수 있음
     {
         label: "전체목록",
@@ -259,7 +259,7 @@ const deletePostData = async (productId) => {
                 }
             }
         });
-
+        // DB에 저장된 파일명을 지움
         const response2 = await apiClient.delete(`/product/files/${productId}`);
         console.log(response2.data);
     } catch (error) {

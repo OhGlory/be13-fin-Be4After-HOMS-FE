@@ -6,7 +6,7 @@
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-      :userRole="isAdmin" />
+      :userRole="authStore.isAdmin" />
     <!-- 테이블 -->
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"  
     @row-click="handleRowClick"
@@ -36,10 +36,9 @@ import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
-import { userStore } from '@/states/user';
-const userAuth = userStore();
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
 
+const authStore = useAuthStore();
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
@@ -168,7 +167,6 @@ const deleteItems = async (selectedItemLength) => {
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
     fetchData();
-    console.log(userAuth);
 });
 
 </script>

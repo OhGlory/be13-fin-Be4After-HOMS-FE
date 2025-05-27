@@ -7,6 +7,11 @@ export const useAuthStore = defineStore('auth', {
     refreshToken: localStorage.getItem('refreshToken') || '',
     user: null as UserProfile | null,
   }),
+   getters: {
+    isAdmin: (state) => state.user?.role === 'ROLE_ADMIN',
+    isUser: (state) => state.user?.role === 'ROLE_USER',
+    isLoggedIn: (state) => !!state.accessToken,
+  },
   actions: {
     setTokens(access: string, refresh: string) {
       this.accessToken = access;

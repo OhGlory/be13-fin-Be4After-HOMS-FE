@@ -6,7 +6,7 @@
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="isAdmin" />
+            :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none;" accept=".xlsx, .xls" />
         <!-- 테이블 -->
@@ -38,7 +38,7 @@
                 <div v-else>데이터 오류</div>
             </template>
             <template #actions="{ item }">
-                <div v-if="isAdmin">
+                <div v-if="authStore.isAdmin">
                     <button @click="editBtn(item.editMode)"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
                     <button @click="deleteBtn(item.productId)"
@@ -71,11 +71,13 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import ProductDetail from "@/components/common/modal/ProductDetail.vue";
-import {ref, watch, onMounted, toRaw} from "vue";
+import {ref, watch, onMounted, toRaw, computed} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {userStore} from "@/states/user";
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
+
 const basePath = import.meta.env.VITE_API_URL;
 
 const {t, locale} = useI18n();
@@ -330,7 +332,6 @@ const excelUpload = async (event) => {
         fetchData();
     }
 }
-
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {

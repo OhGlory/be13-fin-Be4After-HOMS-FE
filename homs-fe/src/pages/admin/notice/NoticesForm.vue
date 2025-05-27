@@ -61,6 +61,9 @@ import apiClient from "@/api";
 import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')

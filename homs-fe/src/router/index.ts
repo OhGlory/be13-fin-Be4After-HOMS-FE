@@ -70,12 +70,6 @@ const router = createRouter({
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
-          path: "orders",
-          name: "AdminOrders",
-          component: AdminOrders,
-          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
-        },
-        {
           path: "claims",
           name: "AdminClaims",
           component: Claims,
@@ -153,13 +147,13 @@ const router = createRouter({
           path: "orders",
           name: "UserOrders",
           component: Orders,
-          meta: {requiresAuth: true, role: "ROLE_USER"},
+          meta: {requiresAuth: false},
         },
         {
           path: "orders/list",
           name: "OrderItemList",
           component: OrderItemList,
-          meta: {requiresAuth: true, role: "user"},
+          meta: {requiresAuth: false},
         },
         {
           path: "delivery",
@@ -183,6 +177,7 @@ const router = createRouter({
           path: "notices/:id",
           name: "UserNoticesDetail",
           component: NoticesDetail,
+          meta: {requiresAuth: false},
         },
       ],
     },

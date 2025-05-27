@@ -6,7 +6,7 @@
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="isAdmin" />
+            :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
             @row-click="handleRowClick" uniqueKey="orderId">
@@ -37,13 +37,13 @@
                 <div v-else>데이터 오류</div>
             </template>
             <template #actions="{ item }">
-                <div v-if="isAdmin && item.approved === false">
+                <div v-if="authStore.isAdmin && item.approved === false">
                     <button @click="editBtn(item.editMode)"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
                     <button @click="deleteBtn(item.productId)"
                         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                 </div>
-                <div v-else-if="isAdmin && item.approved === true">
+                <div v-else-if="authStore.isAdmin && item.approved === true">
                     <strong>승인됨</strong>
                 </div>
                 <div v-else>
@@ -64,11 +64,12 @@ import apiClient from "@/api";
 import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
-import {ref, watch, onMounted} from "vue";
+import {ref, watch, onMounted, computed} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {userStore} from "@/states/user";
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
