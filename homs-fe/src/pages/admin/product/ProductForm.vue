@@ -68,8 +68,10 @@
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="productMinQuantity" class="block text-sm font-medium text-gray-700">최소 수량</label>
-                            <input type="text" id="productMinQuantity" :placeholder="'ex) 10'" v-model="productMinQuantity"
+                            <label for="productMinQuantity" class="block text-sm font-medium text-gray-700">최소
+                                수량</label>
+                            <input type="text" id="productMinQuantity" :placeholder="'ex) 10'"
+                                v-model="productMinQuantity"
                                 class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                         </div>
                     </div>
@@ -136,6 +138,9 @@ import apiClient from "@/api";
 import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
@@ -351,6 +356,7 @@ const fetchData = async () => {
         const response = await apiClient.get(`/product/${isEditMode.value}`);
         if (response.status === 200) {
             const products = response.data.data;
+            console.log(products);
             productName.value = products.productName;
             productUsage.value = products.productUsage;
             productFeature.value = products.productFeature;

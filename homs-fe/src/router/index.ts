@@ -1,13 +1,12 @@
-import { useAuthStore } from '@/states/auth';
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { userStore } from '@/states/user' // 유저 스토어
-import { storeToRefs } from 'pinia'
-import { fetchUserProfile } from '@/api/user';
+import {useAuthStore} from "@/states/auth";
+import {createRouter, createWebHistory, type RouteRecordRaw} from "vue-router";
+import {userStore} from "@/states/user"; // 유저 스토어
+import {storeToRefs} from "pinia";
+import {fetchUserProfile} from "@/api/user";
 
 import AdminDashBoard from "@/pages/admin/dashboard/AdminDashBoard.vue";
 import AdminAccount from "@/pages/admin/account/AdminAccount.vue";
 import BaseLayout from "@/components/common/BaseLayout.vue";
-import AdminOrders from "@/pages/admin/order/Order.vue";
 import Setting from "@/pages/common/Setting.vue";
 import Claims from "@/pages/admin/order/Claim.vue";
 import ProductForm from "@/pages/admin/product/ProductForm.vue";
@@ -48,7 +47,7 @@ const router = createRouter({
       path: "/admin",
       name: "AdminLayout",
       component: BaseLayout,
-      meta: { requiresAuth: true, role: 'ROLE_ADMIN' },       // 대시보드 진입을 위한 주석
+      meta: {requiresAuth: true, role: "ROLE_ADMIN"}, // 대시보드 진입을 위한 주석
       children: [
         {
           path: "",
@@ -66,12 +65,6 @@ const router = createRouter({
           path: "settlements",
           name: "AdminSettlement",
           component: AdminSettlements,
-          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
-        },
-        {
-          path: "orders",
-          name: "AdminOrders",
-          component: AdminOrders,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
@@ -128,13 +121,13 @@ const router = createRouter({
       path: "/",
       name: "UserLayout",
       component: BaseLayout,
-      meta: { requiresAuth: true, role: 'ROLE_USER' },
+      meta: {requiresAuth: true, role: "ROLE_USER"},
       children: [
         {
           path: "",
           name: "UserDashBoard",
           component: UserDashBoard,
-          meta: { requiresAuth: true, role: 'ROLE_USER' },        // 대시보드 진입을 위한 주석
+          meta: {requiresAuth: true, role: "ROLE_USER"}, // 대시보드 진입을 위한 주석
         },
         {
           path: "accounts",
@@ -152,7 +145,13 @@ const router = createRouter({
           path: "orders",
           name: "UserOrders",
           component: Orders,
-          meta: {requiresAuth: true, role: "ROLE_USER"},
+          meta: {requiresAuth: false},
+        },
+        {
+          path: "orders/list",
+          name: "OrderItemList",
+          component: OrderItemList,
+          meta: {requiresAuth: false},
         },
         {
           path: "delivery",
@@ -176,6 +175,7 @@ const router = createRouter({
           path: "notices/:id",
           name: "UserNoticesDetail",
           component: NoticesDetail,
+          meta: {requiresAuth: false},
         },
       ],
     },
@@ -198,17 +198,16 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const role = authStore.user?.role;
 
-
   const requiresAuth = to.meta.requiresAuth;
   const allowedRole = to.meta.role as "ROLE_ADMIN" | "ROLE_USER" | undefined;
 
-  console.log('라우팅 가드: role =', role);
-  console.log('라우팅 가드: 이동하려는 페이지 =', to.fullPath);
+  console.log("라우팅 가드: role =", role);
+  console.log("라우팅 가드: 이동하려는 페이지 =", to.fullPath);
 
   // 인증
   if (requiresAuth && !role) {
-    if (to.path !== '/login') {
-      return next({ path: '/login' })
+    if (to.path !== "/login") {
+      return next({path: "/login"});
     }
   }
   return next();

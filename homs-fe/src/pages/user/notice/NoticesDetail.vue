@@ -16,7 +16,7 @@
       <p class="text-gray-700">{{ notice.content }}</p>
       <hr class="my-6" />
       <div class="flex items-center justify-end">
-        <div v-if="isAdmin">
+        <div v-if="authStore.isAdmin">
           <button @click=" goToEditPage(notice)"
             class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
             {{ $t('btn.edit') }}
@@ -39,8 +39,9 @@ import apiClient from '@/api';
 import { ref , watch, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
-import { userStore } from '@/states/user';
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 
 const route = useRoute(); // 현재 URL 정보 가져옴
 const router = useRouter(); // 경로 이동 (라우트를 이동하거나 상태 변경할때 사용)

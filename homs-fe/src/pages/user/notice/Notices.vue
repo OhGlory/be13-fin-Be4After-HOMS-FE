@@ -6,9 +6,9 @@
     </div>
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-      :userRole="isAdmin" />
+      :userRole="authStore.isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="true" @selected="handleSelectedItems"  
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"  
     @row-click="handleRowClick"
         :column-classes="{
           title: 'text-start font-semibold text-gray-700',
@@ -36,10 +36,9 @@ import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n'
-import { userStore } from '@/states/user';
-const userAuth = userStore();
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
 
+const authStore = useAuthStore();
 
 const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
@@ -83,12 +82,12 @@ const actionButtons = ref([
     action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
-  {
-    label: t('btn.del'),
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: () => deleteItems(selectedUserIds.value.length),
-    allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
-  }
+  // {
+  //   label: t('btn.del'),
+  //   color: "bg-gray-500 hover:bg-gray-700",
+  //   action: () => deleteItems(selectedUserIds.value.length),
+  //   allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
+  // }
 ]);
 
 // ------- 테이블 --------
@@ -168,7 +167,6 @@ const deleteItems = async (selectedItemLength) => {
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
     fetchData();
-    console.log(userAuth);
 });
 
 </script>

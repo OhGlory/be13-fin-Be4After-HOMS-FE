@@ -5,53 +5,80 @@
             <span>주문관리 > 주문목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption"
+            :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
+        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
+            @row-click="handleRowClick" uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{item}">
+            <template #cell-id="{ item }">
                 <strong>{{ item.orderId }}</strong>
             </template>
-            <template #cell-orderDate="{item}">
+            <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
-            <template #cell-dueDate="{item}">
+            <template #cell-dueDate="{ item }">
                 {{ new Date(item.dueDate).toLocaleDateString() }}
             </template>
-            <template #cell-approved="{item}">
+            <template #cell-approved="{ item }">
                 <strong v-if="item.approved === true">승인</strong>
-                <strong v-else-if="item.approved === false">거부</strong>
+                <strong v-else-if="item.approved === false && item.rejectReason !== null">거부</strong>
                 <strong v-else>미승인</strong>
             </template>
-            <template #cell-productQuantity="{item}">
+            <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
+                }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input
-                        type="number"
+                    <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1"
-                        max="9999"
-                        v-model.number="item.productQuantity"
-                        @click.stop
-                        @mousedown.stop
-                    />
+                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{item}">
-                <div v-if="isAdmin">
-                    <button @click="editBtn(item.editMode)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+            <template #actions="{ item }">
+                <!-- 관리자는 상태를 설정가능 -->
+                <div v-if="authStore.isAdmin">
+                    <!-- 미승인 상태 -->
+                    <div v-if="item.approved === false && item.rejectReason === null">
+                    <button @click="rejectOrder(item.orderId)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                    <button @click="approveOrder(item.orderId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                    </div>
+
+                    <div v-else-if="item.approved === false && item.rejectReason !== null">
+                        <strong>거부됨</strong>
+                    </div>
+
+                    <!-- 승인됨 -->
+                    <div v-else-if="item.approved === true">
+                        <strong>승인됨</strong>
+                    </div>
                 </div>
+                
+                <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved !== true" @click="deleteBtn(item.orderId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
+                    <button v-if="item.approved === false && item.rejectReason === null" @click="cancleBtn(item.orderId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
+                    <button v-else-if="item.approved === false && item.rejectReason !== null" @click="cancleBtn(item.orderId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">사유</button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
+        <!-- 알림 모달 -->
+        <Notify
+            :visible="showModal"
+            :text="modalText"
+            :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint"
+            @update:visible="showModal = $event"
+            @confirm="confirmModal"
+            @cancel="showModal = false"/>
     </div>
 </template>
 
@@ -60,14 +87,24 @@ import apiClient from "@/api";
 import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
-import {ref, watch, onMounted} from "vue";
+import Notify from "@/components/common/modal/NotifyModal.vue";
+import {ref, watch, onMounted, computed} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {userStore} from "@/states/user";
-const isAdmin = userStore().isAdmin;
+import { useAuthStore } from '@/states/auth';
+
+const authStore = useAuthStore();
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
+
+const showModal = ref(false); // 모달 보이기
+const modalText = ref("");    // 모달 텍스트
+const currentActionType = ref('');
+const showTextAreaInput = ref(false); // textarea를 보여줄지 말지
+const textAreaHint = ref(''); // textarea의 힌트 텍스트
+
+const currentOrderId = ref(null); // 현재 주문 ID
 
 const router = useRouter();
 const route = useRoute();
@@ -80,8 +117,6 @@ const selectedUserIds = ref([]); // 선택된 항목 ID
 
 const searchQuery = ref(""); // 검색어
 const selectOption = ref(""); // 검색 옵션
-
-// const orders = ref({});
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -96,21 +131,6 @@ const handleSelectOption = ref([
     {value: "productName", label: "제품명"},
     {value: "productDomain", label: "분야"},
     {value: "productCategory", label: "분류"},
-]);
-// 액션 버튼 정의
-const actionButtons = ref([
-    {
-        label: "일괄승인",
-        color: "bg-orange-500 hover:bg-orange-700",
-        action: (item) => console.log("추가:", item),
-        allowedRoles: ["admin", "editor"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
-    },
-    {
-        label: "일괄제거",
-        color: "bg-gray-500 hover:bg-gray-700",
-        action: (item) => console.log("삭제:", item),
-        allowedRoles: ["admin"], // 이 버튼은 'admin'만 볼 수 있음
-    },
 ]);
 
 // ------- 테이블 --------
@@ -139,7 +159,41 @@ const editBtn = async (item) => {
     }
 };
 
-const deleteBtn = async (orderId) => {
+// 승인
+const approveOrder = (orderId) => {
+    currentOrderId.value = orderId;
+    modalText.value = "선택하신 주문을 승인하시겠습니까?";
+    currentActionType.value = 'approve';
+    showModal.value = true;
+};
+
+// 거절
+const rejectOrder = (orderId) => { // async 제거
+    currentOrderId.value = orderId; // 처리할 주문 ID 저장
+    modalText.value = "선택하신 주문을 거절하시겠습니까?";
+    currentActionType.value = 'reject';
+    showTextAreaInput.value = true; // textarea 보이게
+    textAreaHint.value = '거절 사유를 입력하세요.'; // 힌트 설정
+    showModal.value = true; // 모달 열기
+};
+
+// 상태 변경 요청
+const setApprove = async (orderId, isApproved, reason) => {
+    const requestData = {
+        isApproved: isApproved,
+        rejectReason: reason,
+    };
+    try {
+        await apiClient.put(`/order/${orderId}/approve`,requestData);
+    }
+    catch (error) {
+        alert(error.response.data.message);
+    }
+    fetchData();
+}
+
+// 취소
+const cancleBtn = async (orderId) => {
     if (confirm("주문을 취소하시겠습니까?")) {
         try {
             await apiClient.delete(`/order/${orderId}`);
@@ -166,11 +220,7 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get("/order/");
         if (response.status === 200) {
-            console.log(response.data.message);
-            console.log(response.data.data);
-
             orders.value = response.data.data;
-
             console.log(orders.value);
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
@@ -190,11 +240,6 @@ const handleRowClick = (item) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
-    // 모달 상태를 localstorage에 넣어서 상태 관리
-    const modalConfirmed = localStorage.getItem("modalConfirmed");
-    if (modalConfirmed === "true") {
-        showModal.value = false;
-    }
     fetchData();
 });
 
@@ -213,20 +258,23 @@ const handleSelectedItems = (selectedIds) => {
     // selectedUserIds.value.length
 };
 
-// 게시글 삭제
-const deleteItems = async (selectedItemLength) => {
-    // try {
-    //   await apiClient.delete(`/notice/${noticeId}`);
-    //   alert("삭제 됐습니다.");
-    //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-    //   router.push("/notices/");
-    // } catch (error) {
-    //   alert(error.response.data.message);
-    // }
-    if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
-        alert("미구현!");
+// Notify 모달의 '확인' 버튼 클릭 시 호출되는 중앙 함수
+function confirmModal(inputValue) {
+    if (currentActionType.value === 'approve') {
+        setApprove(currentOrderId.value, true, null);
+    } else if (currentActionType.value === 'reject') {
+        const reason = inputValue;
+        if (reason !== null && reason.trim() !== '') { // 입력값이 비어있지 않은지 확인
+            setApprove(currentOrderId.value, false, reason);
+        } else {
+            alert("거절 사유를 입력해야 합니다."); // 사유가 없으면 알림
+            console.log("거절이 취소되었습니다: 사유 없음.");
+        }
     }
-};
+    // 모달이 닫히면 textarea 상태도 초기화
+    showTextAreaInput.value = false;
+    textAreaHint.value = '';
+}
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
 watch(selectedLang, (newLang) => {
