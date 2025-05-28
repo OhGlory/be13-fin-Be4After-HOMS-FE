@@ -27,12 +27,14 @@ import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { onMounted, ref } from 'vue';
 import apiClient from '@/api';
+import { useRouter } from 'vue-router';
 
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
 const currentUserRole = ref('admin'); // 현재 유저 권한
+const router = useRouter();
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -92,6 +94,7 @@ const detailClient = (client) => {
   console.log('거래처 상세조회:', client);  
   console.log('거래처 id 정보', client.id);
   console.log('거래처 회사명 조회', client.companyName);
+  router.push({ name: 'ClientDetail', params: { id: client.id } });
 };
 
 // ------- 페이지네이션 --------

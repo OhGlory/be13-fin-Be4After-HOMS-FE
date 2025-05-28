@@ -88,8 +88,8 @@ const router = createRouter({
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
-          path: "clientsDetail",
-          name: "ClientsDetail",
+          path: '/admin/client/:id',
+          name: 'ClientDetail',
           component: ClientsDetail,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
