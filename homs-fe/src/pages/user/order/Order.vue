@@ -84,7 +84,7 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import Notify from "@/components/common/modal/NotifyModal.vue";
-import {ref, watch, onMounted, computed} from "vue";
+import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
@@ -124,9 +124,8 @@ const handleSearch = (searchData) => {
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-    {value: "productName", label: "제품명"},
-    {value: "productDomain", label: "분야"},
-    {value: "productCategory", label: "분류"},
+    {value: "ORDER_CODE", label: "발주번호"},
+    {value: "COMPANY_NAME", label: "거래처명"},
 ]);
 
 // ------- 테이블 --------
@@ -146,20 +145,12 @@ const orders = ref([
     {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11"},
 ]);
 
-const editBtn = async (item) => {
-    if (item) {
-        item.isEditing = !item.isEditing;
-        if (item.isEditing === false) {
-            await apiClient.put(`/orderitem/${orders.value.orderId}/renew/${item.productId}?quantity=${item.productQuantity}`);
-        }
-    }
-};
-
 // 승인
 const approveOrder = (orderId) => {
     currentOrderId.value = orderId;
     modalText.value = "선택하신 주문을 승인하시겠습니까?";
     currentActionType.value = 'approve';
+    showTextAreaInput.value = false; // textarea 안보이게
     showModal.value = true;
 };
 
@@ -200,6 +191,7 @@ const cancleBtn = async (orderId) => {
     }
 };
 
+// 사유 확인
 const rejectReasonView = async (orderId) => {
     try {
         const response = await apiClient.get(`/order/${orderId}`);
@@ -222,15 +214,30 @@ const fetchData = async () => {
     };
 
     if (searchQuery.value && selectOption.value) {
-        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value;
+        params.option = selectOption.value; // 예: "ORDER_CODE", "COMPANY_NAME"
+        params.keyword = searchQuery.value; // 예: "ABC-123", "삼성전자"
     }
 
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path);
+    for(const key in params){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+
     try {
-        const response = await apiClient.get("/order/");
+        const response = await apiClient.get("/order/", {
+            params: params // 여기에 구성한 파라미터 객체를 전달합니다.
+        });
         if (response.status === 200) {
-            orders.value = response.data.data;
-            console.log(orders.value);
+            orders.value = response.data.data.content;
+            console.log(response.data.data);
             totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
@@ -243,12 +250,29 @@ const fetchData = async () => {
 // 선택한 행에 대한 정보 처리
 const handleRowClick = (item) => {
     console.log("선택된 행:", item.orderId);
-    // /orders/list?orderId=14
     router.push({name: "OrderItemList", query: {orderId: item.orderId}});
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    console.log(route.query);
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+    const queryOption = route.query.option;
+    const queryKeyword = route.query.keyword;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    if (queryOption) {
+        selectOption.value = queryOption;
+    }
+    if (queryKeyword) {
+        searchQuery.value = queryKeyword;
+    }
     fetchData();
 });
 
