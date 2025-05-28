@@ -94,7 +94,8 @@ const flattenTree = (nodes, level = 0, arr = []) => {
 // API 호출
 const fetchData = async () => {
   try {
-    const res = await apiClient.get("/admin/menu");
+    const res = await apiClient.get("/menu/");
+    console.log("res",res)
     if (res.status === 200) {
       menus.value = res.data.data;
     } else {

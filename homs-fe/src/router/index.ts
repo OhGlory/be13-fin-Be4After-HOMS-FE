@@ -1,10 +1,8 @@
-
-import { useAuthStore } from '@/states/auth';
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { userStore } from '@/states/user' // 유저 스토어
-import { storeToRefs } from 'pinia'
-import { fetchUserProfile } from '@/api/user';
-
+import {useAuthStore} from "@/states/auth";
+import {createRouter, createWebHistory, type RouteRecordRaw} from "vue-router";
+import {userStore} from "@/states/user"; // 유저 스토어
+import {storeToRefs} from "pinia";
+import {fetchUserProfile} from "@/api/user";
 
 import AdminDashBoard from "@/pages/admin/dashboard/AdminDashBoard.vue";
 import AdminAccount from "@/pages/admin/account/AdminAccount.vue";
@@ -49,7 +47,7 @@ const router = createRouter({
       path: "/admin",
       name: "AdminLayout",
       component: BaseLayout,
-      meta: { requiresAuth: true, role: 'ROLE_ADMIN' },       // 대시보드 진입을 위한 주석
+      meta: {requiresAuth: true, role: "ROLE_ADMIN"}, // 대시보드 진입을 위한 주석
       children: [
         {
           path: "",
@@ -123,13 +121,13 @@ const router = createRouter({
       path: "/",
       name: "UserLayout",
       component: BaseLayout,
-      meta: { requiresAuth: true, role: 'ROLE_USER' },
+      meta: {requiresAuth: true, role: "ROLE_USER"},
       children: [
         {
           path: "",
           name: "UserDashBoard",
           component: UserDashBoard,
-          meta: { requiresAuth: true, role: 'ROLE_USER' },        // 대시보드 진입을 위한 주석
+          meta: {requiresAuth: true, role: "ROLE_USER"}, // 대시보드 진입을 위한 주석
         },
         {
           path: "accounts",
@@ -194,39 +192,22 @@ const router = createRouter({
 
 // 로그인 상태 관리 (권한)
 router.beforeEach((to, from, next) => {
-
   // const userAuth = userStore()
   // const { role } = storeToRefs(userAuth)
 
   const authStore = useAuthStore();
   const role = authStore.user?.role;
 
-
   const requiresAuth = to.meta.requiresAuth;
   const allowedRole = to.meta.role as "ROLE_ADMIN" | "ROLE_USER" | undefined;
 
-  console.log('라우팅 가드: role =', role);
-  console.log('라우팅 가드: 이동하려는 페이지 =', to.fullPath);
+  console.log("라우팅 가드: role =", role);
+  console.log("라우팅 가드: 이동하려는 페이지 =", to.fullPath);
 
   // 인증
-  if (requiresAuth) {
-    if (!role) {
-      // 인증 정보 없음
-      return next({ path: '/login' })
-    }
-
-    if (allowedRole && role !== allowedRole) {
-      // 권한 없음
-      return next({ path: '/login' })
-    }
-  }
-
-  // 나중에 권한에 따라 페이지 리다이렉트 하는 코드임
-  if (to.path === '/') {
-    if (role === 'ROLE_ADMIN') {
-      return next({ path: '/admin' });
-    } else if (role === 'ROLE_USER' && to.name !== 'UserDashBoard') {
-      return next({ name: 'UserDashBoard' });
+  if (requiresAuth && !role) {
+    if (to.path !== "/login") {
+      return next({path: "/login"});
     }
   }
   return next();

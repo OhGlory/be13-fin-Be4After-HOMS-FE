@@ -59,20 +59,15 @@ interface MenuItem {
 }
 
 
-  // 이건 나중에 로그인 정보 권한에 따라 판별할 수 있도록 변경
-  // const userAuth = userStore()
-  // const isAdmin = computed(() => userAuth.isAdmin)
-
   const authStore = useAuthStore();
-  const role = computed(() => authStore.user?.role)
-  const isAdmin = computed(() => role.value === 'ROLE_ADMIN')
 
-  console.log("role++++", role)
+  // authStroe.isAdmin은 boolean 타입으로 관리자 여부 확인
+  console.log("authStore.isAdmin",authStore.isAdmin)
 
 
 
 const getPath = (basePath: string, adminOnly?: boolean): string => {
-  if (isAdmin.value) {
+  if (authStore.isAdmin) {
     return `/admin${basePath}`
   } else {
     return basePath // 일반 유저는 그대로 사용
@@ -80,7 +75,7 @@ const getPath = (basePath: string, adminOnly?: boolean): string => {
 }
 
 const logoPath = computed(() => {
-  return isAdmin.value ? '/admin' : '/';
+  return authStore.isAdmin ? '/admin' : '/';
 });
 
 // 메뉴 관련 메뉴DB에서 받올 예정
