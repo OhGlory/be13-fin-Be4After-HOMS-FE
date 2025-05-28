@@ -6,117 +6,152 @@
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
+            :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="client" :showCheckbox="true">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
+        <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false"
+            @row-click="handleRowClick" uniqueKey="contractId">
+            <template #cell-contractId="{ item }">
+                <strong>{{ item.contractId }}</strong>
             </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
+            <template #cell-contractStartAt="{ item }">
+                {{ new Date(item.contractStartAt).toLocaleDateString() }}
             </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
+            <template #cell-contractStopAt="{ item }">
+                {{ new Date(item.contractStopAt).toLocaleDateString() }}
             </template>
-            <template #actions="{ item }">
+            <!-- <template #actions="{ item }">
                 <button @click="detailClient(item)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                     조회
                 </button>
-            </template>
+            </template> -->
         </DynamicTable>
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
+        <!-- 모달 -->
+        <!-- <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail> -->
     </div>
 </template>
 
 <script setup>
+import apiClient from '@/api';
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
+// import ContractDetail from '@/components/common/modal/ContractDetail.vue';
 import { onMounted, ref } from 'vue';
-import apiClient from '@/api';
+import { useAuthStore } from '@/states/auth';
+import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+
+const showModal = ref(false); // 모달 상태 관리
+const selectedId = ref(null); // 선택된 항목 ID
+
+const router = useRouter();
+
+const contracts = ref([]); // 계약 목록 데이터 상태 관리
 
 
-const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(20); // 총 페이지 수 상태 관리
-const currentUserRole = ref('admin'); // 현재 유저 권한
+const totalPages = ref(0); // 총 페이지 수 상태 관리
+const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+
+const searchQuery = ref(""); // 검색어
+const selectOption = ref(""); // 검색 옵션
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
-  console.log('검색 데이터:', searchData);
-  // 여기서 검색 로직을 처리하거나 부모 컴포넌트로 데이터를 전달할 수 있습니다.
-  searchResult.value = searchData;
+  searchQuery.value = searchData.searchQuery;
+  selectOption.value = searchData.selectOption;
+  pageSize.value = searchData.pageSize;
+  currentPage.value = 1;
+  fetchData();
 };
 
 const handleSelectOption = ref([
-  { value: "", label: "전체" },
-  { value: "important", label: "중요" },
-  { value: "recent", label: "최근" },
+  { value: "productName", label: "제품명" },
+  { value: "companyName", label: "회사명" },
+  { value: "productCategory", label: "분류" },
 ]);
 
 const actionButtons = ref([
   {
-    label: "추가",
+    label: "계약 등록",
     color: "bg-orange-500 hover:bg-orange-700",
-    action: (item) => console.log("추가:", item),
-    allowedRoles: ["admin", "editor"] // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
-  },
-  {
-    label: "일괄제거",
-    color: "bg-gray-500 hover:bg-gray-700",
-    action: (item) => console.log("삭제:", item),
+    action: () => router.push({ name: "ContractForm" }),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
 ]);
 
 // ------- 테이블 --------
 const userColumns = ref([
-  { label: '순번', key: 'id' },
+  { label: '순번', key: 'contractId' },
   { label: '파트너사', key: 'companyName' },
   { label: '계약품목', key: 'productName' },
-  { label: '계약기간', key: 'contract' },
-  { label: '담당부서', key: 'deptName' },
-  { label: '담당자', key: 'managerName' },
-  { label: '분류', key: 'categroy' },
+  { label: '계약시작일자', key: 'contractStartAt' },
+  { label: '계약만료일자', key: 'contractStopAt' },
+  { label: '분류', key: 'categoryName' },
 ]);
 
 const client = ref([
-    { id: 1, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
+    { id: 1, companyName: '영광상사', productName: '303', contractStartAt: '2025-02-10', contractStopAt: '2026-02-10', categoryName: 'LDPE'},
 ]);
 
-const fetchData =  async () => {
-  const response =  await apiClient.get('admin/company')
-  const data = response.data.data;
-  console.log("거래처 데이터 받아오기", data);
-  client.value = data.map((item, index) => ({
-    id: item.companyId,
-    companyName: item.companyName,
-    productName: "LDPE",                          // 백엔드 수정 요청
-    contract: '2025-02-10 ~ 2026-02-10',          // 백엔드 수정 요청
-    deptName: '구매',                              // 백엔드 수정 요청
-    managerName: item.representManagerName,
-    categroy: 'PO'                                // 백엔드 수정 요청 
-  }));
-}
+// 데이터 가져오는 함수
+const fetchData = async () => {
+    // 기본 요청 파라미터
+    const params = {
+        page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
+        size: pageSize.value,
+    };
 
-const detailClient = (client) => {
-  console.log('거래처 상세조회:', client);  
-  console.log('거래처 id 정보', client.id);
-  console.log('거래처 회사명 조회', client.companyName);
+    // keyword 하나로만 검색하도록 변경
+  if (searchQuery.value) {
+    params.keyword = searchQuery.value;
+  }
 
+    try {
+        const response = await apiClient.get("/contract/", { params });
+        if (response.status === 200) {
+            console.log(response.data.data);
+            contracts.value  = response.data.data.content; // 응답 데이터 할당
+            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+        } else {
+            alert('데이터를 불러오는데 실패했습니다');
+        }
+    } catch (err) {
+        console.error('데이터 요청 중 에러 발생:', err);
+    }
+};
+
+// const detailClient = (client) => {
+//   console.log('거래처 상세조회:', client);  
+//   console.log('거래처 id 정보', client.id);
+//   console.log('거래처 회사명 조회', client.companyName);
+// };
+
+// 선택한 행에 대한 정보 처리
+const handleRowClick = (item) => {
+    selectedId.value = item.contractId; // 선택된 항목 ID 업데이트
+    showModal.value = true;
 };
 
 // ------- 페이지네이션 --------
 const handleSetPage = (page) => {
-  console.log('페이지 변경 요청:', page);
   currentPage.value = page;
-  // 여기서 해당 페이지의 데이터를 불러오는 로직 등을 수행해야 합니다.
+  fetchData();
 };
 
-onMounted (() => {
-  fetchData();
-})
+// 컴포넌트가 마운트될 때 데이터 가져오기
+onMounted(() => {
+    // 모달 상태를 localstorage에 넣어서 상태 관리
+    const modalConfirmed = localStorage.getItem("modalConfirmed");
+    if (modalConfirmed === "true") {
+        showModal.value = false;
+    }
+    fetchData();
+});
 
 </script>
