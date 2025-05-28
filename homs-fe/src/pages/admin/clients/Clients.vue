@@ -9,15 +9,6 @@
             :userRole="currentUserRole" />
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="client" :showCheckbox="true">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
-            </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
-            </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-            </template>
             <template #actions="{ item }">
                 <button @click="detailClient(item)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
@@ -74,16 +65,14 @@ const actionButtons = ref([
 // ------- 테이블 --------
 const userColumns = ref([
   { label: '순번', key: 'id' },
-  { label: '파트너사', key: 'companyName' },
-  { label: '계약품목', key: 'productName' },
-  { label: '계약기간', key: 'contract' },
-  { label: '담당부서', key: 'deptName' },
-  { label: '담당자', key: 'managerName' },
-  { label: '분류', key: 'categroy' },
+  { label: '회사명', key: 'companyName' },
+  { label: '대표자명', key: 'ceoName' },
+  { label: '거래 진행 여부', key: 'isContract' },
+  { label: '승인 여부', key: 'isApprove' },
 ]);
 
 const client = ref([
-    { id: 1, companyName: '영광상사', productName: 'LDPE', contract: '2025-02-10 ~ 2026-02-10', deptName: '구매', managerName: '윤다희', categroy: 'PO'},
+    { id: 1, companyName: '영광상사', ceoName: '대표자', isContract: 'Y', isApprove: 'N'},
 ]);
 
 const fetchData =  async () => {
@@ -93,11 +82,9 @@ const fetchData =  async () => {
   client.value = data.map((item, index) => ({
     id: item.companyId,
     companyName: item.companyName,
-    productName: "LDPE",                          // 백엔드 수정 요청
-    contract: '2025-02-10 ~ 2026-02-10',          // 백엔드 수정 요청
-    deptName: '구매',                              // 백엔드 수정 요청
-    managerName: item.representManagerName,
-    categroy: 'PO'                                // 백엔드 수정 요청 
+    ceoName: item.representManagerName,          
+    isContract: item.continueStatus ? 'Y' : 'N', 
+    isApprove: item.approvedStatus ? 'Y' : 'N',                              // 백엔드 수정 요청                     
   }));
 }
 
@@ -105,7 +92,6 @@ const detailClient = (client) => {
   console.log('거래처 상세조회:', client);  
   console.log('거래처 id 정보', client.id);
   console.log('거래처 회사명 조회', client.companyName);
-
 };
 
 // ------- 페이지네이션 --------

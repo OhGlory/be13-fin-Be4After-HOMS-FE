@@ -12,6 +12,7 @@ import Claims from "@/pages/admin/order/Claim.vue";
 import ProductForm from "@/pages/admin/product/ProductForm.vue";
 import Categories from "@/pages/admin/product/Categories.vue";
 import Clients from "@/pages/admin/clients/Clients.vue";
+import ClientsDetail from "@/pages/admin/clients/ClientsDetail.vue";
 import Contracts from "@/pages/admin/clients/Contracts.vue";
 import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
 import Login from "@/pages/common/login/Login.vue";
@@ -31,6 +32,7 @@ import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
 
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -83,6 +85,12 @@ const router = createRouter({
           path: "clients",
           name: "Clients",
           component: Clients,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path: "clientsDetail",
+          name: "ClientsDetail",
+          component: ClientsDetail,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
