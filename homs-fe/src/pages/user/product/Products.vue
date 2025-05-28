@@ -127,13 +127,6 @@ const actionButtons = ref([
         action: () => router.push({name: "ProductForm"}),
         allowedRoles: ["admin"],
     },
-    // {
-    //     label: t("btn.del"),
-    //     color: "bg-gray-500 hover:bg-gray-700",
-    //     action: () => deleteItems(selectedProductId.value.length),
-    //     allowedRoles: ["admin"],
-    // },
-    // 이 버튼은 'user'만 볼 수 있음
     {
         label: "전체목록",
         color: "bg-gray-500 hover:bg-gray-700",
@@ -341,6 +334,19 @@ const fetchData = async () => {
         params[selectOption.value] = searchQuery.value;
     }
 
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path); // 현재 경로 기반 URL 생성
+    for(const key in params){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key])
+        } else{
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+
     try {
         const response = await apiClient.get("/product/", {params});
         if (response.status === 200) {
@@ -366,6 +372,29 @@ const handleRowClick = (item) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    const query = route.query;
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    console.log(query);
+    if (query.productName) {
+        selectOption.value = "productName";
+        searchQuery.value = query.productName;
+    } else if (query.productDomain) {
+        selectOption.value = "productDomain";
+        searchQuery.value = query.productDomain;
+    } else if (query.productCategory) {
+        selectOption.value = "productCategory";
+        searchQuery.value = query.productCategory;
+    }
+
+
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
     if (modalConfirmed === "true") {
@@ -388,26 +417,11 @@ const handleSelectedItems = (selectedIds) => {
     console.log("선택된 아이템 ID:", selectedProductId.value);
 };
 
+// 주문 목록
 const orderListBtn = () => {
     if (orderId.value) {
         router.push({name: "OrderItemList", query: {orderId: orderId.value}});
     } else router.push({name: "UserOrders"});
-};
-
-
-// 다중 삭제
-const deleteItems = async (selectedItemLength) => {
-    // try {
-    //   await apiClient.delete(`/notice/${noticeId}`);
-    //   alert("삭제 됐습니다.");
-    //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-    //   router.push("/notices/");
-    // } catch (error) {
-    //   alert(error.response.data.message);
-    // }
-    if (confirm(selectedProductId.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
-        alert("미구현!");
-    }
 };
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음

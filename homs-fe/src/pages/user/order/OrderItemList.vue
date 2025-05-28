@@ -6,8 +6,8 @@
         </div>
         <!-- 배송 등 상세 정보 -->
         <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-4 pr-4">
-            <!-- 관리자 -->
-            <div class="flex flex-wrap gap-x-3 gap-y-4" v-if="authStore.isAdmin">
+            <div class="flex flex-wrap gap-x-3 gap-y-4 w-full">
+                <!-- 발주 번호 -->
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">발주번호</label>
                     <div
@@ -15,34 +15,15 @@
                         {{ orders.orderCode || '-' }}
                     </div>
                 </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
+                <!-- 납품위치 (고정) -->
+                <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
                     <div
                         class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
                         {{ "서울" || '-' }} </div>
                 </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
-                    <label class="block text-gray-700 font-semibold">주문날짜</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.orderDate).toLocaleDateString() || '-' }}
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
-                    <label class="block text-gray-700 font-semibold">납기일</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.dueDate).toLocaleDateString() || '-' }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- 유저 -->
-            <div class="flex flex-wrap gap-x-8 gap-y-4 w-full" v-if="authStore.isUser">
-                <div class="flex flex-col gap-1 w-full md:w-auto">
+                <!-- 납품위치 (수정) -->
+                <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
                     <select v-model="selectedDelivery"
                         class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
@@ -53,12 +34,30 @@
                     </select>
                 </div>
 
+                <!-- 주문날짜 -->
                 <div class="flex flex-col gap-1 w-full md:w-auto">
+                    <label class="block text-gray-700 font-semibold">주문날짜</label>
+                    <div
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                        {{ new Date(orders.orderDate).toLocaleDateString() || '-' }}
+                    </div>
+                </div>
+                <!-- 납기일 (고정) -->
+                <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
+                    <label class="block text-gray-700 font-semibold">납기일</label>
+                    <div
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                        {{ new Date(orders.dueDate).toLocaleDateString() || '-' }}
+                    </div>
+                </div>
+                <!-- 납기일 (수정) -->
+                <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label for="dueDateInput" class="block text-gray-700 font-semibold">납기일</label>
                     <input type="date" id="dueDateInput" v-model="selectedDueDate"
                         class="w-fit outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 px-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer" />
                 </div>
-                <div class="flex items-end ml-auto">
+                <!-- 발주요청 버튼 (유저) -->
+                <div v-if="authStore.isUser" class="flex items-end ml-auto">
                     <button @click="orderRequest()"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
                         발주요청
@@ -92,7 +91,7 @@
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                    }}</div>
+                }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -163,8 +162,6 @@ const handleExcelUploadClick = () => {
   excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
-// const products = ref({});
-
 // 배송 정보 더미데이터
 const deliveryOptions = ref([
     {value: "서울", label: "서울"},
@@ -179,29 +176,21 @@ const selectedDueDate = ref('');
 const orderRequest = async () => {
     if (selectedDelivery.value && selectedDueDate.value) {
         if(confirm("발주신청을 하시겠습니까?")){
-            console.log(selectedDelivery.value);
-            console.log(selectedDueDate.value);
             const dueDate = `${selectedDueDate.value}T00:00:00`;
-            console.log(dueDate);
-
             try{
 
                 const params = {
                     dueDate: dueDate,
                     // deliveryLocation: selectedDelivery.value,
                 };
-
                 await apiClient.put(`/order/${orderId.value}/date`, params);
-                
-            }catch{
-                alert("발주신청 실패");
+                alert("발주신청이 완료되었습니다!");
+            } catch (error) {
+                alert(error.response.data.message);
             }
-
         }
     } else{
         alert("납품 장소와 납품일자를 지정해주세요!");
-        console.log(selectedDelivery.value);
-        console.log(selectedDueDate.value);
     }
 }
 
