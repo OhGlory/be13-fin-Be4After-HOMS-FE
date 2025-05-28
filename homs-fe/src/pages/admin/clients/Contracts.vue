@@ -30,7 +30,7 @@
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
         </PageNav>
         <!-- 모달 -->
-        <!-- <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail> -->
+        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail>
     </div>
 </template>
 
@@ -39,7 +39,7 @@ import apiClient from '@/api';
 import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
-// import ContractDetail from '@/components/common/modal/ContractDetail.vue';
+import ContractDetail from '@/components/common/modal/ContractDetail.vue';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/states/auth';
 import { useRouter } from 'vue-router';
