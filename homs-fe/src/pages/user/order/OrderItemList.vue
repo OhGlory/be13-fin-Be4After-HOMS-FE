@@ -5,7 +5,7 @@
             <span>주문관리 > 주문목록 > 상세주문</span>
         </div>
         <!-- 배송 등 상세 정보 -->
-        <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-5 pr-5">
+        <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-4 pr-4">
             <!-- 관리자 -->
             <div class="flex flex-wrap gap-x-3 gap-y-4" v-if="authStore.isAdmin">
                 <div class="flex flex-col gap-1 w-full md:w-auto">
@@ -41,19 +41,28 @@
             </div>
 
             <!-- 유저 -->
-            <div class="flex flex-wrap gap-x-8 gap-y-4" v-if="authStore.isUser">
+            <div class="flex flex-wrap gap-x-8 gap-y-4 w-full" v-if="authStore.isUser">
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-8 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ productDetail?.category.manufacturingProcess || '-' }}
-                    </div>
+                    <select v-model="selectedDelivery"
+                        class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                        <option disabled value="">선택</option>
+                        <option v-for="option in deliveryOptions" :key="option.value" :value="option.value">{{
+                            option.label }}
+                        </option>
+                    </select>
                 </div>
 
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label for="dueDateInput" class="block text-gray-700 font-semibold">납기일</label>
-                    <input type="date" id="dueDateInput" v-model="editedDueDate"
+                    <input type="date" id="dueDateInput" v-model="selectedDueDate"
                         class="w-fit outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 px-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer" />
+                </div>
+                <div class="flex items-end ml-auto">
+                    <button @click="orderRequest()"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        발주요청
+                    </button>
                 </div>
             </div>
         </div>
@@ -83,7 +92,7 @@
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -126,8 +135,6 @@ import { useAuthStore } from '@/states/auth';
 
 const authStore = useAuthStore();
 
-const basePath = import.meta.env.VITE_API_URL;
-
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
 
@@ -151,15 +158,52 @@ const selectOption = ref(""); // 검색 옵션
 // input 요소에 접근하기 위한 ref
 const excelFileInput = ref(null);
 
-// 날짜 입력받을 ref
-const editedDueDate = ref(''); // 초기값은 빈 문자열로 설정
-
 // 버튼 클릭 시 파일 선택 다이얼로그를 띄우는 함수
 const handleExcelUploadClick = () => {
   excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
 // const products = ref({});
+
+// 배송 정보 더미데이터
+const deliveryOptions = ref([
+    {value: "서울", label: "서울"},
+    {value: "경기", label: "경기"},
+    {value: "인천", label: "인천"},
+    {value: "부산", label: "부산"},
+])
+
+const selectedDelivery = ref('');
+const selectedDueDate = ref('');
+
+const orderRequest = async () => {
+    if (selectedDelivery.value && selectedDueDate.value) {
+        if(confirm("발주신청을 하시겠습니까?")){
+            console.log(selectedDelivery.value);
+            console.log(selectedDueDate.value);
+            const dueDate = `${selectedDueDate.value}T00:00:00`;
+            console.log(dueDate);
+
+            try{
+
+                const params = {
+                    dueDate: dueDate,
+                    // deliveryLocation: selectedDelivery.value,
+                };
+
+                await apiClient.put(`/order/${orderId.value}/date`, params);
+                
+            }catch{
+                alert("발주신청 실패");
+            }
+
+        }
+    } else{
+        alert("납품 장소와 납품일자를 지정해주세요!");
+        console.log(selectedDelivery.value);
+        console.log(selectedDueDate.value);
+    }
+}
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -178,7 +222,7 @@ const handleSelectOption = ref([
 // 액션 버튼 정의
 const actionButtons = ref([
     {
-        label: "주문목록",
+        label: "엑셀목록",
         color: "bg-gray-500 hover:bg-gray-700",
         action: () => excelDown(),
         allowedRoles: ["admin","user"],
@@ -326,8 +370,58 @@ const handleRowClick = (item) => {
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    const url = basePath+`/excel/download?type=ORDER&orderId=${orderId.value}`;
-    window.open(url, '_blank'); // 새 탭 또는 팝업으로 다운로드 시작
+    try{
+        const response = await apiClient.get(`/excel/download?type=ORDER&orderId=${orderId.value}`,{
+            responseType: 'blob'
+        });
+
+        // Blob 데이터 가져오기
+        const blob = new Blob([response.data], {type: response.headers['content-type'] || "application/octet-stream"});
+        
+        // 파일 이름 가져오기 (Content-Disposition 헤더에서 파싱)
+        let filename = 'download.xlsx'; // 기본 파일 이름
+        const contentDisposition = response.headers['content-disposition'];
+
+        if (contentDisposition) {
+            // filename*=UTF-8''... 형식 (RFC 5987) 처리
+            const filenameStarMatch = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(contentDisposition);
+            if (filenameStarMatch && filenameStarMatch[1]) {
+                try {
+                    filename = decodeURIComponent(filenameStarMatch[1].replace(/"/g, ''));
+                } catch (e) {
+                    console.warn("UTF-8 filename decoding failed, trying simple filename.");
+                }
+            } else {
+                // filename="..." 또는 filename=... 형식 처리
+                const filenameMatch = /filename="([^"]+)"|filename=([^;]+)/i.exec(contentDisposition);
+                if (filenameMatch && (filenameMatch[1] || filenameMatch[2])) {
+                    try {
+                        filename = decodeURIComponent(filenameMatch[1] || filenameMatch[2]);
+                    } catch (e) {
+                        console.warn("Simple filename decoding failed, using default filename.");
+                    }
+                }
+            }
+        }
+
+        // 임시 URL 생성
+        const url = URL.createObjectURL(blob);
+        
+        // 가상 <a> 태그 생성 및 다운로드
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", filename); // 파일 이름 설정
+        document.body.appendChild(link);
+        link.click();
+        
+        // URL 해제
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+    }catch{
+        console.error('파일 다운로드 실패:', error);
+        alert("엑셀 다운로드 실패");
+    }
+    
 }
 
 // 엑셀 업로드

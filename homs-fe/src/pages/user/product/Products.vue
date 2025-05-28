@@ -153,7 +153,7 @@ const actionButtons = ref([
         allowedRoles: ["user"],
     },
     {
-        label: "주문목록",
+        label: "엑셀다운",
         color: "bg-gray-500 hover:bg-gray-700",
         action: () => orderListBtn(),
         allowedRoles: ["user"],
