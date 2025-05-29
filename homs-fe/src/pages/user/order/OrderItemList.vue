@@ -79,15 +79,6 @@
             <template #cell-id="{ item }">
                 <strong>{{ item.produt.productId }}</strong>
             </template>
-            <template #cell-category="{ item }">
-                {{ item.category?.categoryId }}
-            </template>
-            <template #cell-productDomain="{ item }">
-                {{ item.category?.productDomain }}
-            </template>
-            <template #cell-productCategory="{ item }">
-                {{ item.category?.productCategory }}
-            </template>
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
@@ -204,9 +195,9 @@ const handleSearch = (searchData) => {
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-    {value: "productName", label: "제품명"},
-    {value: "productDomain", label: "분야"},
-    {value: "productCategory", label: "분류"},
+    {value: "PRODUCT_NAME", label: "제품명"},
+    {value: "DOMAIN_NAME", label: "분야"},
+    {value: "CATEGORY_NAME", label: "분류"},
 ]);
 // 액션 버튼 정의
 const actionButtons = ref([
@@ -309,40 +300,34 @@ const fetchData = async () => {
     };
 
     if (searchQuery.value && selectOption.value) {
-        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value;
+        params.option = selectOption.value;
+        params.keyword = searchQuery.value;
     }
+
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + `/orderitem/list?orderId=${orderId.value}`);
+    console.log(url);
+    for(const key in params){
+        console.log(route.path);
+        console.log(key);
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
 
     try {
         const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
         if (response.status === 200) {
             console.log(response.data.message);
             console.log(response.data.data);
-            products.value = response.data.data.map((item) => ({
-                productId: item.product.productId,
-                category: item.product.category,
-                productName: item.product.productName,
-                productMinQuantity: item.product.productMinQuantity,
-                productQuantity: item.product.productQuantity,
-                isEditing: false, // 수정 모드 초기화
-            }));
-            orders.value = response.data.data[0].order;
-            /*
-            .map(item => ({
-                orderCode: item.order.orderCode,
-                orderDate: item.order.orderDate,
-                orderStatus: item.order.orderStatus,
-                orderId: item.order.orderId,
-                dueDate: item.order.dueDate,
-                approved: item.order.approved,
-                parentOrderId: item.order.parentOrderId,
-                rejectReason: item.order.rejectReason
-            }));
-            */
-
-            console.log(products.value);
-            console.log(orders.value);
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            products.value = response.data.data.content;
+            orders.value = response.data.data.content[0];
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
@@ -455,6 +440,24 @@ const excelUpload = async (event) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    console.log(route.query);
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+    const queryOption = route.query.option;
+    const queryKeyword = route.query.keyword;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    if (queryOption) {
+        selectOption.value = queryOption;
+    }
+    if (queryKeyword) {
+        searchQuery.value = queryKeyword;
+    }
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
     if (modalConfirmed === "true") {

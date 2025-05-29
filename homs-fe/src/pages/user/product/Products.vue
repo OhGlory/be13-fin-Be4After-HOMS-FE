@@ -355,7 +355,7 @@ const fetchData = async () => {
                 ...item, // 기존 item의 모든 속성을 복사
                 quantityToOrder: 1, // 각 상품마다 고유한 quantityToOrder 속성 추가 (기본값 1)
             })); // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
