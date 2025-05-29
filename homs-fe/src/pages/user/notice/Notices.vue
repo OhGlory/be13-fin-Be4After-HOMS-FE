@@ -8,12 +8,12 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="authStore.isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"  
-    @row-click="handleRowClick"
-        :column-classes="{
-          title: 'text-start font-semibold text-gray-700',
-          createdAt: 'text-start text-sm text-gray-500',
-          id: 'text-start'}">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"
+      @row-click="handleRowClick" :column-classes="{
+        title: 'text-start font-semibold text-gray-700',
+        createdAt: 'text-start text-sm text-gray-500',
+        id: 'text-start'
+      }">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -128,7 +128,7 @@ const fetchData = async () => {
         const response = await apiClient.get("/notice/", { params });
         if (response.status === 200) {
             users.value = response.data.data.content; // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t('errors.fetch_data_failed'));
         }

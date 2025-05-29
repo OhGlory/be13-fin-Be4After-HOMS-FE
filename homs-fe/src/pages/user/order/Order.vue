@@ -214,8 +214,8 @@ const fetchData = async () => {
     };
 
     if (searchQuery.value && selectOption.value) {
-        params.option = selectOption.value; // 예: "ORDER_CODE", "COMPANY_NAME"
-        params.keyword = searchQuery.value; // 예: "ABC-123", "삼성전자"
+        params.option = selectOption.value;
+        params.keyword = searchQuery.value;
     }
 
     // 쿼리 파라미터 업데이트
@@ -238,7 +238,7 @@ const fetchData = async () => {
         if (response.status === 200) {
             orders.value = response.data.data.content;
             console.log(response.data.data);
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
