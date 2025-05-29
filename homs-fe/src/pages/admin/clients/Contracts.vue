@@ -8,8 +8,8 @@
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false"
-            @row-click="handleRowClick" uniqueKey="contractId">
+        <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false" @row-click="handleRowClick"
+            uniqueKey="contractId">
             <template #cell-contractId="{ item }">
                 <strong>{{ item.contractId }}</strong>
             </template>
@@ -30,7 +30,8 @@
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
         </PageNav>
         <!-- 모달 -->
-        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail>
+        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false">
+        </ContractDetail>
     </div>
 </template>
 
@@ -42,7 +43,7 @@ import PageNav from '@/components/common/PageNav.vue';
 import ContractDetail from '@/components/common/modal/ContractDetail.vue';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/states/auth';
-import { useRouter } from 'vue-router';
+import { useRouter ,useRoute} from 'vue-router';
 
 const authStore = useAuthStore();
 
@@ -50,6 +51,7 @@ const showModal = ref(false); // 모달 상태 관리
 const selectedId = ref(null); // 선택된 항목 ID
 
 const router = useRouter();
+const route = useRoute();
 
 const contracts = ref([]); // 계약 목록 데이터 상태 관리
 
@@ -71,9 +73,9 @@ const handleSearch = (searchData) => {
 };
 
 const handleSelectOption = ref([
-  { value: "productName", label: "제품명" },
-  { value: "companyName", label: "회사명" },
-  { value: "productCategory", label: "분류" },
+  { value: "PRODUCT_NAME", label: "제품명" },
+  { value: "COMPANY_NAME", label: "회사명" },
+  { value: "CATEGORY_NAME", label: "분류" },
 ]);
 
 const actionButtons = ref([
@@ -107,17 +109,31 @@ const fetchData = async () => {
         size: pageSize.value,
     };
 
-    // keyword 하나로만 검색하도록 변경
-  if (searchQuery.value) {
-    params.keyword = searchQuery.value;
-  }
+    if (searchQuery.value && selectOption.value) {
+        params.option = selectOption.value;
+        params.keyword = searchQuery.value;
+    }
+
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path);
+    for(const key in params){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+
 
     try {
         const response = await apiClient.get("/contract/", { params });
         if (response.status === 200) {
             console.log(response.data.data);
             contracts.value  = response.data.data.content; // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert('데이터를 불러오는데 실패했습니다');
         }
@@ -146,6 +162,23 @@ const handleSetPage = (page) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+    const queryOption = route.query.option;
+    const queryKeyword = route.query.keyword;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    if (queryOption) {
+        selectOption.value = queryOption;
+    }
+    if (queryKeyword) {
+        searchQuery.value = queryKeyword;
+    }
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
     if (modalConfirmed === "true") {

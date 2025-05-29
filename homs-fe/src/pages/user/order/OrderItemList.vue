@@ -118,10 +118,11 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import ProductDetail from "@/components/common/modal/ProductDetail.vue";
-import {ref, watch, onMounted, toRaw, computed} from "vue";
+import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
+import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
 
 const authStore = useAuthStore();
 
@@ -164,6 +165,7 @@ const deliveryOptions = ref([
 const selectedDelivery = ref('');
 const selectedDueDate = ref('');
 
+// 발주 신청
 const orderRequest = async () => {
     if (selectedDelivery.value && selectedDueDate.value) {
         if(confirm("발주신청을 하시겠습니까?")){
@@ -295,6 +297,7 @@ const deletePostData = async (params) => {
 const fetchData = async () => {
     // 기본 요청 파라미터
     const params = {
+        orderId: orderId.value,
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
         size: pageSize.value,
     };
@@ -305,7 +308,7 @@ const fetchData = async () => {
     }
 
     // 쿼리 파라미터 업데이트
-    const url = new URL(window.location.origin + `/orderitem/list?orderId=${orderId.value}`);
+    const url = new URL(window.location.origin + route.path);
     console.log(url);
     for(const key in params){
         console.log(route.path);
@@ -348,52 +351,19 @@ const excelDown = async () => {
         const response = await apiClient.get(`/excel/download?type=ORDER&orderId=${orderId.value}`,{
             responseType: 'blob'
         });
-
-        // Blob 데이터 가져오기
-        const blob = new Blob([response.data], {type: response.headers['content-type'] || "application/octet-stream"});
         
-        // 파일 이름 가져오기 (Content-Disposition 헤더에서 파싱)
-        let filename = 'download.xlsx'; // 기본 파일 이름
-        const contentDisposition = response.headers['content-disposition'];
-
-        if (contentDisposition) {
-            // filename*=UTF-8''... 형식 (RFC 5987) 처리
-            const filenameStarMatch = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(contentDisposition);
-            if (filenameStarMatch && filenameStarMatch[1]) {
-                try {
-                    filename = decodeURIComponent(filenameStarMatch[1].replace(/"/g, ''));
-                } catch (e) {
-                    console.warn("UTF-8 filename decoding failed, trying simple filename.");
-                }
-            } else {
-                // filename="..." 또는 filename=... 형식 처리
-                const filenameMatch = /filename="([^"]+)"|filename=([^;]+)/i.exec(contentDisposition);
-                if (filenameMatch && (filenameMatch[1] || filenameMatch[2])) {
-                    try {
-                        filename = decodeURIComponent(filenameMatch[1] || filenameMatch[2]);
-                    } catch (e) {
-                        console.warn("Simple filename decoding failed, using default filename.");
-                    }
-                }
-            }
-        }
-
-        // 임시 URL 생성
-        const url = URL.createObjectURL(blob);
+        // 파일 이름 파싱
+        const filename = getFilenameFromHeaders(response.headers);
         
-        // 가상 <a> 태그 생성 및 다운로드
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", filename); // 파일 이름 설정
-        document.body.appendChild(link);
-        link.click();
+        // Blob 데이터 생성
+        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
         
-        // URL 해제
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-    }catch{
+        // 파일 다운로드
+        downloadBlob(blob, filename);
+        
+    }catch(error){
         console.error('파일 다운로드 실패:', error);
-        alert("엑셀 다운로드 실패");
+        alert("파일 다운로드 실패");
     }
     
 }
