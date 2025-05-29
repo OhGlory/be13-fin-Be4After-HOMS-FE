@@ -297,6 +297,7 @@ const deletePostData = async (params) => {
 const fetchData = async () => {
     // 기본 요청 파라미터
     const params = {
+        orderId: orderId.value,
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
         size: pageSize.value,
     };
@@ -307,7 +308,7 @@ const fetchData = async () => {
     }
 
     // 쿼리 파라미터 업데이트
-    const url = new URL(window.location.origin + `/orderitem/list?orderId=${orderId.value}`);
+    const url = new URL(window.location.origin + route.path);
     console.log(url);
     for(const key in params){
         console.log(route.path);
