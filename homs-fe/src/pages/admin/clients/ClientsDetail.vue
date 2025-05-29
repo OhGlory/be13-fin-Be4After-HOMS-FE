@@ -37,8 +37,7 @@ const fields = ref([
   { label: '주소', key: 'companyAddress', value: '' },
   { label: '연락처', key: 'companyTell', value: '' },
   { label: '이메일', key: 'companyEmail', value: '' },
-  { label: '거래 여부', key: 'isConstract', value: '' },
-  { label: '승인 상태', key: 'isApprove', value: '' }
+
 ]);
 
 const fetchData = async () => {
@@ -52,14 +51,12 @@ const fetchData = async () => {
         companyAddress: data.companyId,
         companyTell: data.representCall,
         companyEmail: data.representManagerEmail,
-        isConstract: data.continueStatus ? 'T' : 'F',
-        isApprove: data.approvedStatus ? 'T' : 'F'
+
     };
 
     fields.value.forEach(field => {
         field.value = mapping[field.key];
     });
-
 }
 
 
