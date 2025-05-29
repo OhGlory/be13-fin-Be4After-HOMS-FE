@@ -30,8 +30,9 @@
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
         </PageNav>
         <!-- 모달 -->
-        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false">
-        </ContractDetail>
+
+        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail>
+
     </div>
 </template>
 
