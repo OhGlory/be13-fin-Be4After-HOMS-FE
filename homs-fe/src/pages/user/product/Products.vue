@@ -72,6 +72,7 @@ import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
+import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
 
 const authStore = useAuthStore();
 const basePath = import.meta.env.VITE_API_URL;
@@ -270,8 +271,24 @@ const deletePostData = async (productId) => {
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    const url = basePath+`/excel/download?type=ALL`;
-    window.open(url, '_blank'); // 새 탭 또는 팝업으로 다운로드 시작
+    try{
+        const response = await apiClient.get(`/excel/download?type=ALL`,{
+            responseType: 'blob'
+        });
+        
+        // 파일 이름 파싱
+        const filename = getFilenameFromHeaders(response.headers);
+        
+        // Blob 데이터 생성
+        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
+        
+        // 파일 다운로드
+        downloadBlob(blob, filename);
+        
+    }catch(error){
+        console.error('파일 다운로드 실패:', error);
+        alert("파일 다운로드 실패");
+    }
 }
 
 // 엑셀 업로드
