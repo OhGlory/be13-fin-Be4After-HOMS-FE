@@ -6,8 +6,8 @@
         </div>
         <!-- 배송 등 상세 정보 -->
         <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-4 pr-4">
-            <!-- 관리자 -->
-            <div class="flex flex-wrap gap-x-3 gap-y-4" v-if="authStore.isAdmin">
+            <div class="flex flex-wrap gap-x-3 gap-y-4 w-full">
+                <!-- 발주 번호 -->
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">발주번호</label>
                     <div
@@ -15,34 +15,15 @@
                         {{ orders.orderCode || '-' }}
                     </div>
                 </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
+                <!-- 납품위치 (고정) -->
+                <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
                     <div
                         class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
                         {{ "서울" || '-' }} </div>
                 </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
-                    <label class="block text-gray-700 font-semibold">주문날짜</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.orderDate).toLocaleDateString() || '-' }}
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1 w-full md:w-auto">
-                    <label class="block text-gray-700 font-semibold">납기일</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.dueDate).toLocaleDateString() || '-' }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- 유저 -->
-            <div class="flex flex-wrap gap-x-8 gap-y-4 w-full" v-if="authStore.isUser">
-                <div class="flex flex-col gap-1 w-full md:w-auto">
+                <!-- 납품위치 (수정) -->
+                <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
                     <select v-model="selectedDelivery"
                         class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
@@ -53,12 +34,30 @@
                     </select>
                 </div>
 
+                <!-- 주문날짜 -->
                 <div class="flex flex-col gap-1 w-full md:w-auto">
+                    <label class="block text-gray-700 font-semibold">주문날짜</label>
+                    <div
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                        {{ new Date(orders.orderDate).toLocaleDateString() || '-' }}
+                    </div>
+                </div>
+                <!-- 납기일 (고정) -->
+                <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
+                    <label class="block text-gray-700 font-semibold">납기일</label>
+                    <div
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                        {{ new Date(orders.dueDate).toLocaleDateString() || '-' }}
+                    </div>
+                </div>
+                <!-- 납기일 (수정) -->
+                <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label for="dueDateInput" class="block text-gray-700 font-semibold">납기일</label>
                     <input type="date" id="dueDateInput" v-model="selectedDueDate"
                         class="w-fit outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 px-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer" />
                 </div>
-                <div class="flex items-end ml-auto">
+                <!-- 발주요청 버튼 (유저) -->
+                <div v-if="authStore.isUser" class="flex items-end ml-auto">
                     <button @click="orderRequest()"
                         class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
                         발주요청
@@ -80,19 +79,10 @@
             <template #cell-id="{ item }">
                 <strong>{{ item.produt.productId }}</strong>
             </template>
-            <template #cell-category="{ item }">
-                {{ item.category?.categoryId }}
-            </template>
-            <template #cell-productDomain="{ item }">
-                {{ item.category?.productDomain }}
-            </template>
-            <template #cell-productCategory="{ item }">
-                {{ item.category?.productCategory }}
-            </template>
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                    }}</div>
+                }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -128,10 +118,11 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import ProductDetail from "@/components/common/modal/ProductDetail.vue";
-import {ref, watch, onMounted, toRaw, computed} from "vue";
+import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
+import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
 
 const authStore = useAuthStore();
 
@@ -163,8 +154,6 @@ const handleExcelUploadClick = () => {
   excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
-// const products = ref({});
-
 // 배송 정보 더미데이터
 const deliveryOptions = ref([
     {value: "서울", label: "서울"},
@@ -176,32 +165,25 @@ const deliveryOptions = ref([
 const selectedDelivery = ref('');
 const selectedDueDate = ref('');
 
+// 발주 신청
 const orderRequest = async () => {
     if (selectedDelivery.value && selectedDueDate.value) {
         if(confirm("발주신청을 하시겠습니까?")){
-            console.log(selectedDelivery.value);
-            console.log(selectedDueDate.value);
             const dueDate = `${selectedDueDate.value}T00:00:00`;
-            console.log(dueDate);
-
             try{
 
                 const params = {
                     dueDate: dueDate,
                     // deliveryLocation: selectedDelivery.value,
                 };
-
                 await apiClient.put(`/order/${orderId.value}/date`, params);
-                
-            }catch{
-                alert("발주신청 실패");
+                alert("발주신청이 완료되었습니다!");
+            } catch (error) {
+                alert(error.response.data.message);
             }
-
         }
     } else{
         alert("납품 장소와 납품일자를 지정해주세요!");
-        console.log(selectedDelivery.value);
-        console.log(selectedDueDate.value);
     }
 }
 
@@ -215,9 +197,9 @@ const handleSearch = (searchData) => {
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-    {value: "productName", label: "제품명"},
-    {value: "productDomain", label: "분야"},
-    {value: "productCategory", label: "분류"},
+    {value: "PRODUCT_NAME", label: "제품명"},
+    {value: "DOMAIN_NAME", label: "분야"},
+    {value: "CATEGORY_NAME", label: "분류"},
 ]);
 // 액션 버튼 정의
 const actionButtons = ref([
@@ -315,45 +297,40 @@ const deletePostData = async (params) => {
 const fetchData = async () => {
     // 기본 요청 파라미터
     const params = {
+        orderId: orderId.value,
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
         size: pageSize.value,
     };
 
     if (searchQuery.value && selectOption.value) {
-        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value;
+        params.option = selectOption.value;
+        params.keyword = searchQuery.value;
     }
+
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path);
+    console.log(url);
+    for(const key in params){
+        console.log(route.path);
+        console.log(key);
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
 
     try {
         const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
         if (response.status === 200) {
             console.log(response.data.message);
             console.log(response.data.data);
-            products.value = response.data.data.map((item) => ({
-                productId: item.product.productId,
-                category: item.product.category,
-                productName: item.product.productName,
-                productMinQuantity: item.product.productMinQuantity,
-                productQuantity: item.product.productQuantity,
-                isEditing: false, // 수정 모드 초기화
-            }));
-            orders.value = response.data.data[0].order;
-            /*
-            .map(item => ({
-                orderCode: item.order.orderCode,
-                orderDate: item.order.orderDate,
-                orderStatus: item.order.orderStatus,
-                orderId: item.order.orderId,
-                dueDate: item.order.dueDate,
-                approved: item.order.approved,
-                parentOrderId: item.order.parentOrderId,
-                rejectReason: item.order.rejectReason
-            }));
-            */
-
-            console.log(products.value);
-            console.log(orders.value);
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            products.value = response.data.data.content;
+            orders.value = response.data.data.content[0];
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
@@ -374,52 +351,19 @@ const excelDown = async () => {
         const response = await apiClient.get(`/excel/download?type=ORDER&orderId=${orderId.value}`,{
             responseType: 'blob'
         });
-
-        // Blob 데이터 가져오기
-        const blob = new Blob([response.data], {type: response.headers['content-type'] || "application/octet-stream"});
         
-        // 파일 이름 가져오기 (Content-Disposition 헤더에서 파싱)
-        let filename = 'download.xlsx'; // 기본 파일 이름
-        const contentDisposition = response.headers['content-disposition'];
-
-        if (contentDisposition) {
-            // filename*=UTF-8''... 형식 (RFC 5987) 처리
-            const filenameStarMatch = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(contentDisposition);
-            if (filenameStarMatch && filenameStarMatch[1]) {
-                try {
-                    filename = decodeURIComponent(filenameStarMatch[1].replace(/"/g, ''));
-                } catch (e) {
-                    console.warn("UTF-8 filename decoding failed, trying simple filename.");
-                }
-            } else {
-                // filename="..." 또는 filename=... 형식 처리
-                const filenameMatch = /filename="([^"]+)"|filename=([^;]+)/i.exec(contentDisposition);
-                if (filenameMatch && (filenameMatch[1] || filenameMatch[2])) {
-                    try {
-                        filename = decodeURIComponent(filenameMatch[1] || filenameMatch[2]);
-                    } catch (e) {
-                        console.warn("Simple filename decoding failed, using default filename.");
-                    }
-                }
-            }
-        }
-
-        // 임시 URL 생성
-        const url = URL.createObjectURL(blob);
+        // 파일 이름 파싱
+        const filename = getFilenameFromHeaders(response.headers);
         
-        // 가상 <a> 태그 생성 및 다운로드
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", filename); // 파일 이름 설정
-        document.body.appendChild(link);
-        link.click();
+        // Blob 데이터 생성
+        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
         
-        // URL 해제
-        URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-    }catch{
+        // 파일 다운로드
+        downloadBlob(blob, filename);
+        
+    }catch(error){
         console.error('파일 다운로드 실패:', error);
-        alert("엑셀 다운로드 실패");
+        alert("파일 다운로드 실패");
     }
     
 }
@@ -466,6 +410,24 @@ const excelUpload = async (event) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    console.log(route.query);
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+    const queryOption = route.query.option;
+    const queryKeyword = route.query.keyword;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    if (queryOption) {
+        selectOption.value = queryOption;
+    }
+    if (queryKeyword) {
+        searchQuery.value = queryKeyword;
+    }
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
     if (modalConfirmed === "true") {

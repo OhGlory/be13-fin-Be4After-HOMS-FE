@@ -5,8 +5,7 @@
             <span>주문관리 > 주문목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
             @row-click="handleRowClick" uniqueKey="orderId">
@@ -41,10 +40,10 @@
                 <div v-if="authStore.isAdmin">
                     <!-- 미승인 상태 -->
                     <div v-if="item.approved === false && item.rejectReason === null">
-                    <button @click="rejectOrder(item.orderId)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                    <button @click="approveOrder(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                        <button @click="rejectOrder(item.orderId)"
+                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                        <button @click="approveOrder(item.orderId)"
+                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                     </div>
 
                     <div v-else-if="item.approved === false && item.rejectReason !== null">
@@ -56,13 +55,15 @@
                         <strong>승인됨</strong>
                     </div>
                 </div>
-                
+
                 <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved === false && item.rejectReason === null" @click="cancleBtn(item.orderId)"
+                    <button v-if="item.approved === false && item.rejectReason === null"
+                        @click="cancleBtn(item.orderId)"
                         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
-                    <button v-else-if="item.approved === false && item.rejectReason !== null" @click="cancleBtn(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">사유</button>
+                    <button v-else-if="item.approved === false && item.rejectReason !== null"
+                        @click="rejectReasonView(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white
+                        font-bold py-2 px-4 rounded text-sm">사유</button>
                 </div>
             </template>
         </DynamicTable>
@@ -71,14 +72,9 @@
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
         </PageNav>
         <!-- 알림 모달 -->
-        <Notify
-            :visible="showModal"
-            :text="modalText"
-            :showTextArea="showTextAreaInput"
-            :textAreaPlaceholder="textAreaHint"
-            @update:visible="showModal = $event"
-            @confirm="confirmModal"
-            @cancel="showModal = false"/>
+        <Notify :visible="showModal" :text="modalText" :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint" @update:visible="showModal = $event" @confirm="confirmModal"
+            @cancel="showModal = false" />
     </div>
 </template>
 
@@ -88,7 +84,7 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import Notify from "@/components/common/modal/NotifyModal.vue";
-import {ref, watch, onMounted, computed} from "vue";
+import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
@@ -128,9 +124,8 @@ const handleSearch = (searchData) => {
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-    {value: "productName", label: "제품명"},
-    {value: "productDomain", label: "분야"},
-    {value: "productCategory", label: "분류"},
+    {value: "ORDER_CODE", label: "발주번호"},
+    {value: "COMPANY_NAME", label: "거래처명"},
 ]);
 
 // ------- 테이블 --------
@@ -150,20 +145,12 @@ const orders = ref([
     {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11"},
 ]);
 
-const editBtn = async (item) => {
-    if (item) {
-        item.isEditing = !item.isEditing;
-        if (item.isEditing === false) {
-            await apiClient.put(`/orderitem/${orders.value.orderId}/renew/${item.productId}?quantity=${item.productQuantity}`);
-        }
-    }
-};
-
 // 승인
 const approveOrder = (orderId) => {
     currentOrderId.value = orderId;
     modalText.value = "선택하신 주문을 승인하시겠습니까?";
     currentActionType.value = 'approve';
+    showTextAreaInput.value = false; // textarea 안보이게
     showModal.value = true;
 };
 
@@ -204,6 +191,20 @@ const cancleBtn = async (orderId) => {
     }
 };
 
+// 사유 확인
+const rejectReasonView = async (orderId) => {
+    try {
+        const response = await apiClient.get(`/order/${orderId}`);
+        if (response.status === 200) {
+            alert(response.data.data.rejectReason);
+        } else {
+            alert(t("errors.fetch_data_failed"));
+        }
+    } catch (err) {
+        console.error(t("errors.fetch_data_erro"), err);
+    }
+}
+
 // 데이터 가져오는 함수
 const fetchData = async () => {
     // 기본 요청 파라미터
@@ -213,16 +214,31 @@ const fetchData = async () => {
     };
 
     if (searchQuery.value && selectOption.value) {
-        // selectOption 값이 key가 되고, searchQuery는 value가 됩니다.
-        params[selectOption.value] = searchQuery.value;
+        params.option = selectOption.value;
+        params.keyword = searchQuery.value;
     }
 
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path);
+    for(const key in params){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+
     try {
-        const response = await apiClient.get("/order/");
+        const response = await apiClient.get("/order/", {
+            params: params // 여기에 구성한 파라미터 객체를 전달합니다.
+        });
         if (response.status === 200) {
-            orders.value = response.data.data;
-            console.log(orders.value);
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            orders.value = response.data.data.content;
+            console.log(response.data.data);
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
@@ -234,12 +250,29 @@ const fetchData = async () => {
 // 선택한 행에 대한 정보 처리
 const handleRowClick = (item) => {
     console.log("선택된 행:", item.orderId);
-    // /orders/list?orderId=14
     router.push({name: "OrderItemList", query: {orderId: item.orderId}});
 };
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    console.log(route.query);
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+    const queryOption = route.query.option;
+    const queryKeyword = route.query.keyword;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    if (queryOption) {
+        selectOption.value = queryOption;
+    }
+    if (queryKeyword) {
+        searchQuery.value = queryKeyword;
+    }
     fetchData();
 });
 

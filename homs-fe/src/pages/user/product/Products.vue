@@ -72,6 +72,7 @@ import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import { useAuthStore } from '@/states/auth';
+import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
 
 const authStore = useAuthStore();
 const basePath = import.meta.env.VITE_API_URL;
@@ -127,13 +128,6 @@ const actionButtons = ref([
         action: () => router.push({name: "ProductForm"}),
         allowedRoles: ["admin"],
     },
-    // {
-    //     label: t("btn.del"),
-    //     color: "bg-gray-500 hover:bg-gray-700",
-    //     action: () => deleteItems(selectedProductId.value.length),
-    //     allowedRoles: ["admin"],
-    // },
-    // 이 버튼은 'user'만 볼 수 있음
     {
         label: "전체목록",
         color: "bg-gray-500 hover:bg-gray-700",
@@ -277,8 +271,24 @@ const deletePostData = async (productId) => {
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    const url = basePath+`/excel/download?type=ALL`;
-    window.open(url, '_blank'); // 새 탭 또는 팝업으로 다운로드 시작
+    try{
+        const response = await apiClient.get(`/excel/download?type=ALL`,{
+            responseType: 'blob'
+        });
+        
+        // 파일 이름 파싱
+        const filename = getFilenameFromHeaders(response.headers);
+        
+        // Blob 데이터 생성
+        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
+        
+        // 파일 다운로드
+        downloadBlob(blob, filename);
+        
+    }catch(error){
+        console.error('파일 다운로드 실패:', error);
+        alert("파일 다운로드 실패");
+    }
 }
 
 // 엑셀 업로드
@@ -341,6 +351,19 @@ const fetchData = async () => {
         params[selectOption.value] = searchQuery.value;
     }
 
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path); // 현재 경로 기반 URL 생성
+    for(const key in params){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+            url.searchParams.set(key, params[key])
+        } else{
+            url.searchParams.delete(key);
+        }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+
     try {
         const response = await apiClient.get("/product/", {params});
         if (response.status === 200) {
@@ -349,7 +372,7 @@ const fetchData = async () => {
                 ...item, // 기존 item의 모든 속성을 복사
                 quantityToOrder: 1, // 각 상품마다 고유한 quantityToOrder 속성 추가 (기본값 1)
             })); // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t("errors.fetch_data_failed"));
         }
@@ -366,6 +389,29 @@ const handleRowClick = (item) => {
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
+    const query = route.query;
+    const queryPage = route.query.page;
+    const querySize = route.query.size;
+
+    if (queryPage) {
+        currentPage.value = parseInt(queryPage) + 1;
+    }
+    if (querySize) {
+        pageSize.value = parseInt(querySize);
+    }
+    console.log(query);
+    if (query.productName) {
+        selectOption.value = "productName";
+        searchQuery.value = query.productName;
+    } else if (query.productDomain) {
+        selectOption.value = "productDomain";
+        searchQuery.value = query.productDomain;
+    } else if (query.productCategory) {
+        selectOption.value = "productCategory";
+        searchQuery.value = query.productCategory;
+    }
+
+
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
     if (modalConfirmed === "true") {
@@ -388,26 +434,11 @@ const handleSelectedItems = (selectedIds) => {
     console.log("선택된 아이템 ID:", selectedProductId.value);
 };
 
+// 주문 목록
 const orderListBtn = () => {
     if (orderId.value) {
         router.push({name: "OrderItemList", query: {orderId: orderId.value}});
     } else router.push({name: "UserOrders"});
-};
-
-
-// 다중 삭제
-const deleteItems = async (selectedItemLength) => {
-    // try {
-    //   await apiClient.delete(`/notice/${noticeId}`);
-    //   alert("삭제 됐습니다.");
-    //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-    //   router.push("/notices/");
-    // } catch (error) {
-    //   alert(error.response.data.message);
-    // }
-    if (confirm(selectedProductId.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
-        alert("미구현!");
-    }
 };
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음

@@ -8,12 +8,12 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="authStore.isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"  
-    @row-click="handleRowClick"
-        :column-classes="{
-          title: 'text-start font-semibold text-gray-700',
-          createdAt: 'text-start text-sm text-gray-500',
-          id: 'text-start'}">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"
+      @row-click="handleRowClick" :column-classes="{
+        title: 'text-start font-semibold text-gray-700',
+        createdAt: 'text-start text-sm text-gray-500',
+        id: 'text-start'
+      }">
       <!-- 항목 상세 설정 -->
       <template #cell-id="{ item }">
         <strong>{{ item.id }}</strong>
@@ -34,7 +34,7 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref , watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/states/auth';
 
@@ -44,6 +44,7 @@ const { t, locale } = useI18n()
 const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
 
 const router = useRouter();
+const route = useRoute();
 
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(0); // 총 페이지 수 상태 관리
@@ -82,12 +83,6 @@ const actionButtons = ref([
     action: () => router.push({name:"AdminNoticesFrom"}),
     allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
   },
-  // {
-  //   label: t('btn.del'),
-  //   color: "bg-gray-500 hover:bg-gray-700",
-  //   action: () => deleteItems(selectedUserIds.value.length),
-  //   allowedRoles: ["admin"] // 이 버튼은 'admin'만 볼 수 있음
-  // }
 ]);
 
 // ------- 테이블 --------
@@ -109,18 +104,31 @@ const fetchData = async () => {
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
         size: pageSize.value,
+        sort: 'id,desc' // 정렬 기준 명시
     };
 
     if (searchQuery.value) {
         params.title = searchQuery.value;
     }
 
+    // 쿼리 파라미터 업데이트
+    const url = new URL(window.location.origin + route.path); // 현재 경로 기반 URL 생성
+    for(const key in params){
+      if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+        url.searchParams.set(key, params[key])
+      } else{
+        url.searchParams.delete(key);
+      }
+    }
+
+    // 브라우저 주소창 업데이트 (replaceState 사용)
+    window.history.replaceState({}, '', url.toString())
+    
     try {
         const response = await apiClient.get("/notice/", { params });
         if (response.status === 200) {
-            console.log(response.data.data);
             users.value = response.data.data.content; // 응답 데이터 할당
-            totalPages.value = response.data.data.totalPages; // 총 페이지 수 할당
+            totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
             alert(t('errors.fetch_data_failed'));
         }
@@ -149,24 +157,24 @@ const handleSelectedItems = (selectedIds) => {
   // selectedUserIds.value.length
 };
 
-// 게시글 삭제
-const deleteItems = async (selectedItemLength) => {
-  // try {
-  //   await apiClient.delete(`/notice/${noticeId}`);
-  //   alert("삭제 됐습니다.");
-  //   // 게시글을 삭제한 후 기존 페이지로 돌려보냄
-  //   router.push("/notices/");
-  // } catch (error) {
-  //   alert(error.response.data.message);
-  // }
-  if (confirm(selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?")){
-    alert('미구현!')
-  }
-};
-
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
-    fetchData();
+  // URL에서 쿼리 파라미터를 읽어와서 상태 초기화
+  const queryPage = route.query.page;
+  const querySize = route.query.size;
+  const queryTitle = route.query.title;
+
+  if (queryPage) {
+    currentPage.value = parseInt(queryPage) + 1;
+  }
+  if (querySize) {
+    pageSize.value = parseInt(querySize);
+  }
+  if (queryTitle) {
+    searchQuery.value = queryTitle;
+  }
+  
+  fetchData();
 });
 
 </script>
