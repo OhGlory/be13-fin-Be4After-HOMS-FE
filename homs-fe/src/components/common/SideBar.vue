@@ -127,6 +127,15 @@ const menuItems = ref<MenuItem[]>([
       { name: '통합 계정 관리', path: getPath('/adminaccount'), adminOnly: true },     // 관리자O, 사용자 X
       { name: '메뉴 설정', path: getPath('/menu-settings'), adminOnly: true },       // 관리자O, 사용자 X
     ],
+  },
+  {
+    title: '배송 관리',
+    icon: 7,
+    open: false,
+    children: [
+      { name: '배송 현황', path: getPath('/delivery'), adminOnly: true },     
+      { name: '배송지 관리', path: getPath('/DeliveryAddress'), adminOnly: true },   
+    ],
   }
 ])
 

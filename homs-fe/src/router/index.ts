@@ -29,6 +29,7 @@ import Settlements from "@/pages/user/settlement/Settlements.vue";
 import Notices from "@/pages/user/notice/Notices.vue";
 import NoticesDetail from "@/pages/user/notice/NoticesDetail.vue";
 import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
+import DeliveryAddress from "@/pages/user/delivery/DeliveryAddress.vue";
 
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
@@ -165,6 +166,12 @@ const router = createRouter({
           path: "delivery",
           name: "Delivery",
           component: Deliverys,
+          meta: {requiresAuth: true, role: "ROLE_USER"},
+        },
+        {
+          path: "deliveryAddress",
+          name: "DeliveryAddress",
+          component: DeliveryAddress,
           meta: {requiresAuth: true, role: "ROLE_USER"},
         },
         {
