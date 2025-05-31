@@ -189,12 +189,8 @@ const handleFileChange = (fileName, event) => {
     }
     if (fileName === "s3Image") {
         imageUrl.value = URL.createObjectURL(file);
-        console.log(imageUrl.value);
     }
     event.target.value = ""; // input 초기화
-    console.log(selectedFiles.value);
-    console.log(file);
-    console.log(selectedFiles.value.s3Msds);
 };
 
 // "업로드" 버튼을 클릭했을 때 실행될 함수
@@ -254,13 +250,13 @@ const fileUpload = async () => {
     try {
         // 만약에 수정모드면 원본 파일 제거
         if (isEditMode.value) {
-            if (selectedFiles.value.s3Image) {
+            if (selectedFiles.value.s3Image && orginImage.value) {
                 await apiClient.delete(`/files/delete?key=${orginImage.value}`);
             }
-            if (selectedFiles.value.s3Msds) {
+            if (selectedFiles.value.s3Msds && orginMsds.value) {
                 await apiClient.delete(`/files/delete?key=${orginMsds.value}`);
             }
-            if (selectedFiles.value.s3Tds1) {
+            if (selectedFiles.value.s3Tds1 && orginTds1.value) {
                 await apiClient.delete(`/files/delete?key=${orginTds1.value}`);
             }
         }
@@ -293,6 +289,7 @@ const fileUpload = async () => {
                 uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             },
         });
+        console.log(response);
 
         if (response.status === 200) {
             // 성공하면 파일의 경로를 저장
