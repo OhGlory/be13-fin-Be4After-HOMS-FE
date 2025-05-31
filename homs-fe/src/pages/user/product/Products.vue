@@ -5,58 +5,56 @@
             <span>상품관리 > 상품목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
-        <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none;" accept=".xlsx, .xls" />
+        <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems"
-            @row-click="handleRowClick" uniqueKey="productId">
+        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
             <!-- 항목 상세 설정 -->
-            <template #cell-productId="{ item }">
+            <template #cell-productId="{item}">
                 <strong>{{ item.productId }}</strong>
             </template>
-            <template #cell-category="{ item }">
+            <template #cell-category="{item}">
                 {{ item.category?.categoryId }}
             </template>
-            <template #cell-productDomain="{ item }">
+            <template #cell-productDomain="{item}">
                 {{ item.category?.productDomain }}
             </template>
-            <template #cell-productCategory="{ item }">
+            <template #cell-productCategory="{item}">
                 {{ item.category?.productCategory }}
             </template>
-            <template #cell-productQuantity="{ item }">
+            <template #cell-productQuantity="{item}">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined">
                     {{ item.productQuantity }}
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <div v-if="authStore.isAdmin">
-                    <button @click="editBtn(item.productId)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="editBtn(item.productId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ $t("btn.edit") }}
                     </button>
-                    <button @click="deleteBtn(item.productId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.del") }}
                     </button>
                 </div>
                 <div v-else>
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-24 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.quantityToOrder" @mousedown.stop />
-                    <button @click="orderBtn(item.productId, item.quantityToOrder)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">발주
-                        추가</button>
+                        min="1"
+                        max="9999"
+                        v-model.number="item.quantityToOrder"
+                        @mousedown.stop
+                    />
+                    <button @click="orderBtn(item.productId, item.quantityToOrder)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">발주 추가</button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 모달 -->
         <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
     </div>
@@ -71,11 +69,10 @@ import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import { useAuthStore } from '@/states/auth';
-import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
+import {useAuthStore} from "@/states/auth";
+import {downloadBlob, getFilenameFromHeaders} from "@/utils/fileDownloader";
 
 const authStore = useAuthStore();
-const basePath = import.meta.env.VITE_API_URL;
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -102,7 +99,7 @@ const excelFileInput = ref(null);
 
 // 버튼 클릭 시 파일 선택 다이얼로그를 띄우는 함수
 const handleExcelUploadClick = () => {
-  excelFileInput.value.click(); // 숨겨진 input 요소 클릭
+    excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
 // ------- 검색바 --------
@@ -132,7 +129,7 @@ const actionButtons = ref([
         label: "전체목록",
         color: "bg-gray-500 hover:bg-gray-700",
         action: () => excelDown(),
-        allowedRoles: ["admin","user"],
+        allowedRoles: ["admin", "user"],
     },
     {
         label: "엑셀주문",
@@ -271,25 +268,24 @@ const deletePostData = async (productId) => {
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    try{
-        const response = await apiClient.get(`/excel/download?type=ALL`,{
-            responseType: 'blob'
+    try {
+        const response = await apiClient.get(`/excel/download?type=ALL`, {
+            responseType: "blob",
         });
-        
+
         // 파일 이름 파싱
         const filename = getFilenameFromHeaders(response.headers);
-        
+
         // Blob 데이터 생성
-        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
-        
+        const blob = new Blob([response.data], {type: response.headers["content-type"] || "application/octet-stream"});
+
         // 파일 다운로드
         downloadBlob(blob, filename);
-        
-    }catch(error){
-        console.error('파일 다운로드 실패:', error);
+    } catch (error) {
+        console.error("파일 다운로드 실패:", error);
         alert("파일 다운로드 실패");
     }
-}
+};
 
 // 엑셀 업로드
 const excelUpload = async (event) => {
@@ -304,7 +300,7 @@ const excelUpload = async (event) => {
         if (confirm("새로운 주문목록을 생성하시겠습니까?")) {
             const order = await apiClient.post("/order/");
             orderId.value = order.data.data.orderId;
-        } else{
+        } else {
             // 취소를 눌렀을 때 종료되도록 설정
             return 0;
         }
@@ -319,14 +315,13 @@ const excelUpload = async (event) => {
     try {
         const response = await apiClient.post(`/excel/upload?orderId=${orderId.value}`, formData, {
             headers: {
-            'Content-Type': 'multipart/form-data', // 파일 업로드 시 필수 헤더
+                "Content-Type": "multipart/form-data", // 파일 업로드 시 필수 헤더
             },
         });
 
         console.log("파일 업로드 성공:", response.data);
         alert("엑셀 파일이 성공적으로 업로드되었습니다!");
         router.push({name: "OrderItemList", query: {orderId: orderId.value}});
-
     } catch (error) {
         console.error("파일 업로드 실패:", error);
         if (error.response) {
@@ -336,7 +331,7 @@ const excelUpload = async (event) => {
             alert(`엑셀 파일 업로드 실패: ${error.message}`);
         }
     }
-}
+};
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -353,16 +348,16 @@ const fetchData = async () => {
 
     // 쿼리 파라미터 업데이트
     const url = new URL(window.location.origin + route.path); // 현재 경로 기반 URL 생성
-    for(const key in params){
-        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
-            url.searchParams.set(key, params[key])
-        } else{
+    for (const key in params) {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
+            url.searchParams.set(key, params[key]);
+        } else {
             url.searchParams.delete(key);
         }
     }
 
     // 브라우저 주소창 업데이트 (replaceState 사용)
-    window.history.replaceState({}, '', url.toString())
+    window.history.replaceState({}, "", url.toString());
 
     try {
         const response = await apiClient.get("/product/", {params});
@@ -410,7 +405,6 @@ onMounted(() => {
         selectOption.value = "productCategory";
         searchQuery.value = query.productCategory;
     }
-
 
     // 모달 상태를 localstorage에 넣어서 상태 관리
     const modalConfirmed = localStorage.getItem("modalConfirmed");
