@@ -11,26 +11,29 @@
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">발주번호</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ orders.orderCode || '-' }}
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    >
+                        {{ orders.orderCode || "-" }}
                     </div>
                 </div>
                 <!-- 납품위치 (고정) -->
                 <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ "서울" || '-' }} </div>
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    >
+                        {{ "서울" || "-" }}
+                    </div>
                 </div>
                 <!-- 납품위치 (수정) -->
                 <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납품위치</label>
-                    <select v-model="selectedDelivery"
-                        class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                    <select
+                        v-model="selectedDelivery"
+                        class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    >
                         <option disabled value="">선택</option>
-                        <option v-for="option in deliveryOptions" :key="option.value" :value="option.value">{{
-                            option.label }}
-                        </option>
+                        <option v-for="option in deliveryOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </select>
                 </div>
 
@@ -38,66 +41,70 @@
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">주문날짜</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.orderDate).toLocaleDateString() || '-' }}
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    >
+                        {{ new Date(orders.orderDate).toLocaleDateString() || "-" }}
                     </div>
                 </div>
                 <!-- 납기일 (고정) -->
                 <div v-if="authStore.isAdmin" class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납기일</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                        {{ new Date(orders.dueDate).toLocaleDateString() || '-' }}
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    >
+                        {{ new Date(orders.dueDate).toLocaleDateString() || "-" }}
                     </div>
                 </div>
                 <!-- 납기일 (수정) -->
                 <div v-if="authStore.isUser" class="flex flex-col gap-1 w-full md:w-auto">
                     <label for="dueDateInput" class="block text-gray-700 font-semibold">납기일</label>
-                    <input type="date" id="dueDateInput" v-model="selectedDueDate"
-                        class="w-fit outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 px-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer" />
+                    <input
+                        type="date"
+                        id="dueDateInput"
+                        v-model="selectedDueDate"
+                        class="w-fit outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 px-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
+                    />
                 </div>
                 <!-- 발주요청 버튼 (유저) -->
                 <div v-if="authStore.isUser" class="flex items-end ml-auto">
-                    <button @click="orderRequest()"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
-                        발주요청
-                    </button>
+                    <button @click="orderRequest()" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">발주요청</button>
                 </div>
             </div>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
-        <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none;" accept=".xlsx, .xls" />
+        <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
 
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems"
-            @row-click="handleRowClick" uniqueKey="productId">
+        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
             <p>{{ item }}</p>
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{ item }">
+            <template #cell-id="{item}">
                 <strong>{{ item.produt.productId }}</strong>
             </template>
-            <template #cell-productQuantity="{ item }">
+            <template #cell-productQuantity="{item}">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
+                        min="1"
+                        max="9999"
+                        v-model.number="item.productQuantity"
+                        @click.stop
+                        @mousedown.stop
+                    />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <div v-if="authStore.isUser">
-                    <button @click="editBtn(item)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="editBtn(item)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ item.isEditing ? "완료" : $t("btn.edit") }}
                     </button>
-                    <button @click="deleteBtn(item.productId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.del") }}
                     </button>
                 </div>
@@ -105,8 +112,7 @@
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 모달 -->
         <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
     </div>
@@ -121,8 +127,8 @@ import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import {ref, watch, onMounted, toRaw} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import { useAuthStore } from '@/states/auth';
-import { downloadBlob, getFilenameFromHeaders } from "@/utills/fileDownloader"
+import {useAuthStore} from "@/states/auth";
+import {downloadBlob, getFilenameFromHeaders} from "@/utils/fileDownloader";
 
 const authStore = useAuthStore();
 
@@ -151,7 +157,7 @@ const excelFileInput = ref(null);
 
 // 버튼 클릭 시 파일 선택 다이얼로그를 띄우는 함수
 const handleExcelUploadClick = () => {
-  excelFileInput.value.click(); // 숨겨진 input 요소 클릭
+    excelFileInput.value.click(); // 숨겨진 input 요소 클릭
 };
 
 // 배송 정보 더미데이터
@@ -160,18 +166,17 @@ const deliveryOptions = ref([
     {value: "경기", label: "경기"},
     {value: "인천", label: "인천"},
     {value: "부산", label: "부산"},
-])
+]);
 
-const selectedDelivery = ref('');
-const selectedDueDate = ref('');
+const selectedDelivery = ref("");
+const selectedDueDate = ref("");
 
 // 발주 신청
 const orderRequest = async () => {
     if (selectedDelivery.value && selectedDueDate.value) {
-        if(confirm("발주신청을 하시겠습니까?")){
+        if (confirm("발주신청을 하시겠습니까?")) {
             const dueDate = `${selectedDueDate.value}T00:00:00`;
-            try{
-
+            try {
                 const params = {
                     dueDate: dueDate,
                     // deliveryLocation: selectedDelivery.value,
@@ -182,10 +187,10 @@ const orderRequest = async () => {
                 alert(error.response.data.message);
             }
         }
-    } else{
+    } else {
         alert("납품 장소와 납품일자를 지정해주세요!");
     }
-}
+};
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -207,7 +212,7 @@ const actionButtons = ref([
         label: "엑셀목록",
         color: "bg-gray-500 hover:bg-gray-700",
         action: () => excelDown(),
-        allowedRoles: ["admin","user"],
+        allowedRoles: ["admin", "user"],
     },
     {
         label: "엑셀주문",
@@ -310,10 +315,10 @@ const fetchData = async () => {
     // 쿼리 파라미터 업데이트
     const url = new URL(window.location.origin + route.path);
     console.log(url);
-    for(const key in params){
+    for (const key in params) {
         console.log(route.path);
         console.log(key);
-        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+        if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
             url.searchParams.set(key, params[key]);
         } else {
             url.searchParams.delete(key);
@@ -321,7 +326,7 @@ const fetchData = async () => {
     }
 
     // 브라우저 주소창 업데이트 (replaceState 사용)
-    window.history.replaceState({}, '', url.toString())
+    window.history.replaceState({}, "", url.toString());
 
     try {
         const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
@@ -347,26 +352,24 @@ const handleRowClick = (item) => {
 
 // 엑셀 다운로드
 const excelDown = async () => {
-    try{
-        const response = await apiClient.get(`/excel/download?type=ORDER&orderId=${orderId.value}`,{
-            responseType: 'blob'
+    try {
+        const response = await apiClient.get(`/excel/download?type=ORDER&orderId=${orderId.value}`, {
+            responseType: "blob",
         });
-        
+
         // 파일 이름 파싱
         const filename = getFilenameFromHeaders(response.headers);
-        
+
         // Blob 데이터 생성
-        const blob = new Blob([response.data], { type: response.headers['content-type'] || "application/octet-stream" });
-        
+        const blob = new Blob([response.data], {type: response.headers["content-type"] || "application/octet-stream"});
+
         // 파일 다운로드
         downloadBlob(blob, filename);
-        
-    }catch(error){
-        console.error('파일 다운로드 실패:', error);
+    } catch (error) {
+        console.error("파일 다운로드 실패:", error);
         alert("파일 다운로드 실패");
     }
-    
-}
+};
 
 // 엑셀 업로드
 const excelUpload = async (event) => {
@@ -386,13 +389,12 @@ const excelUpload = async (event) => {
     try {
         const response = await apiClient.post(`/excel/upload?orderId=${orderId.value}`, formData, {
             headers: {
-            'Content-Type': 'multipart/form-data', // 파일 업로드 시 필수 헤더
+                "Content-Type": "multipart/form-data", // 파일 업로드 시 필수 헤더
             },
         });
 
         console.log("파일 업로드 성공:", response.data);
         alert("엑셀 파일이 성공적으로 업로드되었습니다!");
-
     } catch (error) {
         console.error("파일 업로드 실패:", error);
         if (error.response) {
@@ -403,10 +405,10 @@ const excelUpload = async (event) => {
         }
     } finally {
         // 업로드 후 input 파일 선택을 초기화하여 같은 파일 재선택 가능하게 함
-        event.target.value = '';
+        event.target.value = "";
         fetchData();
     }
-}
+};
 
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
