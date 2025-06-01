@@ -23,7 +23,7 @@ jobs:
 
       - name: Build production bundle
         working-directory: homs-fe
-        run: npm run build
+        run: npm run build-only
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
