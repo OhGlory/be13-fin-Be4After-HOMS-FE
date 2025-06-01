@@ -6,7 +6,7 @@
     <div class="fixed w-1/3 h-full top-0 right-0 flex justify-center items-center">
         <div class="flex flex-col h-1/2 w-full bg-white p-16 ">
             <div class="flex w-full justify-center font-extrabold text-3xl mb-5">
-                LOGIN111111
+                LOGIN
             </div>
             <!-- 번역 구현은 어떻게 할지 -->
             <div class="text-xs flex justify-end mb-2 gap-2 cursor-pointer">
