@@ -1,37 +1,37 @@
 <template>
-    <div>
-        <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>통합계정관리</span>
-        </div>
-        <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
-        <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
-            </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
-            </template>
-            <template #cell-email="{ item }">
-                <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-            </template>
-            <template #actions="{ item }">
-                <button @click="editUser(item)"
-                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
-                    수정
-                </button>
-                <button @click="deleteUser(item)"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
-                    삭제
-                </button>
-            </template>
-        </DynamicTable>
-        <!-- 페이지 네비 -->
-        <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+  <div>
+    <!-- 제목 -->
+    <div class="text-3xl px-3 py-3">
+      <span>통합계정관리</span>
     </div>
+    <!-- 검색바 -->
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+      :userRole="currentUserRole" />
+    <!-- 테이블 -->
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize">
+      <template #cell-id="{ item }">
+        <strong>{{ item.id }}</strong>
+      </template>
+      <template #cell-name="{ item }">
+        {{ item.name }}
+      </template>
+      <template #cell-email="{ item }">
+        <a :href="`mailto:${item.email}`">{{ item.email }}</a>
+      </template>
+      <template #actions="{ item }">
+        <button @click="editUser(item)"
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+          수정
+        </button>
+        <button @click="deleteUser(item)"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+          삭제
+        </button>
+      </template>
+    </DynamicTable>
+    <!-- 페이지 네비 -->
+    <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+  </div>
 </template>
 
 <script setup>
@@ -69,7 +69,6 @@ const actionButtons = ref([
 
 // ------- 테이블 --------
 const userColumns = ref([
-  { label: '순번', key: 'id' },
   { label: '이름', key: 'userName' },
   { label: '파트너사', key: 'companyName' },
   { label: '담당', key: 'deptName' },

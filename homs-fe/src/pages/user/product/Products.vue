@@ -5,56 +5,58 @@
             <span>상품관리 > 상품목록</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
+        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" :page="currentPage"
+            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
             <!-- 항목 상세 설정 -->
-            <template #cell-productId="{item}">
+            <template #cell-productId="{ item }">
                 <strong>{{ item.productId }}</strong>
             </template>
-            <template #cell-category="{item}">
+            <template #cell-category="{ item }">
                 {{ item.category?.categoryId }}
             </template>
-            <template #cell-productDomain="{item}">
+            <template #cell-productDomain="{ item }">
                 {{ item.category?.productDomain }}
             </template>
-            <template #cell-productCategory="{item}">
+            <template #cell-productCategory="{ item }">
                 {{ item.category?.productCategory }}
             </template>
-            <template #cell-productQuantity="{item}">
+            <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined">
                     {{ item.productQuantity }}
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{item}">
+            <template #actions="{ item }">
                 <div v-if="authStore.isAdmin">
-                    <button @click="editBtn(item.productId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="editBtn(item.productId)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ $t("btn.edit") }}
                     </button>
-                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button @click="deleteBtn(item.productId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.del") }}
                     </button>
                 </div>
                 <div v-else>
-                    <input
-                        type="number"
+                    <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-24 focus:border-orange-500 focus:outline-none"
-                        min="1"
-                        max="9999"
-                        v-model.number="item.quantityToOrder"
-                        @mousedown.stop
-                    />
-                    <button @click="orderBtn(item.productId, item.quantityToOrder)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">발주 추가</button>
+                        min="1" max="9999" v-model.number="item.quantityToOrder" @mousedown.stop />
+                    <button @click="orderBtn(item.productId, item.quantityToOrder)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">발주
+                        추가</button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
         <!-- 모달 -->
         <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
     </div>
@@ -153,7 +155,6 @@ const actionButtons = ref([
 
 // ------- 테이블 --------
 const userColumns = ref([
-    {label: "번호", key: "productId"},
     {label: "분야", key: "productDomain"},
     {label: "분류", key: "productCategory"},
     {label: "제품명", key: "productName"},

@@ -8,8 +8,8 @@
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false" @row-click="handleRowClick"
-            uniqueKey="contractId">
+        <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" @row-click="handleRowClick" uniqueKey="contractId">
             <template #cell-contractId="{ item }">
                 <strong>{{ item.contractId }}</strong>
             </template>
@@ -31,7 +31,8 @@
         </PageNav>
         <!-- 모달 -->
 
-        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false"></ContractDetail>
+        <ContractDetail :visible="showModal" :contractId="Number(selectedId)" @close="showModal = false">
+        </ContractDetail>
 
     </div>
 </template>
