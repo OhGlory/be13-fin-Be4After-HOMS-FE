@@ -1,37 +1,35 @@
   <template>
-      <div>
-          <!-- 제목 -->
-          <div class="text-3xl px-3 py-3">
-              <span>거래처 목록</span>
-          </div>
-          <!-- 검색바 -->
-          <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-              :userRole="currentUserRole" />
-          <!-- 테이블 -->
-          <DynamicTable @row-click="detailClient" :columns="userColumns" :items="client" :showCheckbox="true">
-              <template #actions="{ item }">
-                  <button @click="changeGrantState(item)"
-                  :class="item.isApprove === 'Y' ? 
-                  'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm':
-                  'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm'
-                  ">
-                      {{ item.isApprove === 'Y' ? '승인 취소' : '승인' }}
-                  </button>
-                  <button
-                    @click="changeContractState(item)"
-                    :class="item.isContract === 'Y'
-                      ? 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
-                      : 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'" >
-                    {{ item.isContract === 'Y' ? '거래 취소' : '거래 재개' }}
-                  </button>
-              </template>
-          </DynamicTable>
-          <!-- 페이지 네비 -->
-          <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+    <div>
+      <!-- 제목 -->
+      <div class="text-3xl px-3 py-3">
+        <span>거래처 목록</span>
       </div>
+      <!-- 검색바 -->
+      <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+        :userRole="currentUserRole" />
+      <!-- 테이블 -->
+      <DynamicTable @row-click="detailClient" :columns="userColumns" :items="client" :showCheckbox="true"
+        :page="currentPage" :pageSize="pageSize">
+        <template #actions="{ item }">
+          <button @click="changeGrantState(item)" :class="item.isApprove === 'Y' ?
+            'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm' :
+            'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm'
+            ">
+            {{ item.isApprove === 'Y' ? '승인 취소' : '승인' }}
+          </button>
+          <button @click="changeContractState(item)" :class="item.isContract === 'Y'
+            ? 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
+            : 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'">
+            {{ item.isContract === 'Y' ? '거래 취소' : '거래 재개' }}
+          </button>
+        </template>
+      </DynamicTable>
+      <!-- 페이지 네비 -->
+      <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+    </div>
   </template>
 
-  <script setup>
+<script setup>
   import SearchBox from '@/components/common/SaerchBar.vue';
   import DynamicTable from '@/components/common/DynamicTable.vue';
   import PageNav from '@/components/common/PageNav.vue';
@@ -76,7 +74,6 @@
 
   // ------- 테이블 --------
   const userColumns = ref([
-    { label: '순번', key: 'id' },
     { label: '회사명', key: 'companyName' },
     { label: '대표자명', key: 'ceoName' },
     { label: '거래 진행 여부', key: 'isContract' },

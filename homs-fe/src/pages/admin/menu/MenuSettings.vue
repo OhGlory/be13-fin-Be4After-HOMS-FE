@@ -7,24 +7,23 @@
     </div>
 
     <!-- DynamicTable -->
-    <DynamicTable :columns="menusColumns" :items="flatMenus">
+    <DynamicTable :columns="menusColumns" :items="flatMenus" :isIndexActive=false>
       <!-- 메뉴명 셀 -->
       <template #cell-menuName="{ item }">
-        <div
-          class="cell-menu" :style="{ paddingLeft: item.level * 20 + 'px' }">
+        <div class="cell-menu" :style="{ paddingLeft: item.level * 20 + 'px' }">
           <span v-if="item.hasChildren && item.level === 0" @click.stop="toggleFolder(item)">
             {{ openState[item.menuId] ? '▼' : '▶' }}
           </span>
           <span v-else style="display: inline-block; width: 18px;"></span>
 
-          <input v-model="item.menuName"/>
+          <input v-model="item.menuName" />
         </div>
       </template>
 
       <!-- 순번 셀 -->
       <template #cell-sortNo="{ item }">
         <div class="cell-sort">
-          <input type="number" v-model.number="item.sortNo" min="1"/>
+          <input type="number" v-model.number="item.sortNo" min="1" />
         </div>
       </template>
 
@@ -41,11 +40,7 @@
       <!-- 버튼 셀 -->
       <template #cell-button="{ item }">
         <div class="cell-buttons">
-          <button
-            v-if="item.hasChildren && item.level === 0"
-            @click.stop="addMenuChild(item)"
-            class="btn-create-child"
-          >
+          <button v-if="item.hasChildren && item.level === 0" @click.stop="addMenuChild(item)" class="btn-create-child">
             생성
           </button>
           <button @click.stop="updateMenu(item)" class="btn-update-child">

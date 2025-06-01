@@ -11,6 +11,10 @@
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     <input type="checkbox" @change="toggleAll" v-model="allSelected" />
                                 </th>
+                                <th v-if="isIndexActive"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    순번
+                                </th>
 
                                 <th v-for="column in columns" :key="column.key"
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
@@ -24,10 +28,13 @@
                         </thead>
 
                         <tbody class="bg-white">
-                            <tr v-for="item in items" :key="item.id" class="hover:bg-gray-100 cursor-pointer">
+                            <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <input type="checkbox" :checked="selectedItems.includes(item[props.uniqueKey])"
                                         @change="toggleIndividualCheckbox(item)" @click.stop />
+                                </td>
+                                <td v-if="isIndexActive" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                    <slot>{{ index + 1 + (props.page - 1) * props.pageSize }}</slot>
                                 </td>
                                 <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
                                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
@@ -50,29 +57,41 @@
 import { ref, watch } from 'vue';
 
 const props = defineProps({
-  columns: {
-    type: Array,
-    required: true,
-    // 각 열의 정보를 담는 객체 배열
-    // 예: [{ label: '순번', key: 'no' }, { label: '제목', key: 'title' }]
-  },
-  items: {
-    type: Array,
-    required: true,
-    // 테이블 데이터를 담는 객체 배열
-    // 각 객체의 키는 columns 배열의 key 값과 매칭되어야 합니다.
-  },
-  showCheckbox: {
-    type: Boolean,
-    // 체크박스 표시 여부
-  },
-  action: {
-    type: String,
-    // 액션 부분 헤더
-  },
-  uniqueKey: {
+    columns: {
+        type: Array,
+        required: true,
+        // 각 열의 정보를 담는 객체 배열
+        // 예: [{ label: '순번', key: 'no' }, { label: '제목', key: 'title' }]
+    },
+    items: {
+        type: Array,
+        required: true,
+        // 테이블 데이터를 담는 객체 배열
+        // 각 객체의 키는 columns 배열의 key 값과 매칭되어야 합니다.
+    },
+    showCheckbox: {
+        type: Boolean,
+        // 체크박스 표시 여부
+    },
+    action: {
         type: String,
-        default: 'id'
+        // 액션 부분 헤더
+    },
+    uniqueKey: {
+            type: String,
+            default: 'id'
+    },
+    page: {
+        type: Number,
+        default: 1
+    },
+    pageSize: {
+        type: Number,
+        default: 10
+    },
+    isIndexActive: {
+        type: Boolean,
+        default: true
     }
 });
 

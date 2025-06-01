@@ -7,7 +7,7 @@
     </div>
 
     <!-- DynamicTable -->
-    <DynamicTable :columns="categoriesColumns" :items="flatCategories">
+    <DynamicTable :columns="categoriesColumns" :items="flatCategories" :isIndexActive=false>
       <!-- 카테고리명 셀 -->
       <template #cell-categoryName="{ item }">
         <div class="cell-category" :style="{ paddingLeft: item.level * 20 + 'px' }">
@@ -16,14 +16,14 @@
           </span>
           <span v-else style="display: inline-block; width: 18px;"></span>
 
-          <input v-model="item.categoryName"/>
+          <input v-model="item.categoryName" />
         </div>
       </template>
 
       <!-- 순번 셀 -->
       <template #cell-sortNo="{ item }">
         <div class="cell-sort">
-          <input type="number" v-model.number="item.sortNo" min="1"/>
+          <input type="number" v-model.number="item.sortNo" min="1" />
         </div>
       </template>
 
@@ -31,7 +31,8 @@
       <template #cell-button="{ item }">
         <div class="cell-buttons">
           <!-- 버튼 클릭 시 부모 클릭 이벤트까지 작동하면 안 되어 @click.stop 사용 -->
-          <button v-if="item.hasChildren && item.level === 0" @click.stop="addCategoryChild(item)" class="btn-create-child">
+          <button v-if="item.hasChildren && item.level === 0" @click.stop="addCategoryChild(item)"
+            class="btn-create-child">
             생성
           </button>
           <button @click.stop="updateCategory(item)" class="btn-update-child">
