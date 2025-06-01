@@ -56,6 +56,9 @@ const flatCategories = ref([]); // 트리 구조 UI 표시용
 // 트리 노드의 펼침 상태 저장
 const openState = reactive({});
 
+// 신규 생성 데이터 기억용 
+const newCategoryIdSet = new Set();
+
 // 트리 구조로 설정
 const flattenTree = (nodes, level = 0, arr = []) => {
   nodes.forEach((node) => {
@@ -63,7 +66,7 @@ const flattenTree = (nodes, level = 0, arr = []) => {
       openState[node.categoryId] = true;
 
     arr.push({
-      ...node,
+      ...node, // node 객체의 속성들을 전부 풀어서 복사
       level,
       hasChildren: node.children !== undefined,
     });
@@ -78,7 +81,7 @@ const flattenTree = (nodes, level = 0, arr = []) => {
 // API 호출
 const fetchData = async () => {
   try {
-    const res = await apiClient.get("/admin/productCategory");
+    const res = await apiClient.get("/productCategory/");
 
     if ( res.status === 200) {
       categories.value = res.data.data;
@@ -97,12 +100,13 @@ const getSampleCategoryTree = () => [
     categoryId: 1,
     categoryName: "의류",
     sortNo: 1,
+    parentId: null,
     children: [
       {
         categoryId: 3,
         categoryName: "남성 의류",
         sortNo: 1,
-        children: [],
+        parentId: 1,
       },
     ],
   },
@@ -110,12 +114,13 @@ const getSampleCategoryTree = () => [
     categoryId: 2,
     categoryName: "전자제품",
     sortNo: 2,
+    parentId: null,
     children: [
       {
         categoryId: 5,
         categoryName: "스마트폰",
         sortNo: 1,
-        children: [],
+        parentId: 2,
       },
     ],
   },
@@ -137,10 +142,13 @@ onMounted(() => {
 const addCategoryRoot = () => {
   const newId = Math.floor(Math.random() * 1000000); // 랜덤 ID 
 
+  newCategoryIdSet.add(newId);
+
   categories.value.push({
     categoryId: newId,
     categoryName: "새 루트 카테고리",
     sortNo: categories.value.length + 1,
+    parentId: null,
     children: [],
   });
 
@@ -149,14 +157,15 @@ const addCategoryRoot = () => {
 
 // 자식 카테고리 추가
 const addCategoryChild = (item) => {
-  item.children = item.children || [];
-  const newId = Math.floor(Math.random() * 1000000); // 랜덤 ID 
+  const newId = Math.floor(Math.random() * 1000000); // 랜덤 ID
+
+  newCategoryIdSet.add(newId);  
 
   item.children.push({
     categoryId: newId,
     categoryName: "새 자식 카테고리",
     sortNo: item.children.length + 1,
-    children: [],
+    parentId: item.categoryId
   });
 
   flatCategories.value = flattenTree(categories.value);
@@ -165,17 +174,38 @@ const addCategoryChild = (item) => {
 // 카테고리 삭제
 const deleteCategory = async (categoryId) => {
   try {
-    await apiClient.delete(`/admin/productCategory/delete/${categoryId}`);
+    const res = await apiClient.delete(`/productCategory/delete/${categoryId}`);
+    if (res.status === 200){
+      console.log("삭제 성공");
+    }
     fetchData();
   } catch (error) {
     alert(error.response.data.message);
   }
 };
 
-// 카테고리 수정
-const updateCategory = async (categoryId) => {
+// 카테고리 생성 및 수정
+const updateCategory = async (item) => {
+  const newData = {
+    categoryName: item.categoryName,
+    sortNo: item.sortNo,
+    parentId: item.parentId,
+  };
+
   try {
-    await apiClient.delete(`/admin/productCategory/update/${categoryId}`);
+    if(newCategoryIdSet.has(item.categoryId)){
+      const res = await apiClient.post("/productCategory/create", newData);
+      // 201 = 요청이 성공적으로 처리되어, 새로운 리소스가 생성됨
+      if (res.status === 200 || res.status === 201){
+        console.log("생성 성공");
+        newCategoryIdSet.delete(item.categoryId);
+      }
+    } else {
+      const res = await apiClient.put(`/productCategory/update/${item.categoryId}`, newData);
+      if (res.status === 200 || res.status === 201){
+        console.log("수정 성공");
+      }
+    }
     fetchData();
   } catch (error) {
     alert(error.response.data.message);
