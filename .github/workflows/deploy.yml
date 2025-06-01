@@ -18,9 +18,11 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
+        working-directory: homs-fe
         run: npm ci
 
       - name: Build production bundle
+        working-directory: homs-fe
         run: npm run build
 
       - name: Configure AWS credentials
@@ -31,6 +33,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Sync build folder to S3
+        working-directory: homs-fe
         run: |
           aws s3 sync dist/ s3://be4after-homs-bucket/app/ --delete --acl public-read
 
