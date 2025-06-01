@@ -9,6 +9,15 @@
       :userRole="currentUserRole" />
     <!-- 테이블 -->
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize">
+      <template #cell-id="{ item }">
+        <strong>{{ item.id }}</strong>
+      </template>
+      <template #cell-name="{ item }">
+        {{ item.name }}
+      </template>
+      <template #cell-email="{ item }">
+        <a :href="`mailto:${item.email}`">{{ item.email }}</a>
+      </template>
       <template #actions="{ item }">
         <button @click="editUser(item)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
