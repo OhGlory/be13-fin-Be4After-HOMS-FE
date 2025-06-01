@@ -1,48 +1,45 @@
 <template>
   <div>
-      <!-- 제목 -->
-      <div class="text-3xl px-3 py-3">
-          <span>정산관리</span>
-      </div>
-      <!-- 검색바 -->
-      <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-          :userRole="currentUserRole" />
-      <!-- 테이블 -->
-      <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" action="세금계산서" >
-          <template #cell-id="{ item }">
-              <strong>{{ item.id }}</strong>
-          </template>
-          <template #cell-name="{ item }">
-              {{ item.name }}
-          </template>
-          <template #cell-isSettled="{ item }">
-            <span
-                :class="{
-                  'text-red-500': item.isSettled === '미정산',
-                  'text-yellow-500': item.isSettled === '대기',
-                  'text-green-500': item.isSettled === '완료'
-                }"
-            >
-                {{ item.isSettled }}
-            </span>
-          </template>
-            <template #actions="{ item }">
-                <span class="text-gray-500">
-                  <button @click="checkTaxInvoice(item)"
-                    :disabled="item.isSettled === '미정산'"
-                    :class="[ 'font-bold py-2 px-4 rounded text-sm',
-                               item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white'
-                      ]">
-                    확인
-                  </button>
-              </span>
-            </template>
-      </DynamicTable>
-      <!-- 페이지 네비 -->
-      <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+    <!-- 제목 -->
+    <div class="text-3xl px-3 py-3">
+      <span>정산관리</span>
+    </div>
+    <!-- 검색바 -->
+    <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+      :userRole="currentUserRole" />
+    <!-- 테이블 -->
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize"
+      action="세금계산서">
+      <template #cell-id="{ item }">
+        <strong>{{ item.id }}</strong>
+      </template>
+      <template #cell-name="{ item }">
+        {{ item.name }}
+      </template>
+      <template #cell-isSettled="{ item }">
+        <span :class="{
+          'text-red-500': item.isSettled === '미정산',
+          'text-yellow-500': item.isSettled === '대기',
+          'text-green-500': item.isSettled === '완료'
+        }">
+          {{ item.isSettled }}
+        </span>
+      </template>
+      <template #actions="{ item }">
+        <span class="text-gray-500">
+          <button @click="checkTaxInvoice(item)" :disabled="item.isSettled === '미정산'" :class="['font-bold py-2 px-4 rounded text-sm',
+            item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white'
+          ]">
+            확인
+          </button>
+        </span>
+      </template>
+    </DynamicTable>
+    <!-- 페이지 네비 -->
+    <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
 
-      <TaxInvoice :visible="showTIModal" @confirm="confirmModal" />
-      <CheckTaxInvoice :visible="showCheckModal" @confirm="confirmCheckTaxInvoice" ></CheckTaxInvoice>
+    <TaxInvoice :visible="showTIModal" @confirm="confirmModal" />
+    <CheckTaxInvoice :visible="showCheckModal" @confirm="confirmCheckTaxInvoice"></CheckTaxInvoice>
   </div>
 </template>
 
@@ -125,7 +122,6 @@ searchResult.value = searchData;
 // ------- 테이블 --------
 //헤더
 const userColumns = ref([
-{ label: '순번', key: 'id' },
 { label: '발주번호', key: 'orderCode' },
 { label: '거래처명', key: 'companyName' },
 { label: '납품장소', key: 'deliveryName' },

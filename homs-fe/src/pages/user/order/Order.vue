@@ -7,12 +7,9 @@
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
-            @row-click="handleRowClick" uniqueKey="orderId">
+        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{ item }">
-                <strong>{{ item.orderId }}</strong>
-            </template>
             <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
@@ -130,13 +127,12 @@ const handleSelectOption = ref([
 
 // ------- 테이블 --------
 const orderColumns = ref([
-    {label: "순번", key: "orderId"},
     {label: "발주번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
     {label: "납품장소", key: "deliveryName"},
     {label: "요청일", key: "orderDate"},
     {label: "납기일", key: "dueDate"},
-    {label: "승인여부", key: "approved"},
+    {label: "승인상태", key: "approved"},
 ]);
 
 const orders = ref([

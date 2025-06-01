@@ -8,8 +8,8 @@
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="authStore.isAdmin" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" @selected="handleSelectedItems"
-      @row-click="handleRowClick" :column-classes="{
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize"
+      @selected="handleSelectedItems" @row-click="handleRowClick" :column-classes="{
         title: 'text-start font-semibold text-gray-700',
         createdAt: 'text-start text-sm text-gray-500',
         id: 'text-start'
@@ -87,7 +87,6 @@ const actionButtons = ref([
 
 // ------- 테이블 --------
 const userColumns = ref([
-  { label: '순번', key: 'id' },
   { label: '제목', key: 'title' },
   { label: '등록일', key: 'createdAt' },
 ]);
