@@ -32,25 +32,37 @@ const clientId = route.params.id;
 
 const fields = ref([
   { label: '파트너사명', key: 'companyName', value: '' },
-  { label: '대표자명', key: 'ceoName', value: '' },
-  { label: '사업자번호', key: 'companyNumber', value: '' },
+  { label: '대표자명', key: 'representName', value: '' },
+  { label: '사업자번호', key: 'registrationNumber', value: '' },
   { label: '주소', key: 'companyAddress', value: '' },
-  { label: '연락처', key: 'companyTell', value: '' },
-  { label: '이메일', key: 'companyEmail', value: '' },
+  { label: '연락처', key: 'representCall', value: '' },
+  { label: '이메일', key: 'representManagerEmail', value: '' },
 
 ]);
+
+const originalData = ref({}); 
+
+const countryEnumMap = {
+  1: 'KOREA',
+  2: 'USA'
+};
 
 const fetchData = async () => {
     const response = await apiClient.get(`admin/company/${clientId}`)
     const data = response.data.data;
+    originalData.value = data;
+
+    console.log('서버 응답 country:', data.registrationNumber); // ← 실제 응답값 확인
+    console.log('originalData:', originalData.value); // ← 전체 데이터 확인
 
     const mapping = {
+        country: data.countryId,
         companyName: data.companyName,
-        ceoName: data.representName,
-        companyNumber: data.registrationNumber,
+        representName: data.representName,
+        registrationNumber: data.registrationNumber,
         companyAddress: data.companyId,
-        companyTell: data.representCall,
-        companyEmail: data.representManagerEmail,
+        representCall: data.representCall,
+        representManagerEmail: data.representManagerEmail,
 
     };
 
@@ -60,10 +72,39 @@ const fetchData = async () => {
 }
 
 
-const toggleEdit = () => {
+const toggleEdit = async () => {
   if (isEditable.value) {
+    const updatedData = {};
+    fields.value.forEach(field => {
+        updatedData[field.key] = field.value;
+    });
+
+    const countryEnumValue = countryEnumMap[originalData.value.countryId];
+
     console.log('저장할 데이터:', fields.value.map(f => ({ [f.label]: f.value })));
+    try {
+       await apiClient.put(`/admin/company/${clientId}`, {
+        country: countryEnumValue,
+        companyName: updatedData.companyName,
+        registrationNumber: updatedData.registrationNumber,
+        representName: updatedData.representName,
+        representCall: updatedData.representCall,
+        representPhone: originalData.value.representPhone, // 수정 X
+        representManagerName: originalData.value.representManagerName, // 수정 X
+        representManagerEmail: updatedData.representManagerEmail,
+        continueStatus: originalData.value.continueStatus,
+        approveStatus: originalData.value.approveStatus
+      });
+
+      alert('수정이 완료되었습니다.');
+    } catch (error) {
+      console.error('수정 중 오류 발생:', error);
+      alert('수정에 실패했습니다.');
+      return; 
+    }
   }
+
+
   isEditable.value = !isEditable.value;
 };
 
