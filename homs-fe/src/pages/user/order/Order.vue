@@ -7,18 +7,13 @@
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable
-            :columns="orderColumns"
-            :items="orders"
-            :showCheckbox="false"
-            :page="currentPage"
-            :pageSize="pageSize"
-            @selected="handleSelectedItems"
-            @row-click="handleRowClick"
-            uniqueKey="orderId"
-        >
+        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
-            <template #cell-orderDate="{item}">
+            <template #cell-id="{ item }">
+                <strong>{{ item.orderId }}</strong>
+            </template>
+            <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
             <template #cell-dueDate="{item}">
