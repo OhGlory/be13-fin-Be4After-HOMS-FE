@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col max-w-1/2 m-auto rounded-xl border-1 py-5 border-gray-400 shadow">
+  <div class="flex flex-col max-w-1/2 m-auto rounded-xl py-5 border-1  border-gray-400  shadow">
     <div class="flex w-2/3 m-auto mb-3" v-for="(item, index) in fields" :key="index">
       <div class="flex border-gray-400 border w-1/2 p-2 font-bold bg-gray-200">
         {{ item.label }}
