@@ -120,9 +120,9 @@ const router = createRouter({
         },
         {
           path: "setting",
-          name: "AdminSetting",
+          name: "Setting",
           component: Setting,
-          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+          // meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
       ],
     },
