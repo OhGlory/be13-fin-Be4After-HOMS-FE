@@ -18,6 +18,10 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Check env
+        run: |
+          echo ">>> VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}"
+
       - name: Install dependencies
         working-directory: homs-fe
         run: npm ci
