@@ -7,22 +7,19 @@
         <img :src="xmark" alt="엑스마크" class="w-5 h-5 cursor-pointer" @click="handleCancel">
       </div>
       <div class="flex justify-center">
-        <div class="flex justify-center"><img :src="error" alt="엑스마크" class=""></div>
+        <div class="flex justify-center"><img :src="error" alt="정보아이콘" class=""></div>
         <p class=" p-6 text-gray-700 font-bold text-sm" v-html="text"></p>
       </div>
       <div v-if="showTextArea" class="px-6 pb-4">
-        <textarea
-          v-model="internalInputValue"
-          :placeholder="textAreaPlaceholder"
+        <textarea v-model="internalInputValue" :placeholder="textAreaPlaceholder"
           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-          rows="4"
-        ></textarea>
+          rows="4"></textarea>
       </div>
       <div class="pt-5">
         <button @click="handleConfirm"
-            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2 cursor-pointer">확인</button>
+          class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2 cursor-pointer">확인</button>
         <button @click="handleCancel"
-            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm cursor-pointer">취소</button>
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm cursor-pointer">취소</button>
       </div>
     </div>
   </div>
@@ -39,6 +36,7 @@ const props = defineProps({
     type: String,
     default: '임의의 텍스트',
   },
+  // ------ 텍스트박스 ------
   showTextArea: {
     type: Boolean,
     default: false,

@@ -7,74 +7,86 @@
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" @selected="handleSelectedItems"
-            @row-click="handleRowClick" uniqueKey="orderId">
+        <DynamicTable
+            :columns="orderColumns"
+            :items="orders"
+            :showCheckbox="false"
+            :page="currentPage"
+            :pageSize="pageSize"
+            @selected="handleSelectedItems"
+            @row-click="handleRowClick"
+            uniqueKey="orderId"
+        >
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{ item }">
-                <strong>{{ item.orderId }}</strong>
-            </template>
-            <template #cell-orderDate="{ item }">
+            <template #cell-orderDate="{item}">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
-            <template #cell-dueDate="{ item }">
+            <template #cell-dueDate="{item}">
                 {{ new Date(item.dueDate).toLocaleDateString() }}
             </template>
-            <template #cell-approved="{ item }">
+            <template #cell-approved="{item}">
                 <strong v-if="item.approved === true">승인</strong>
                 <strong v-else-if="item.approved === false && item.rejectReason !== null">거부</strong>
                 <strong v-else>미승인</strong>
             </template>
-            <template #cell-productQuantity="{ item }">
+            <template #cell-productQuantity="{item}">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
+                        min="1"
+                        max="9999"
+                        v-model.number="item.productQuantity"
+                        @click.stop
+                        @mousedown.stop
+                    />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <!-- 관리자는 상태를 설정가능 -->
                 <div v-if="authStore.isAdmin">
                     <!-- 미승인 상태 -->
                     <div v-if="item.approved === false && item.rejectReason === null">
-                        <button @click="rejectOrder(item.orderId)"
-                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                        <button @click="approveOrder(item.orderId)"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
-                    </div>
-
-                    <div v-else-if="item.approved === false && item.rejectReason !== null">
-                        <strong>거부됨</strong>
-                    </div>
-
-                    <!-- 승인됨 -->
-                    <div v-else-if="item.approved === true">
-                        <strong>승인됨</strong>
+                        <button @click="rejectOrder(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                        <button @click="approveOrder(item.orderId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                     </div>
                 </div>
 
                 <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved === false && item.rejectReason === null"
+                    <button
+                        v-if="item.approved === false && item.rejectReason === null"
                         @click="cancleBtn(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">취소</button>
-                    <button v-else-if="item.approved === false && item.rejectReason !== null"
-                        @click="rejectReasonView(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white
-                        font-bold py-2 px-4 rounded text-sm">사유</button>
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
+                        취소
+                    </button>
+                    <button
+                        v-else-if="item.approved === false && item.rejectReason !== null"
+                        @click="rejectReasonView(item.orderId)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
+                        사유
+                    </button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 알림 모달 -->
-        <Notify :visible="showModal" :text="modalText" :showTextArea="showTextAreaInput"
-            :textAreaPlaceholder="textAreaHint" @update:visible="showModal = $event" @confirm="confirmModal"
-            @cancel="showModal = false" />
+        <Notify
+            :visible="showModal"
+            :text="modalText"
+            :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint"
+            @update:visible="showModal = $event"
+            @confirm="confirmModal"
+            @cancel="showModal = false"
+        />
     </div>
 </template>
 
@@ -87,7 +99,7 @@ import Notify from "@/components/common/modal/NotifyModal.vue";
 import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import { useAuthStore } from '@/states/auth';
+import {useAuthStore} from "@/states/auth";
 
 const authStore = useAuthStore();
 
@@ -95,10 +107,10 @@ const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
 
 const showModal = ref(false); // 모달 보이기
-const modalText = ref("");    // 모달 텍스트
-const currentActionType = ref('');
+const modalText = ref(""); // 모달 텍스트
+const currentActionType = ref("");
 const showTextAreaInput = ref(false); // textarea를 보여줄지 말지
-const textAreaHint = ref(''); // textarea의 힌트 텍스트
+const textAreaHint = ref(""); // textarea의 힌트 텍스트
 
 const currentOrderId = ref(null); // 현재 주문 ID
 
@@ -130,13 +142,12 @@ const handleSelectOption = ref([
 
 // ------- 테이블 --------
 const orderColumns = ref([
-    {label: "순번", key: "orderId"},
     {label: "발주번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
     {label: "납품장소", key: "deliveryName"},
     {label: "요청일", key: "orderDate"},
     {label: "납기일", key: "dueDate"},
-    {label: "승인여부", key: "approved"},
+    {label: "승인상태", key: "approved"},
 ]);
 
 const orders = ref([
@@ -149,18 +160,19 @@ const orders = ref([
 const approveOrder = (orderId) => {
     currentOrderId.value = orderId;
     modalText.value = "선택하신 주문을 승인하시겠습니까?";
-    currentActionType.value = 'approve';
+    currentActionType.value = "approve";
     showTextAreaInput.value = false; // textarea 안보이게
     showModal.value = true;
 };
 
 // 거절
-const rejectOrder = (orderId) => { // async 제거
+const rejectOrder = (orderId) => {
+    // async 제거
     currentOrderId.value = orderId; // 처리할 주문 ID 저장
     modalText.value = "선택하신 주문을 거절하시겠습니까?";
-    currentActionType.value = 'reject';
+    currentActionType.value = "reject";
     showTextAreaInput.value = true; // textarea 보이게
-    textAreaHint.value = '거절 사유를 입력하세요.'; // 힌트 설정
+    textAreaHint.value = "거절 사유를 입력하세요."; // 힌트 설정
     showModal.value = true; // 모달 열기
 };
 
@@ -171,13 +183,12 @@ const setApprove = async (orderId, isApproved, reason) => {
         rejectReason: reason,
     };
     try {
-        await apiClient.put(`/order/${orderId}/approve`,requestData);
-    }
-    catch (error) {
+        await apiClient.put(`/order/${orderId}/approve`, requestData);
+    } catch (error) {
         alert(error.response.data.message);
     }
     fetchData();
-}
+};
 
 // 취소
 const cancleBtn = async (orderId) => {
@@ -203,7 +214,7 @@ const rejectReasonView = async (orderId) => {
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
     }
-}
+};
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -220,8 +231,8 @@ const fetchData = async () => {
 
     // 쿼리 파라미터 업데이트
     const url = new URL(window.location.origin + route.path);
-    for(const key in params){
-        if (params[key] !== undefined && params[key] !== null && params[key] !== ''){
+    for (const key in params) {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
             url.searchParams.set(key, params[key]);
         } else {
             url.searchParams.delete(key);
@@ -229,11 +240,11 @@ const fetchData = async () => {
     }
 
     // 브라우저 주소창 업데이트 (replaceState 사용)
-    window.history.replaceState({}, '', url.toString())
+    window.history.replaceState({}, "", url.toString());
 
     try {
         const response = await apiClient.get("/order/", {
-            params: params // 여기에 구성한 파라미터 객체를 전달합니다.
+            params: params, // 여기에 구성한 파라미터 객체를 전달합니다.
         });
         if (response.status === 200) {
             orders.value = response.data.data.content;
@@ -293,11 +304,12 @@ const handleSelectedItems = (selectedIds) => {
 
 // Notify 모달의 '확인' 버튼 클릭 시 호출되는 중앙 함수
 function confirmModal(inputValue) {
-    if (currentActionType.value === 'approve') {
+    if (currentActionType.value === "approve") {
         setApprove(currentOrderId.value, true, null);
-    } else if (currentActionType.value === 'reject') {
+    } else if (currentActionType.value === "reject") {
         const reason = inputValue;
-        if (reason !== null && reason.trim() !== '') { // 입력값이 비어있지 않은지 확인
+        if (reason !== null && reason.trim() !== "") {
+            // 입력값이 비어있지 않은지 확인
             setApprove(currentOrderId.value, false, reason);
         } else {
             alert("거절 사유를 입력해야 합니다."); // 사유가 없으면 알림
@@ -306,7 +318,7 @@ function confirmModal(inputValue) {
     }
     // 모달이 닫히면 textarea 상태도 초기화
     showTextAreaInput.value = false;
-    textAreaHint.value = '';
+    textAreaHint.value = "";
 }
 
 // 선택한 언어를 localstage에 저장 이래야 전역으로 언어선택한거 알수 있음
