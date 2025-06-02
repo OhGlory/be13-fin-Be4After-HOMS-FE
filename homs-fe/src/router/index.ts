@@ -17,6 +17,7 @@ import Contracts from "@/pages/admin/clients/Contracts.vue";
 import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
 import Login from "@/pages/common/login/Login.vue";
 import AdminSettlements from "@/pages/admin/settlement/Settlements.vue";
+import AccountDetail from "@/pages/admin/account/AccountDetail.vue";
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -34,6 +35,7 @@ import ContractForm from "@/pages/admin/clients/ContractForm.vue";
 
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
+
 
 
 const router = createRouter({
@@ -63,6 +65,12 @@ const router = createRouter({
           path: "adminaccount",
           name: "AdminAccount",
           component: AdminAccount,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path: "user/:id",
+          name: "AccountDetail",
+          component: AccountDetail,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {

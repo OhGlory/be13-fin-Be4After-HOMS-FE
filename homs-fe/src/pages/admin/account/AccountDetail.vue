@@ -21,10 +21,13 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useAuthStore } from '@/states/auth';
+import { useRoute } from 'vue-router';
 import ClientDetailFields from '@/components/common/ClientDetailFields.vue';
 import apiClient from '@/api';
-import { useAuthStore } from '@/states/auth';
 
+
+const route = useRoute();
 const isEditable = ref(false);
 const authStore = useAuthStore();
 
@@ -38,21 +41,11 @@ const fields = ref([
   { label: '전화번호', key: 'managerPhone', value: '' },
 ]);
 
-const getAuthUserId = () => {
-  const authString = localStorage.getItem('auth');
-  if (!authString) return null;
-
-    const auth = JSON.parse(authString);
-    return auth.user?.userId || null;
-
-};
-
 
 const userData = async (userId) => {
   try {
-    const response = await apiClient.get(`/user/${userId}`);
+    const response = await apiClient.get(getApiPath(`/user/${userId}`));
     const data = response.data.data;
-
 
     fields.value = fields.value.map(field => {
       return {
@@ -78,14 +71,15 @@ const toggleEdit = async () => {
     });
 
     // 로컬스토리지에서 userId 가져오기
-    const userId = getAuthUserId();
+    const userId = route.params.id;
+
 
     try{
       await apiClient.put(getApiPath(`/user/${userId}`), {
         managerName: updatedData.managerName,
         managerEmail: updatedData.managerEmail,
         managerPhone: updatedData.managerPhone,
-        password: updatedData.password,
+        newPassword: updatedData.password,
       });
       alert('수정이 완료되었습니다.');
     }catch (error) {
@@ -104,8 +98,12 @@ const goBack = () => {
 }
 
 onMounted( () =>{
-    const userId = getAuthUserId();              
-    userData(userId); 
+    const userId = route.params.id;
+    if (userId) {
+        userData(userId);
+    } else {
+        console.error("유저 ID 없음!");
+    }
 })
 
 
