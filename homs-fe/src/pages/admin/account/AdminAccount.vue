@@ -9,15 +9,6 @@
       :userRole="currentUserRole" />
     <!-- 테이블 -->
     <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize">
-      <template #cell-id="{ item }">
-        <strong>{{ item.id }}</strong>
-      </template>
-      <template #cell-name="{ item }">
-        {{ item.name }}
-      </template>
-      <template #cell-email="{ item }">
-        <a :href="`mailto:${item.email}`">{{ item.email }}</a>
-      </template>
       <template #actions="{ item }">
         <button @click="editUser(item)"
           class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
@@ -80,8 +71,15 @@ const userColumns = ref([
   { label: '이메일', key: 'email' },
   { label: '권한', key: 'role' },
   { label: '계정상태', key: 'isLockedOut' },
-  { label: '최종 접속일', key: 'loginDate' },
+  // { label: '최종 접속일', key: 'loginDate' },
 ]);
+
+const deptNameMap = {
+  SALES: '영업',
+  BUY: '구매',
+  DELIVERY: '배송',
+  MATERIALS: '자재',
+};
 
 const users = ref([
     { id: 1, userName: '신하람', companyName: '영광상사', deptName: '구매', email: 'kim123@gmail.com', role: '관리자', isLockedOut:"로그인", loginDate: '25-04-02'},
@@ -96,22 +94,20 @@ const userData = async() => {
   const response = await apiClient.get("/admin/user");
   const data = response.data.data;
   console.log("data: ",data);
-  
-  const usersWithCompanyName = await Promise.all(
-      data.map(async (item) => {
+  console.log("authStore",authStore);
 
-        return {
-          id: item.userId,
-          userName: item.managerName,
-          companyName: item.companyName,
-          deptName: item.deptName,
-          email: item.managerEmail,
-          role: "관리자",
-          isLockedOut: "로그인",
-          loginDate: "-",
-        };
-      })
-    );
+  const filteredData = data.filter(item => item.deleteAt === null);
+  
+  const usersWithCompanyName = filteredData.map(item => ({
+    id: item.userId,
+    userName: item.managerName,
+    companyName: item.companyName,
+    deptName: deptNameMap[item.deptName] || item.deptName,
+    email: item.managerEmail,
+    role: "관리자",
+    isLockedOut: item.isLockedOut ? "비활성화" : "활성화",
+    // loginDate: "-",
+  }));
 
     users.value = usersWithCompanyName;
 }
@@ -126,6 +122,7 @@ const deleteUser = async (user) => {
   try{
     await apiClient.delete(getApiPath(`/user/${user.id}`));
     alert("사용자가 삭제 되었습니다.")
+    await userData();
   }catch(error){
     alert("삭제 실패 하였습니다.",error)
   }
