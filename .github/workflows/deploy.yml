@@ -3,6 +3,7 @@ name: Deploy Vue Frontend to S3
 on:
   push:
     branches: [develop]
+  workflow_dispatch: 
 
 jobs:
   build-and-deploy:
