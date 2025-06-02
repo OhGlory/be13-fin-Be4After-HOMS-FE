@@ -63,7 +63,7 @@
                     <div v-if="item && item.productQuantity === null">데이터 없음</div>
                     <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{
                         item.productQuantity
-                    }}</div>
+                        }}</div>
                     <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                         <input type="number"
                             class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -103,6 +103,7 @@
             <ClaimRequestModal :visible="showClaimModal" :text="modalText" @update:visible="showClaimModal = $event"
                 @confirm="claimConfirm" @cancel="showClaimModal = false" />
         </div>
+    </div>
 </template>
 
 <script setup>
