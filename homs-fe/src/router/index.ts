@@ -31,6 +31,7 @@ import Notices from "@/pages/user/notice/Notices.vue";
 import NoticesDetail from "@/pages/user/notice/NoticesDetail.vue";
 import AdminNoticesForm from "@/pages/admin/notice/NoticesForm.vue";
 import DeliveryAddress from "@/pages/user/delivery/DeliveryAddress.vue";
+import ContractForm from "@/pages/admin/clients/ContractForm.vue";
 
 
 // 에러 관련
@@ -107,6 +108,12 @@ const router = createRouter({
           path: "contracts",
           name: "Contracts",
           component: Contracts,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path: "contractForm",
+          name: "ContractForm",
+          component: ContractForm,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {

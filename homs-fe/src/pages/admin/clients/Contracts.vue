@@ -91,7 +91,6 @@ const actionButtons = ref([
 
 // ------- 테이블 --------
 const userColumns = ref([
-  { label: '순번', key: 'contractId' },
   { label: '파트너사', key: 'companyName' },
   { label: '계약품목', key: 'productName' },
   { label: '계약시작일자', key: 'contractStartAt' },
