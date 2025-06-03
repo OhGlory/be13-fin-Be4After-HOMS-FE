@@ -18,6 +18,8 @@ import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
 import Login from "@/pages/common/login/Login.vue";
 import AdminSettlements from "@/pages/admin/settlement/Settlements.vue";
 import AccountDetail from "@/pages/admin/account/AccountDetail.vue";
+import AdminDelivery from "@/pages/admin/delivery/AdminDelivery.vue";
+import AdminDeliveryAddress from "@/pages/admin/delivery/AdminDeliveryAddress.vue";
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -36,6 +38,8 @@ import ContractForm from "@/pages/admin/clients/ContractForm.vue";
 
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
+
+
 
 
 
@@ -140,6 +144,18 @@ const router = createRouter({
           component: Setting,
           // meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
+        {
+          path: "delivery",
+          name: "AdminDelivery",
+          component : AdminDelivery,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path:"deliveryAddress",
+          name: "AdminDeliveryAddress",
+          component : AdminDeliveryAddress,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        }
       ],
     },
     {
