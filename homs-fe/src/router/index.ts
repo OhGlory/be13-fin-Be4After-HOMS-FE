@@ -36,6 +36,9 @@ import ContractForm from "@/pages/admin/clients/ContractForm.vue";
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
 
+// 채팅테스트용
+import ChatTest from '@/pages/ChatTest.vue'
+
 
 
 const router = createRouter({
@@ -217,6 +220,14 @@ const router = createRouter({
       path: "/404",
       component: PageNotFound,
     },
+    // 채팅 테스트용 라우트
+    {
+    // 예: /chat/5 라우트로 접속하면 otherUserId=5로 채팅방 생성/조회
+    path: '/chat/:otherUserId',
+    name: 'chat',
+    component: ChatTest,
+    props: true             // props(otherUserId)를 ChatTest에 전달
+    }
   ],
 });
 
