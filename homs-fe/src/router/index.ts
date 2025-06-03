@@ -41,7 +41,7 @@ import ContractForm from "@/pages/admin/clients/ContractForm.vue";
 import PageNotFound from "@/pages/common/PageNotFound.vue";
 
 // 채팅테스트용
-import ChatTest from '@/pages/ChatTest.vue'
+// import ChatTest from '@/pages/ChatTest.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -141,15 +141,15 @@ const router = createRouter({
         {
           path: "delivery",
           name: "AdminDelivery",
-          component : AdminDelivery,
+          component: AdminDelivery,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
-          path:"deliveryAddress",
+          path: "deliveryAddress",
           name: "AdminDeliveryAddress",
-          component : AdminDeliveryAddress,
+          component: AdminDeliveryAddress,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
-        }
+        },
       ],
     },
     {
@@ -241,13 +241,13 @@ const router = createRouter({
       component: PageNotFound,
     },
     // 채팅 테스트용 라우트
-    {
-    // 예: /chat/5 라우트로 접속하면 otherUserId=5로 채팅방 생성/조회
-    path: '/chat/:otherUserId',
-    name: 'chat',
-    component: ChatTest,
-    props: true             // props(otherUserId)를 ChatTest에 전달
-    }
+    // {
+    //   // 예: /chat/5 라우트로 접속하면 otherUserId=5로 채팅방 생성/조회
+    //   path: "/chat/:otherUserId",
+    //   name: "chat",
+    //   component: ChatTest,
+    //   props: true, // props(otherUserId)를 ChatTest에 전달
+    // },
   ],
 });
 
