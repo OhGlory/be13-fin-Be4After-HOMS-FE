@@ -11,18 +11,18 @@
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">주문번호</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
-                    >
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
                         {{ orders.orderCode || "-" }}
                     </div>
                 </div>
                 <!-- 납품위치 (고정) -->
                 <div v-if="authStore.isAdmin || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
-                    <label class="block text-gray-700 font-semibold">납품위치</label>
-                    <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
-                    >
-                        {{ "서울" || "-" }}
+                    <div v-if="authStore.isAdmin || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
+                        <label class="block text-gray-700 font-semibold">납품위치</label>
+                        <div
+                            class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
+                            {{ "서울" || "-" }}
+                        </div>
                     </div>
                 </div>
 
@@ -30,84 +30,82 @@
                 <div class="flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">주문날짜</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
-                    >
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
                         {{ new Date(orders.orderDate).toLocaleDateString() || "-" }}
                     </div>
                 </div>
                 <!-- 납기일 (고정) -->
-                <div v-if="authStore.isAdmin || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
+                <div v-if="authStore.isAdmin || orders.approved" class=" flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납기일</label>
                     <div
-                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer"
-                    >
+                        class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
                         {{ new Date(orders.dueDate).toLocaleDateString() || "-" }}
                     </div>
                 </div>
                 <!-- 발주요청 버튼 (유저) -->
                 <div v-if="!permission" class="flex items-end ml-auto">
-                    <button @click="orderRequest()" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">발주요청</button>
+                    <button @click="orderRequest()"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">발주요청</button>
                 </div>
             </div>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="permission" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="permission" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
 
         <!-- 테이블 -->
-        <DynamicTable
-            :columns="userColumns"
-            :items="products"
-            :showCheckbox="true"
-            :page="currentPage"
-            :pageSize="pageSize"
-            @selected="handleSelectedItems"
-            @row-click="handleRowClick"
-            uniqueKey="productId"
-        >
+        <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" :page="currentPage"
+            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
             <!-- 항목 상세 설정 -->
-            <template #cell-productQuantity="{item}">
+            <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{
+                    item.productQuantity
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input
-                        type="number"
+                    <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1"
-                        max="9999"
-                        v-model.number="item.productQuantity"
-                        @click.stop
-                        @mousedown.stop
-                    />
+                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{item}">
-                <!-- 주문 수정 버튼 -->
+            <template #actions="{ item }">
                 <div v-if="!permission">
-                    <button @click="editBtn(item)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="editBtn(item)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ item.isEditing ? "완료" : $t("btn.edit") }}
                     </button>
-                    <button @click="deleteBtn(item.productId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button @click="deleteBtn(item.productId)"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.del") }}
                     </button>
                 </div>
                 <!-- 주문 클레임 버튼 -->
                 <div v-if="claimPermission">
-                    <button @click="claimBtn(item.productId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">교환</button>
+                    <button @click="claimBtn(item.productId)"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">교환</button>
                 </div>
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
         <!-- 제품 상세 모달 -->
-        <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false"></ProductDetail>
+        <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false">
+        </ProductDetail>
         <!-- 신청 모달 -->
-        <OrderRequestModal :visible="showReqeustModal" :text="modalText" @update:visible="showReqeustModal = $event" @confirm="orderConfirm" @cancel="showReqeustModal = false" />
+        <OrderRequestModal :visible="showReqeustModal" :text="modalText" @update:visible="showReqeustModal = $event"
+            @confirm="orderConfirm" @cancel="showReqeustModal = false" />
         <!-- 클레임 모달 -->
-        <ClaimRequestModal :visible="showClaimModal" :text="modalText" @update:visible="showClaimModal = $event" @confirm="claimConfirm" @cancel="showClaimModal = false" />
+        <ClaimRequestModal :visible="showClaimModal" :text="modalText" @update:visible="showClaimModal = $event"
+            @confirm="claimConfirm" @cancel="showClaimModal = false" />
+        <!-- 알림 모달 -->
+        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alert"
+            @update:visible="showConfirmModal = $event" @confirm="confirmModal" @canccle="confirmModalCancle">
+        </ConfirmModal>
     </div>
 </template>
 
@@ -119,6 +117,7 @@ import PageNav from "@/components/common/PageNav.vue";
 import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import OrderRequestModal from "@/components/common/modal/OrderRequestModal.vue";
 import ClaimRequestModal from "@/components/common/modal/ClaimRequestModal.vue";
+import ConfirmModal from "@/components/common/modal/ConfirmModal.vue";
 import {ref, watch, onMounted, toRaw, onBeforeUnmount} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -143,6 +142,11 @@ const showClaimModal = ref(false); // 클레임 모달 상태 관리
 const selectedId = ref(null); // 선택된 항목 ID
 const modalText = ref(""); // 모달 텍스트
 const currentActionType = ref("");
+
+// 알람 모달 관련
+const showConfirmModal = ref(false); // 알람 모달 상태
+const modalType = ref(""); // 알람 모달 식별 타입
+const alertModal = ref(false); // 알람 모달 여부
 
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(0); // 총 페이지 수 상태 관리
@@ -174,7 +178,7 @@ const orderRequest = async () => {
 // 클레임 요청
 const claimBtn = async (productId) => {
     selectedId.value = productId;
-    modalText.value = "교환/반품 요청 하시겠습니까?";
+    modalText.value = "교환 요청 하시겠습니까?";
     currentActionType.value = "approve";
     showClaimModal.value = true;
 };
@@ -245,26 +249,35 @@ const editBtn = async (item) => {
         item.isEditing = !item.isEditing;
         if (item.isEditing === false) {
             await apiClient.put(`/orderitem/${orders.value.orderId}/renew/${item.productId}?quantity=${item.productQuantity}`);
+            
+            alertModal.value = true;
+            showConfirmModal.value = true;
+            modalText.value = "수정되었습니다.";
         }
     }
 };
 
 // 주문 단일 취소
 const deleteBtn = (productId) => {
-    if (confirm(t("script.delete"))) {
-        deletePostData([productId]);
-    }
+    selectedId.value = productId;
+    alertModal.value = false;
+    showConfirmModal.value = true;
+    modalText.value = t("script.delete");
+    modalType.value = "orderCancle";
 };
 
 // 주문 일괄 취소
 const deleteItems = async (selectedItems) => {
     if (selectedItems.value.length <= 0) {
-        alert("항목을 선택해주세요!");
-    } else if (confirm(selectedItems.value.length + "개의 항목을 정말로 삭제하시겠습니까?")) {
-        const rowSelectedItems = toRaw(selectedItems.value);
-        deletePostData(rowSelectedItems);
+        alertModal.value = true;
+        showConfirmModal.value = true;
+        modalText.value = "항목을 선택해주세요!";
+    } else {
+        alertModal.value = false;
+        showConfirmModal.value = true;
+        modalText.value = selectedUserIds.value.length + "개의 항목을 정말로 삭제하시겠습니까?";
+        modalType.value = "orderCancles";   
     }
-    selectedItems.value = []; // 초기화
 };
 
 // 주문 취소 처리
@@ -277,13 +290,35 @@ const deletePostData = async (params) => {
                 return params.productIds.map((id) => `productIds=${id}`).join("&"); // 배열을 올바르게 직렬화
             },
         });
-
+        alertModal.value = true;
+        showConfirmModal.value = true;
+        modalText.value = "해당 상품의 주문이 취소되었습니다.";
         fetchData();
     } catch (error) {
-        console.log(error);
-        alert(error);
+        alertModal.value = true;
+        showConfirmModal.value = true;
+        modalText.value = error;
     }
 };
+
+// 알림 모달에서 확인이 눌러졌을 때
+const confirmModal = async () => {
+    const productId = selectedId.value;
+
+    if (modalType.value === "orderCancle") {
+        deletePostData([productId]);
+    } else if (modalType.value === "orderCancles") {
+        const rowSelectedItems = toRaw(selectedUserIds.value);
+        deletePostData(rowSelectedItems);
+    }
+}
+
+// 알림 모달에서 취소 눌렀을 때
+const confirmModalCancle = () => {
+    console.log("취소");
+    selectedUserIds.value = [];
+    showConfirmModal.value = false;
+}
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -447,15 +482,15 @@ onMounted(() => {
 // 컴포넌트가 언마운트 되기전에 호출
 onBeforeUnmount(async () => {
     // 사용자가 정보를 다 입력하지 않았다면 현재 주문 삭제
-    if (!selectedDueDate.value) {
-        console.log("삭제");
-        console.log(selectedDueDate.value);
-        try {
-            await apiClient.delete(`/order/${orderId.value}`);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    // if (!selectedDueDate.value) {
+    //     console.log("삭제");
+    //     console.log(selectedDueDate.value);
+    //     try {
+    //         await apiClient.delete(`/order/${orderId.value}`);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 });
 
 // ------- 페이지네이션 --------
@@ -482,15 +517,19 @@ async function orderConfirm(delivery, dueDate) {
             };
             await apiClient.put(`/order/${orderId.value}/date`, params);
             selectedDueDate.value = dueDate;
-            alert("발주신청이 완료되었습니다!");
+
+            confirm("발주 신청이 완료되었습니다.");
+
             router.push({name: "UserOrders"});
         } catch (error) {
-            alert(error.response.data.message);
+            alertModal.value = true;
+            showConfirmModal.value = true;
+            modalText.value = error.response.data.message;
         }
     }
 }
 
-// 발주 신청 모달의 '확인' 버튼 클릭 시 호출되는 중앙 함수
+// 교환 신청 모달의 '확인' 버튼 클릭 시 호출되는 중앙 함수
 async function claimConfirm(option, inputValue) {
     if (currentActionType.value === "approve") {
         try {
