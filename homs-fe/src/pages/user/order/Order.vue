@@ -152,6 +152,9 @@ const approveOrder = (orderId) => {
     currentActionType.value = "approve";
     showTextAreaInput.value = false; // textarea 안보이게
     showModal.value = true;
+
+    console.log("orderId", orderId);
+
 };
 
 // 거절

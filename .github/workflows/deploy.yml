@@ -3,12 +3,13 @@ name: Deploy Vue Frontend to S3
 on:
   push:
     branches: [develop]
+  workflow_dispatch: 
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      VUE_APP_API_BASE_URL: ${{ secrets.VUE_APP_API_BASE_URL }}
+      VITE_API_URL: ${{ secrets.VUE_APP_API_BASE_URL }}
     steps:
       - uses: actions/checkout@v3
 

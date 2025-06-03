@@ -16,6 +16,9 @@ import Contracts from "@/pages/admin/clients/Contracts.vue";
 import MenuSettings from "@/pages/admin/menu/MenuSettings.vue";
 import Login from "@/pages/common/login/Login.vue";
 import AdminSettlements from "@/pages/admin/settlement/Settlements.vue";
+import AccountDetail from "@/pages/admin/account/AccountDetail.vue";
+import AdminDelivery from "@/pages/admin/delivery/AdminDelivery.vue";
+import AdminDeliveryAddress from "@/pages/admin/delivery/AdminDeliveryAddress.vue";
 
 // 유저 관련
 import UserDashBoard from "@/pages/user/dashboard/UserDashBoard.vue";
@@ -32,8 +35,13 @@ import DeliveryAddress from "@/pages/user/delivery/DeliveryAddress.vue";
 import ClaimItem from "@/pages/user/order/ClaimItem.vue";
 import Claims from "@/pages/user/order/Claims.vue";
 
+import ContractForm from "@/pages/admin/clients/ContractForm.vue";
+
 // 에러 관련
 import PageNotFound from "@/pages/common/PageNotFound.vue";
+
+// 채팅테스트용
+import ChatTest from '@/pages/ChatTest.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +70,12 @@ const router = createRouter({
           path: "adminaccount",
           name: "AdminAccount",
           component: AdminAccount,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path: "user/:id",
+          name: "AccountDetail",
+          component: AccountDetail,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
@@ -95,6 +109,12 @@ const router = createRouter({
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
         {
+          path: "contractForm",
+          name: "ContractForm",
+          component: ContractForm,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
           path: "categories",
           name: "Categories",
           component: Categories,
@@ -114,10 +134,22 @@ const router = createRouter({
         },
         {
           path: "setting",
-          name: "AdminSetting",
+          name: "Setting",
           component: Setting,
+          // meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        },
+        {
+          path: "delivery",
+          name: "AdminDelivery",
+          component : AdminDelivery,
           meta: {requiresAuth: true, role: "ROLE_ADMIN"},
         },
+        {
+          path:"deliveryAddress",
+          name: "AdminDeliveryAddress",
+          component : AdminDeliveryAddress,
+          meta: {requiresAuth: true, role: "ROLE_ADMIN"},
+        }
       ],
     },
     {
@@ -208,6 +240,14 @@ const router = createRouter({
       path: "/404",
       component: PageNotFound,
     },
+    // 채팅 테스트용 라우트
+    {
+    // 예: /chat/5 라우트로 접속하면 otherUserId=5로 채팅방 생성/조회
+    path: '/chat/:otherUserId',
+    name: 'chat',
+    component: ChatTest,
+    props: true             // props(otherUserId)를 ChatTest에 전달
+    }
   ],
 });
 
