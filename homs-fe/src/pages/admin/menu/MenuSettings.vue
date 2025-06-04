@@ -27,10 +27,54 @@
         </div>
       </template>
 
-      <template #cell-sales="{ item }">
-        <input type="checkbox" v-model="item.sales" class="dept-checkbox" />
+      <!-- 경로 셀 -->
+      <template #cell-path="{ item }">
+        <div class="cell-path">
+          <input v-if="item.level !== 0" v-model="item.path" />
+        </div>
       </template>
 
+      <!-- 이미지 셀 -->
+      <!-- <template #cell-image="{ item }">
+        <div class="cell-image">
+            <img v-if="item.hasChildren && item.level === 0"  :src="getImageByKey(item.image)" width="80" class="w-6 h-6"/>
+          <input v-if="item.hasChildren && item.level === 0" v-model="item.image" />
+        </div>
+      </template> -->
+
+      <!-- 이미지 셀 -->
+      <template #cell-image="{ item }">
+        <div class="cell-image">
+          <div v-if="item.hasChildren && item.level === 0" class="dropdown" @click="toggleDropdown(item.menuId)">
+            <img :src="getImageByKey(item.image)" class="icon-preview" />
+          </div>
+          <div v-if="dropdownOpen[item.menuId]" class="dropdown-menu">
+            <div v-for="(src, key) in imageMap" :key="key" class="dropdown-item"@click.stop="selectImage(item, key)">
+              <img :src="src" alt="아이콘" class="icon-preview" />
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- 구매 셀 -->
+      <template #cell-buy="{ item }">
+        <input v-if="item.level !== 0" type="checkbox" v-model="item.buy" class="dept-checkbox" />
+      </template>
+
+      <!-- 배송 셀 -->
+      <template #cell-delivery="{ item }">
+        <input v-if="item.level !== 0" type="checkbox" v-model="item.delivery" class="dept-checkbox" />
+      </template>
+
+      <!-- 자재 셀 -->
+      <template #cell-materials="{ item }">
+        <input v-if="item.level !== 0" type="checkbox" v-model="item.materials" class="dept-checkbox" />
+      </template>
+
+      <!-- 영업 셀 -->
+      <template #cell-sales="{ item }">
+        <input v-if="item.level !== 0" type="checkbox" v-model="item.sales" class="dept-checkbox" />
+      </template>
 
       <!-- 버튼 셀 -->
       <template #cell-button="{ item }">
@@ -46,6 +90,7 @@
           </button>
         </div>
       </template>
+
     </DynamicTable>
   </div>
 </template>
@@ -54,6 +99,50 @@
 import { ref, reactive, watch, onMounted } from "vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import apiClient from "@/api";
+
+// 정적 이미지 import
+import icon1 from '@/assets/menu/menu-icon-1.svg';
+import icon2 from '@/assets/menu/menu-icon-2.svg';
+import icon3 from '@/assets/menu/menu-icon-3.svg';
+import icon4 from '@/assets/menu/menu-icon-4.svg';
+import icon5 from '@/assets/menu/menu-icon-5.svg';
+import icon6 from '@/assets/menu/menu-icon-6.svg';
+import icon7 from '@/assets/menu/menu-icon-7.svg';
+
+const dropdownOpen = reactive({});
+
+const toggleDropdown = (id) => {
+  dropdownOpen[id] = !dropdownOpen[id];
+};
+
+const selectImage = (item, key) => {
+  item.image = key;
+  dropdownOpen[item.menuId] = false;
+};
+
+// key에 따른 이미지 매핑
+const imageMap = {
+  '1': icon1,
+  '2': icon2,
+  '3': icon3,
+  '4': icon4,
+  '5': icon5,
+  '6': icon6,
+  '7': icon7,
+};
+
+// key에 따른 실제 이미지 경로 반환
+const getImageByKey = (key) => {
+  const trimmedKey = typeof key === 'string' ? key.trim() : '';
+  const src = imageMap[trimmedKey];
+
+  if (!src) {
+    console.warn(`이미지를 찾을 수 없습니다: menu-icon-${trimmedKey}.svg`);
+  }
+
+  return src || '';
+};
+
 
 // 메뉴 트리 및 평탄화 데이터
 const menus = ref([]); // 트리 구조 데이터 관리 및 API 전송용
@@ -91,38 +180,11 @@ const fetchData = async () => {
 
     if (res.status === 200) {
       menus.value = res.data.data;
-    } else {
-      menus.value = getSampleMenuTree();
-    }
+    } 
   } catch (e) {
     console.error(e);
-    menus.value = getSampleMenuTree();
   }
 };
-
-// 샘플 메뉴 데이터
-const getSampleMenuTree = () => [
-  {
-    menuId: 1,
-    menuName: "주문 관리",
-    sortNo: 1,
-    parentId: null,
-    children: [
-      { menuId: 3, menuName: "주문 목록", sortNo: 1, parentId: 1},
-      { menuId: 4, menuName: "클레임 목록", sortNo: 2, parentId: 1},
-    ],
-  },
-  {
-    menuId: 2,
-    menuName: "상품 관리",
-    sortNo: 2,
-    parentId: null,
-    children: [
-      { menuId: 5, menuName: "상품 목록", sortNo: 1, parentId: 2},
-      { menuId: 6, menuName: "카테고리 목록", sortNo: 2, parentId: 2},
-    ],
-  },
-];
 
 // 메뉴 변경 시 다시 tree구조 생성
 watch(menus, (newVal) => {
@@ -146,6 +208,7 @@ const addMenuRoot = () => {
     menuId: newId,
     menuName: "새 루트 메뉴",
     sortNo: menus.value.length + 1,
+    image: "1",
     children: [],
   });
   flatMenus.value = flattenTree(menus.value);
@@ -184,9 +247,11 @@ const updateMenu = async (item) => {
   const newData = {
     menuName: item.menuName,
     sortNo: item.sortNo,
+    path: item.path,
+    image: item.image,
     buy: item.buy,
-    delivery: item.delivery,
     materials: item.materials,
+    delivery: item.delivery,
     sales: item.sales,
     parentId: item.parentId,
   };
@@ -223,6 +288,8 @@ const toggleFolder = (item) => {
 const menusColumns = [
   { label: "메뉴명", key: "menuName" },
   { label: "순번", key: "sortNo" },
+  { label: "경로", key: "path" },
+  { label: "이미지", key: "image" },
   { label: "구매", key: "buy" },
   { label: "배송", key: "delivery" },
   { label: "자재", key: "materials" },
@@ -244,11 +311,61 @@ const menusColumns = [
   cursor: pointer;
 }
 
-.cell-sort {
-  display: left;
+.cell-sort,
+.cell-path {
+  display: center;
   align-items: center;
   justify-content: space-between;
 }
+
+.cell-image {
+  position: relative;
+  width: 120px;
+}
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  padding: 4px;
+  user-select: none;
+}
+
+.dropdown-arrow {
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: white;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.icon-preview {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
 
 .cell-buttons {
   display: flex;
