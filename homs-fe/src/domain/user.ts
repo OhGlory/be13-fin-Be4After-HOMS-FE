@@ -18,6 +18,7 @@
   export type UserRole = 'ROLE_ADMIN' | 'ROLE_USER';
 
   export interface UserProfile {
+    userId: number
     userName: string;
     managerName: string;
     managerEmail: string;

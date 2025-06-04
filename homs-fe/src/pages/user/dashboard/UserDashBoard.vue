@@ -6,7 +6,7 @@
             <SettlementManagement></SettlementManagement>
         </div>
         <div class="flex gap-5 mt-10">
-            <UserDeliveryState></UserDeliveryState>
+            <UserDeliveryState :counts="statusCounts"></UserDeliveryState>
             <ClaimStatue></ClaimStatue>
         </div>
         <div class="flex gap-5 mt-10">
@@ -25,14 +25,24 @@ import SettlementManagement from '@/components/dashboard/user/SettlementManageme
 import UserDeliveryState from '@/components/dashboard/user/UserDeliveryState.vue';
 import Notice from '@/components/dashboard/user/notice.vue';
 
+import { useDeliveryStore } from '@/states/delivery.ts'; // 스토어 경로
+import { storeToRefs } from 'pinia';
+import { onMounted, ref } from 'vue'
 
-import { ref } from 'vue'
+const deliveryStore = useDeliveryStore();
+const { statusCounts } = storeToRefs(deliveryStore);
 
 // 상태 관리
 const isUser = ref(true)
 function toggleRole() {
   isUser.value = !isUser.value
 }
+
+onMounted(async () => {
+  await deliveryStore.fetchDeliveryInfo();
+  console.log("deliveryStore",deliveryStore);
+  console.log("deliveryStore.statusCounts",deliveryStore.statusCounts);
+});
 
 </script>
 
