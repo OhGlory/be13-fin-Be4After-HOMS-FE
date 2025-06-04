@@ -16,12 +16,12 @@
                     </div>
                 </div>
                 <!-- 납품위치 (고정) -->
-                <div v-if="authStore.isAdmin || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
-                    <div v-if="authStore.isAdmin || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
+                <div v-if="orders.deliveryName || orders.approved" class="flex flex-col gap-1 w-full md:w-auto">
+                    <div class="flex flex-col gap-1 w-full md:w-auto">
                         <label class="block text-gray-700 font-semibold">납품위치</label>
                         <div
                             class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
-                            {{ "서울" || "-" }}
+                            {{ orders.deliveryName || "-" }}
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     </div>
                 </div>
                 <!-- 납기일 (고정) -->
-                <div v-if="authStore.isAdmin || orders.approved" class=" flex flex-col gap-1 w-full md:w-auto">
+                <div v-if="orders.dueDate || orders.approved" class=" flex flex-col gap-1 w-full md:w-auto">
                     <label class="block text-gray-700 font-semibold">납기일</label>
                     <div
                         class="w-fit aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-2 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
@@ -63,7 +63,7 @@
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{
                     item.productQuantity
-                }}</div>
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -97,8 +97,8 @@
         <ProductDetail :visible="showModal" :productId="Number(selectedId)" @close="showModal = false">
         </ProductDetail>
         <!-- 신청 모달 -->
-        <OrderRequestModal :visible="showReqeustModal" :text="modalText" @update:visible="showReqeustModal = $event"
-            @confirm="orderConfirm" @cancel="showReqeustModal = false" />
+        <OrderRequestModal :visible="showReqeustModal" :text="modalText" :deliveryOptions="address"
+            @update:visible="showReqeustModal = $event" @confirm="orderConfirm" @cancel="showReqeustModal = false" />
         <!-- 클레임 모달 -->
         <ClaimRequestModal :visible="showClaimModal" :text="modalText" @update:visible="showClaimModal = $event"
             @confirm="claimConfirm" @cancel="showClaimModal = false" />
@@ -135,6 +135,7 @@ const router = useRouter();
 const route = useRoute();
 
 const orderId = ref(route.query.orderId || "");
+const address = ref();
 
 const showModal = ref(false); // 모달 상태 관리
 const showReqeustModal = ref(false); // 발주 요청 모달 상태 관리
@@ -234,12 +235,7 @@ const userColumns = ref([
     {label: "주문수량", key: "productQuantity"},
 ]);
 
-const products = ref([
-    {id: 1, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 2, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 3, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 4, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-]);
+const products = ref([]);
 
 const orders = ref([]);
 
@@ -336,10 +332,7 @@ const fetchData = async () => {
 
     // 쿼리 파라미터 업데이트
     const url = new URL(window.location.origin + route.path);
-    console.log(url);
     for (const key in params) {
-        console.log(route.path);
-        console.log(key);
         if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
             url.searchParams.set(key, params[key]);
         } else {
@@ -354,10 +347,10 @@ const fetchData = async () => {
         const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
         if (response.status === 200) {
             console.log(response.data.message);
-            console.log(response.data.data);
+            console.log(response.data);
             products.value = response.data.data.content;
             orders.value = response.data.data.content[0];
-            console.log(orders.value.orderStatus);
+            console.log(orders.value);
             if (orders.value.dueDate) {
                 selectedDueDate.value = new Date(orders.value.dueDate).toISOString().split("T")[0];
             }
@@ -376,6 +369,11 @@ const fetchData = async () => {
                 console.log("클레임 가능");
                 claimPermission.value = true;
             }
+            
+            // 배송정보 가져옴
+            const deliveryAddress = await apiClient.get(`/deliveryAdd/${orders.value.companyId}`);
+            address.value = deliveryAddress.data.data;
+
         } else {
             alert(t("errors.fetch_data_failed"));
         }
@@ -513,7 +511,7 @@ async function orderConfirm(delivery, dueDate) {
         try {
             const params = {
                 dueDate: dueDate,
-                // deliveryLocation: delivery,
+                deliveryAddressId: delivery,
             };
             await apiClient.put(`/order/${orderId.value}/date`, params);
             selectedDueDate.value = dueDate;
