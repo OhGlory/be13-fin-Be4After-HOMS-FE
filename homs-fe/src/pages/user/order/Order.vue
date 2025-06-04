@@ -432,9 +432,22 @@ const handleSelectedItems = (selectedIds) => {
 };
 
 // Notify 모달의 '확인' 버튼 클릭 시 호출되는 중앙 함수
-function approvedConfirmModal(inputValue) {
+async function approvedConfirmModal(inputValue) {
+    const orderId = currentOrderId.value;
+    showModal.value = false;
+    const now = new Date().toISOString(); 
+
+    const payload = {
+        orderId: orderId,
+        settlementDate: now,
+        texInvoice: `invoce${orderId}`,
+        isSettled: "UNSETTLED" 
+    };
+
     if (currentActionType.value === "approve") {
         setApprove(currentOrderId.value, true, null);
+        await apiClient.post(`settlement/${orderId}`, payload);
+
 
     } else if (currentActionType.value === "reject") {
         const reason = inputValue;

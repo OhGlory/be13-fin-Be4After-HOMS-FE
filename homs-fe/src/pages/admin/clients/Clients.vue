@@ -12,14 +12,14 @@
         :page="currentPage" :pageSize="pageSize">
         <template #actions="{ item }">
           <button @click="changeGrantState(item)" :class="item.isApprove === 'Y' ?
-            'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm' :
-            'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm'
+            'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm' :
+            'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm'
             ">
             {{ item.isApprove === 'Y' ? '승인 취소' : '승인' }}
           </button>
           <button @click="changeContractState(item)" :class="item.isContract === 'Y'
-            ? 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
-            : 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'">
+            ? 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
+            : 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'">
             {{ item.isContract === 'Y' ? '거래 취소' : '거래 재개' }}
           </button>
         </template>

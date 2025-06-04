@@ -87,12 +87,25 @@ function onClose() {
     showModal.value = false;
 }
 
-function onIssued() {
-    // 여기서 발급 처리하자
-    // 추후 작업은 작성한 데이터 기반으로 문서 만들고 DB에 저장해서
-    // user쪽에서 발급된 세금 명세서 보일 수 있도록
-    alert("발급 되었습니다");
-    emit('confirm');
+async function onIssued() {
+    try {
+        const response = await apiClient.put('/settlement/update', {
+            settlementId: props.orderId
+        });
+
+        if (response.data.statusCode === 200 && response.data.data === 'SUCCESS') {
+            alert('발급 되었습니다');
+            emit('confirm');
+            await router.push('/admin/settlement'); 
+        } 
+        else {
+            alert('발급 처리에 실패했습니다. 다시 시도해주세요.');
+            console.error('응답 내용:', response.data);
+        }
+    } catch (error) {
+        console.error('발급 요청 실패:', error);
+        alert('서버와 통신 중 문제가 발생했습니다.');
+    }
 }
 
 const invoiceForm = reactive({
@@ -151,12 +164,9 @@ const fetchData = async() => {
     }
 }
 
-
 watch(() => props.orderId, (newVal) => {
   if (newVal) fetchData();
 });
-
-
 
   </script>
   

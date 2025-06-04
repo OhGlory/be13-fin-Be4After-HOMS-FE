@@ -60,7 +60,7 @@ const fetchData = async () => {
         companyName: data.companyName,
         representName: data.representName,
         registrationNumber: data.registrationNumber,
-        companyAddress: data.companyId,
+        companyAddress: data.companyAddress,
         representCall: data.representCall,
         representManagerEmail: data.representManagerEmail,
 
