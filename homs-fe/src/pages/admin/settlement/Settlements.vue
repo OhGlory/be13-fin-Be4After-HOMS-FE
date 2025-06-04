@@ -27,9 +27,14 @@
       </template>
       <template #actions="{ item }">
 
-        <button @click="issuingTaxInvoices(item)"
-          class=" bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
-          발행
+        <button
+          @click="item.isSettled === '완료' ? checkIssuedInvoice(item) : issuingTaxInvoices(item)"
+          :class="[
+            'text-white font-bold py-2 px-4 rounded text-sm justify-center flex',
+            item.isSettled === '완료' ? 'bg-gray-400 hover:bg-gray-500' : 'bg-orange-500 hover:bg-orange-700'
+          ]"
+        >
+          {{ item.isSettled === '완료' ? '확인' : '발행' }}
         </button>
       </template>
     </DynamicTable>
@@ -138,7 +143,7 @@ const issuingTaxInvoices = (order) => {
   selectedOrderId.value = order.id;
 };
 
-const checkTaxInvoice =  (order) =>{
+const checkIssuedInvoice = (order) => {
   showCheckModal.value =  true;
 }
 
