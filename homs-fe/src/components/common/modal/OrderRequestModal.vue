@@ -17,8 +17,8 @@
           <select v-model="selectedDelivery"
             class="select-box aria-disabled:cursor-not-allowed outline-none focus:outline-none text-stone-800 dark:text-black placeholder:text-stone-600/60 ring-transparent border border-stone-200 transition-all ease-in disabled:opacity-50 disabled:pointer-events-none select-none text-sm py-2 pr-4 pl-2.5 ring shadow-sm bg-white rounded-lg duration-100 hover:border-stone-300 hover:ring-none focus:border-stone-400 focus:ring-none peer">
             <option disabled value="">선택</option>
-            <option v-for="option in deliveryOptions" :key="option.value" :value="option.value">{{
-              option.label }}</option>
+            <option v-for="option in deliveryOptions" :key="option.addressId" :value="option.addressId">{{
+              option.deliveryName }}</option>
           </select>
         </div>
         <!-- 납기일 (수정) -->
@@ -61,9 +61,7 @@ const props = defineProps({
 const selectedDelivery = ref("");
 const selectedDueDate = ref("");
 
-// watch(() => props.initialInputValue, (newValue) => {
-//   internalInputValue.value = newValue;
-// });
+
 
 // 부모에게 보낼 값
 const emit = defineEmits(['update:visible', 'confirm', 'cancel'])
