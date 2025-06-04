@@ -17,21 +17,21 @@
                 <DeliveryStatusItem
                     :icon="box"
                     label="배송 준비"
-                    :count="0"
+                    :count="props.counts.BEFORE"
                     size = "user"
                 />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
                 <DeliveryStatusItem
                     :icon="truck"
                     label="배송중"
-                    :count="0"
+                    :count="props.counts.SHIPPING"
                     size = "user"
                 />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
                 <DeliveryStatusItem
                     :icon="deliverycomplete"
                     label="배송 완료"
-                    :count="0"
+                    :count="props.counts.COMPLETED"
                     size = "user"
                 />
             </div>
@@ -47,6 +47,18 @@ import box from '@/assets/delivery/box.svg'
 import deliverycomplete from '@/assets/delivery/deliverycomplete.svg'
 import truck from '@/assets/delivery/truck.svg'
 import arrow from '@/assets/delivery/arrow.svg'
+
+const props = defineProps({
+  counts: {
+    type: Object,
+    default: () => ({
+      BEFORE: 0,
+      SHIPPING: 0,
+      COMPLETED: 0,
+      COLLECT: 0
+    })
+  }
+});
 
 </script>
 

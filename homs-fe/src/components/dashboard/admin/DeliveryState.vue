@@ -16,25 +16,25 @@
                 <DeliveryStatusItem
                     :icon="box"
                     label="배송 준비"
-                    :count="0"
+                    :count="props.counts.BEFORE"
                 />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
                 <DeliveryStatusItem
                     :icon="truck"
                     label="배송중"
-                    :count="0"
+                    :count="props.counts.SHIPPING"
                 />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
                 <DeliveryStatusItem
                     :icon="deliverycomplete"
                     label="납품 완료"
-                    :count="0"
+                    :count="props.counts.COMPLETED"
                 />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
                 <DeliveryStatusItem
                     :icon="collect"
                     label="회수"
-                    :count="0"
+                    :count="props.counts.COLLECT"
                 />
             </div>
         </div>
@@ -50,6 +50,19 @@ import collect from '@/assets/delivery/collect.svg'
 import deliverycomplete from '@/assets/delivery/deliverycomplete.svg'
 import truck from '@/assets/delivery/truck.svg'
 import arrow from '@/assets/delivery/arrow.svg'
+
+
+const props = defineProps({
+  counts: {
+    type: Object,
+    default: () => ({
+      BEFORE: 0,
+      SHIPPING: 0,
+      COMPLETED: 0,
+      COLLECT: 0
+    })
+  }
+});
 
 </script>
 

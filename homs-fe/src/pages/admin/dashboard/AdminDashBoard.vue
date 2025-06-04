@@ -10,7 +10,7 @@
                 <TransactionByPartnerChart></TransactionByPartnerChart>
             </div>
             <div class="flex mt-10">
-                <DeliveryState></DeliveryState>
+                <DeliveryState :counts="statusCounts"></DeliveryState>
             </div>
             <div class="flex mt-10 gap-10">
                 <ClaimStatue></ClaimStatue>
@@ -28,9 +28,12 @@ import TransactionByPartnerChart from '@/components/dashboard/chart/TransactionB
 import DeliveryState from '@/components/dashboard/admin/DeliveryState.vue';
 import ClaimStatue from '@/components/dashboard/admin/ClaimStatue.vue';
 import OilPriceTrends from '@/components/dashboard/chart/OilPriceTrends.vue';
+import { useDeliveryStore } from '@/states/delivery'
+import { storeToRefs } from 'pinia'
 
-
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+const deliveryStore = useDeliveryStore()
+const { statusCounts } = storeToRefs(deliveryStore)
 
 // 상태 관리
 const isUser = ref(true)
@@ -38,6 +41,11 @@ function toggleRole() {
   isUser.value = !isUser.value
 }
 
+onMounted(async () => {
+  await deliveryStore.fetchDeliveryInfo();
+  console.log("deliveryStore",deliveryStore);
+  console.log("deliveryStore.statusCounts",deliveryStore.statusCounts);
+});
 </script>
 
 <style lang="scss" scoped>
