@@ -180,9 +180,6 @@ const approveOrder = (orderId) => {
     currentActionType.value = "approve";
     showTextAreaInput.value = false; // textarea 안보이게
     showModal.value = true;
-
-    console.log("orderId", orderId);
-
 };
 
 // 거절
@@ -204,6 +201,15 @@ const setApprove = async (orderId, isApproved, reason) => {
     };
     try {
         await apiClient.put(`/order/${orderId}/approve`, requestData);
+        
+        const emailType = isApproved ? "ORDER_CONFIRMATION" : "ORDER_CANCELLATION";
+        const requestBody = {
+            id: orderId,
+            content: reason,
+            emailType: emailType,
+        }
+        apiClient.post("/notify/email/", requestBody);
+        
     } catch (error) {
         alert(error.response.data.message);
     }
@@ -441,6 +447,7 @@ async function approvedConfirmModal(inputValue) {
     if (currentActionType.value === "approve") {
         setApprove(currentOrderId.value, true, null);
         await apiClient.post(`settlement/${orderId}`, payload);
+
 
     } else if (currentActionType.value === "reject") {
         const reason = inputValue;

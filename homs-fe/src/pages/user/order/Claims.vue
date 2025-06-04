@@ -73,7 +73,6 @@ const handleSelectOption = ref([
 const orderColumns = ref([
     {label: "발주번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
-    {label: "납품장소", key: "deliveryName"},
     {label: "요청일", key: "orderDate"},
     {label: "납기일", key: "dueDate"},
     {label: "클레임 상태", key: "allClaimsRejected"},
