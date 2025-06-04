@@ -106,7 +106,7 @@ const DeliveryInfo = async () => {
 }
 
 const goDeliveryAddress = () => {
-    route.push({name:'AdminDeliveryAddress'})
+    route.push({name:'DeliveryAddress'})
 }
 
 onMounted(() => {

@@ -64,7 +64,7 @@
         </div>
 
         <div class="flex gap-10 justify-center mt-5">
-            <button @click="showSuccess=true" class="px-6 py-3 w-1/6 bg-orange-600 text-white font-bold  hover:bg-orange-700 transition">
+            <button @click="signUpPartner" class="px-6 py-3 w-1/6 bg-orange-600 text-white font-bold  hover:bg-orange-700 transition">
                 저장
             </button>
             <button @click="onClose" class="px-6 py-3 w-1/6 bg-slate-500 text-white font-bold hover:bg-slate-600 transition">
@@ -82,6 +82,7 @@
   import xmark from '@/assets/xmark.svg'
   import { reactive, ref } from 'vue'
   import PartnerRegisterSaveModal from './PartnerRegisterSaveModal.vue'
+  import apiClient from '@/api'
 
   const showSuccess = ref(false)
 
@@ -103,14 +104,34 @@
     managerEmail:'',
   })
 
+  const signUpPartner = async () => {
+
+    const requestData = {
+      country: form.contury === 'KR' ? 'KOREA' : form.contury === 'US' ? 'USA' : '', // 변환 필요
+      companyName: form.companyName,
+      registrationNumber: form.companyNumber,
+      representName: form.ceoName,
+      representCall: form.telNumber,
+      representPhone: form.phoneNumber,
+      representManagerName: form.managerName,
+      representManagerEmail: form.managerEmail,
+      continueStatus: false,
+      approveStatus: false
+    }
+    const response = await apiClient.post('/company', requestData)
+    console.log('파트너사 등록 성공:', response.data)
+    showSuccess.value = true
+  }
+
   // 파트너사 등록 모달만 닫는기능
   function onClose() {
     emit('close')
   }
 
-    //   하위 모달인 저장확인 모달이 닫히면 같이 닫히는 기능
+    //하위 모달인 저장확인 모달이 닫히면 같이 닫히는 기능
   function onConfirmModalClose(){
     showSuccess.value = false
+    console.log("form", form)
     emit('close')
   }
 
