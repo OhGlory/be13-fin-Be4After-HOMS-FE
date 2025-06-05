@@ -7,33 +7,14 @@
         </div>
         <div class="flex justify-center items-center min-h-full ">
             <div class="flex mx-auto space-x-6">
-                <DeliveryStatusItem
-                    :icon= "checklist"
-                    label="주문 확인"
-                    :count="0"
-                    size = "user"
-                />
+                <DeliveryStatusItem :icon="checklist" label="주문 확인" :count="0" size="user" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="box"
-                    label="배송 준비"
-                    :count="props.counts.BEFORE"
-                    size = "user"
-                />
+                <DeliveryStatusItem :icon="box" label="배송 준비" :count="props.counts.BEFORE" size="user" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="truck"
-                    label="배송중"
-                    :count="props.counts.SHIPPING"
-                    size = "user"
-                />
+                <DeliveryStatusItem :icon="truck" label="배송중" :count="props.counts.SHIPPING" size="user" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="deliverycomplete"
-                    label="배송 완료"
-                    :count="props.counts.COMPLETED"
-                    size = "user"
-                />
+                <DeliveryStatusItem :icon="deliverycomplete" label="배송 완료" :count="props.counts.COMPLETED"
+                    size="user" />
             </div>
         </div>
     </div>
@@ -61,7 +42,3 @@ const props = defineProps({
 });
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>

@@ -44,7 +44,7 @@
                                     <slot>{{ index + 1 + (props.page - 1) * props.pageSize }}</slot>
                                 </td>
                                 <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
-                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap overflow-hidden text-overflow-ellipsis">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
                                 <td v-if="$slots.actions"
