@@ -6,7 +6,7 @@
 
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" />
 
-    <DynamicTable :columns="deliveryColumns" :items="delivery">
+    <DynamicTable :columns="deliveryColumns" :items="delivery" :isLoading="isTableLoading">
       <template #actions="{ item }">
         <div class="flex space-x-2">
           <button @click="updateClick(item)"
@@ -47,6 +47,8 @@ import DeliveryAddressModal from '@/components/common/modal/DeliveryAddressModal
 
 const { t } = useI18n()
 const authstore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 // 고정
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -145,6 +147,7 @@ const fetchData_company = async () => {
 
 // API 호출
 const fetchData = async () => {
+  isTableLoading.value = true;
   if(selectedCompanyId.value != null)
   {
     try {
@@ -155,6 +158,8 @@ const fetchData = async () => {
       }
     } catch (e) {
       console.error(e);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
   }
 };

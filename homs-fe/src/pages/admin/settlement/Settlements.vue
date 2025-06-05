@@ -5,31 +5,29 @@
             <span>정산관리</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize" action="세금계산서">
-            <template #cell-id="{item}">
+        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" :isLoading="isTableLoading" action="세금계산서">
+            <template #cell-id="{ item }">
                 <strong>{{ item.id }}</strong>
             </template>
-            <template #cell-name="{item}">
+            <template #cell-name="{ item }">
                 {{ item.name }}
             </template>
-            <template #cell-isSettled="{item}">
-                <span
-                    :class="{
-                        'text-red-500': item.isSettled === '미정산',
-                        'text-yellow-500': item.isSettled === '대기',
-                        'text-green-500': item.isSettled === '완료',
-                    }"
-                >
+            <template #cell-isSettled="{ item }">
+                <span :class="{
+                    'text-red-500': item.isSettled === '미정산',
+                    'text-yellow-500': item.isSettled === '대기',
+                    'text-green-500': item.isSettled === '완료',
+                }">
                     {{ item.isSettled }}
                 </span>
             </template>
-            <template #actions="{item}">
-                <button
-                    @click="item.isSettled === '완료' ? checkIssuedInvoice(item) : issuingTaxInvoices(item)"
-                    :class="['text-white font-bold py-2 px-4 rounded text-sm justify-center flex', item.isSettled === '완료' ? 'bg-gray-400 hover:bg-gray-500' : 'bg-orange-500 hover:bg-orange-700']"
-                >
+            <template #actions="{ item }">
+                <button @click="item.isSettled === '완료' ? checkIssuedInvoice(item) : issuingTaxInvoices(item)"
+                    :class="['text-white font-bold py-2 px-4 rounded text-sm justify-center flex', item.isSettled === '완료' ? 'bg-gray-400 hover:bg-gray-500' : 'bg-orange-500 hover:bg-orange-700']">
                     {{ item.isSettled === "완료" ? "확인" : "발행" }}
                 </button>
             </template>
@@ -50,6 +48,8 @@ import TaxInvoice from "@/components/common/modal/TaxInvoice.vue";
 import CheckTaxInvoice from "@/components/common/modal/CheckTaxInvoice.vue";
 import {ref, onMounted} from "vue";
 import apiClient from "@/api";
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -74,6 +74,7 @@ const handleSelectOption = ref([
 ]);
 
 const fetchData = async () => {
+    isTableLoading.value = true;
     try {
         const response = await apiClient.get("/settlement/");
         const data = response.data.data;
@@ -90,6 +91,8 @@ const fetchData = async () => {
         }));
     } catch (error) {
         console.log("정산 테이블을 불러오는데 실패 하였습니다", error);
+    } finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

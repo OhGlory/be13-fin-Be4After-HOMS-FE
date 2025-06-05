@@ -6,7 +6,8 @@
 
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
 
-        <DynamicTable :columns="deliveryColumns" :items="delivery" @row-click="handleRowClick" />
+        <DynamicTable :columns="deliveryColumns" :items="delivery" :isLoading="isTableLoading"
+            @row-click="handleRowClick" />
         <!-- 페이지 네비 -->
         <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" />
         <!-- 배송 상세 모달 -->
@@ -26,6 +27,8 @@ import DeliveryAddressModal from '@/components/common/modal/DeliveryAddressViewM
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(1); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const delivery = ref([]);
 const showCheckModal = ref(false);
@@ -70,6 +73,7 @@ const fetchData = async () => {
 
 // 상세 정보 호출
 const fetchDetailData = async (addressId) => {
+    isTableLoading.value = true;
     try {
         const res = await apiClient.get(`deliveryAdd/${addressId}/detail`);
 
@@ -79,6 +83,8 @@ const fetchDetailData = async (addressId) => {
         }
         } catch (e) {
             console.error(e);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 
