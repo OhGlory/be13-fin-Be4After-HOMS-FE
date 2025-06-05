@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>계약 목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
@@ -46,6 +44,7 @@ import ContractDetail from '@/components/common/modal/ContractDetail.vue';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/states/auth';
 import { useRouter ,useRoute} from 'vue-router';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
 

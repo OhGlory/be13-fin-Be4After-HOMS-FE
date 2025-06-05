@@ -1,8 +1,9 @@
 <template>
   <div>
-    <!-- 제목 및 루트 추가 버튼 -->
+    <Breadcrumb />
+
+    <!-- 루트 추가 버튼 -->
     <div class="btn-title">
-      <span>카테고리 관리</span>
       <button @click="addCategoryRoot" class="btn-create-root"> 생성 </button>
     </div>
 
@@ -49,6 +50,7 @@
 import { ref, reactive, watch, onMounted } from "vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import apiClient from "@/api";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 

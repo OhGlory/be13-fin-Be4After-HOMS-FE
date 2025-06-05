@@ -1,8 +1,6 @@
 <template>
     <div>
-        <div class="text-3xl px-3 py-3">
-            <span>배송관리 > 배송지 관리</span>
-        </div>
+        <Breadcrumb />
 
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
 
@@ -22,6 +20,7 @@ import DynamicTable from "@/components/common/DynamicTable.vue";
 import apiClient from "@/api";
 import PageNav from "@/components/common/PageNav.vue";
 import DeliveryAddressModal from '@/components/common/modal/DeliveryAddressViewModal.vue';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 // 고정
 const currentPage = ref(1); // 현재 페이지 상태 관리

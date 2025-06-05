@@ -1,22 +1,20 @@
 <template>
-    <div>
-      <div class="text-3xl px-3 py-3">
-        <span class="font-bold">계정 설정</span>
-      </div>
-      <ClientDetailFields
-        :fields="fields"
-        :isEditable="isEditable"
-      />
-
-      <div class="flex justify-center w-2/3 m-auto my-4 gap-10">
-        <button @click="toggleEdit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
-          {{ isEditable ? '저장' : '수정' }}
-        </button>
-        <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-           취소
-        </button>
-      </div>
+  <div>
+    <Breadcrumb />
+    <div class="text-3xl px-3 py-3">
+      <span class="font-bold">계정 설정</span>
     </div>
+    <ClientDetailFields :fields="fields" :isEditable="isEditable" />
+
+    <div class="flex justify-center w-2/3 m-auto my-4 gap-10">
+      <button @click="toggleEdit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
+        {{ isEditable ? '저장' : '수정' }}
+      </button>
+      <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        취소
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -25,6 +23,7 @@ import { useAuthStore } from '@/states/auth';
 import { useRoute } from 'vue-router';
 import ClientDetailFields from '@/components/common/ClientDetailFields.vue';
 import apiClient from '@/api';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 
 const route = useRoute();
@@ -109,6 +108,4 @@ onMounted( () =>{
 
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

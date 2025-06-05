@@ -1,8 +1,7 @@
 <template>
   <div>
-    <div class="text-3xl px-3 py-3">
-      <span>배송관리 > 배송지 관리</span>
-    </div>
+    <Breadcrumb />
+
 
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" />
 
@@ -44,6 +43,7 @@ import ConfirmModal from "@/components/common/modal/ConfirmModal.vue";
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/states/auth';
 import DeliveryAddressModal from '@/components/common/modal/DeliveryAddressModal.vue';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const { t } = useI18n()
 const authstore = useAuthStore();

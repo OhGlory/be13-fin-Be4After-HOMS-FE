@@ -1,9 +1,8 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>정산관리</span>
-        </div>
+        <Breadcrumb />
+
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
         <!-- 테이블 -->
@@ -41,6 +40,7 @@ import TaxInvoice from "@/components/common/modal/TaxInvoice.vue";
 import CheckTaxInvoice from "@/components/common/modal/CheckTaxInvoice.vue";
 import {ref, onMounted} from "vue";
 import apiClient from "@/api";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 

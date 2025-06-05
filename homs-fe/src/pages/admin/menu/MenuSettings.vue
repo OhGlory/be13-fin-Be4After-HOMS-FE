@@ -1,8 +1,8 @@
 <template>
   <div>
-    <!-- 제목 및 루트 추가 버튼 -->
+    <Breadcrumb />
+    <!-- 루트 추가 버튼 -->
     <div class="btn-title">
-      <span>메뉴 관리</span>
       <button @click="addMenuRoot" class="btn-create-root"> 생성 </button>
     </div>
 
@@ -108,6 +108,7 @@ import icon4 from '@/assets/menu/menu-icon-4.svg';
 import icon5 from '@/assets/menu/menu-icon-5.svg';
 import icon6 from '@/assets/menu/menu-icon-6.svg';
 import icon7 from '@/assets/menu/menu-icon-7.svg';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 

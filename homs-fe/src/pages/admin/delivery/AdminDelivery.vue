@@ -1,8 +1,6 @@
 <template>
     <div>
-        <div class="text-3xl px-3 py-3">
-            <span>배송 현황</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="currentUserRole" />
@@ -32,6 +30,7 @@ import DeliveryState from "@/components/dashboard/admin/DeliveryState.vue";
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useDeliveryStore } from '@/states/delivery.ts';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 
