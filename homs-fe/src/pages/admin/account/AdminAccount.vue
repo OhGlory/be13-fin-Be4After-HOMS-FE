@@ -4,7 +4,7 @@
         <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
+            :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
             :pageSize="pageSize" :isLoading="isTableLoading">
@@ -36,7 +36,7 @@ const authStore = useAuthStore();
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(20); // 총 페이지 수 상태 관리
-const currentUserRole = ref("admin"); // 현재 유저 권한
+// const currentUserRole = ref(); // 현재 유저 권한
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -99,7 +99,7 @@ const userData = async () => {
         companyName: item.companyName,
         deptName: deptNameMap[item.deptName] || item.deptName,
         email: item.managerEmail,
-        role: "관리자",
+        role: item.userRole === "ROLE_USER" ? "사용자" : "관리자",
         isLockedOut: item.isLockedOut ? "비활성화" : "활성화",
         // loginDate: "-",
     }));
