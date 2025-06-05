@@ -19,5 +19,3 @@ import SideBar from './SideBar.vue';
 import FloatingChat from './FloatingChatApp.vue';
 
 </script>
-
-<style scoped></style>
