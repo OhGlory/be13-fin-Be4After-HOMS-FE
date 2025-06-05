@@ -35,8 +35,9 @@ const router = useRouter();
 const authStore = useAuthStore();
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(20); // 총 페이지 수 상태 관리
-// const currentUserRole = ref(); // 현재 유저 권한
+const totalPages = ref(1); // 총 페이지 수 상태 관리
+const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+const currentUserRole = ref("admin"); // 현재 유저 권한
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
