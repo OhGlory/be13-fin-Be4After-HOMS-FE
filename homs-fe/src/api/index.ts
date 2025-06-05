@@ -65,7 +65,7 @@ apiClient.interceptors.response.use(
     // 401 에러, _retry 플래그 없고 리프레시 토큰이 있을 때만 동작
     const authStore = useAuthStore()
     if (
-      error.response?.status === 403 && !originalRequest._retry && authStore.refreshToken
+      error.response?.status === 401 && !originalRequest._retry && authStore.refreshToken
     ) {
       console.log('🛠 [INTERCEPTOR] 403 에러 발생 - 토큰 리프레시 시도 중')
       originalRequest._retry = true

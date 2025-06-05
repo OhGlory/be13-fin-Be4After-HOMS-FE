@@ -92,7 +92,7 @@ const fetchData = async () => {
     client.value = data.map((item, index) => ({
         id: item.companyId,
         companyName: item.companyName,
-        ceoName: item.representManagerName,
+        ceoName: item.representName,
         isContract: item.continueStatus ? "Y" : "N",
         isApprove: item.approvedStatus ? "Y" : "N", // 백엔드 수정 요청
     }));
