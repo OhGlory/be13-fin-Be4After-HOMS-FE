@@ -1,26 +1,16 @@
 <template>
   <div>
-    <div class="text-3xl px-3 py-3">
-      <span class="font-bold">계약 등록 페이지</span>
-    </div>
+    <Breadcrumb />
 
     <!-- ClientDetailFields 컴포넌트에 fields와 isEditable=true를 넘겨줍니다 -->
-    <ClientDetailFields
-      :fields="fields"
-      :isEditable="true"
-    />
+    <ClientDetailFields :fields="fields" :isEditable="true" />
 
     <div class="flex justify-center w-2/3 m-auto my-4 gap-10">
-      <button
-        @click="submitNewContract"
-        class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
-      >
+      <button @click="submitNewContract"
+        class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">
         생성
       </button>
-      <button
-        @click="goBack"
-        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-      >
+      <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
         취소
       </button>
     </div>
@@ -32,6 +22,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ClientDetailFields from '@/components/common/ClientDetailFields.vue';
 import apiClient from '@/api';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 // 라우터 인스턴스
 const router = useRouter();

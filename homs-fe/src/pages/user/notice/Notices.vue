@@ -1,38 +1,31 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>{{ $t("title.notice") }}</span>
-        </div>
+        <Breadcrumb />
+
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable
-            :columns="userColumns"
-            :items="users"
-            :showCheckbox="false"
-            :page="currentPage"
-            :pageSize="pageSize"
-            :isLoading="isTableLoading"
-            @selected="handleSelectedItems"
-            @row-click="handleRowClick"
+        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
             :column-classes="{
                 title: 'text-start font-semibold text-gray-700',
                 createdAt: 'text-start text-sm text-gray-500',
                 id: 'text-start',
-            }"
-        >
+            }">
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{item}">
+            <template #cell-id="{ item }">
                 <strong>{{ item.id }}</strong>
             </template>
-            <template #cell-createdAt="{item}">
+            <template #cell-createdAt="{ item }">
                 {{ new Date(item.createdAt).toLocaleDateString() }}
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"></PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
+        </PageNav>
     </div>
 </template>
 
@@ -45,6 +38,7 @@ import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
 

@@ -1,22 +1,24 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>상품 관리 > 상품 목록</span>
-        </div>
+        <Breadcrumb />
         <div class="p-6 bg-white rounded-md shadow-md">
             <h4 class="text-xl font-bold mb-4">{{ isEditMode ? $t("btn.edit") : "추가" }}</h4>
             <form @submit.prevent="submitForm">
                 <div class="flex gap-10">
                     <!-- 이미지 -->
                     <div class="mb-4 my-4 w-60">
-                        <img v-if="imageUrl" :src="imageUrl" alt="제품 이미지" class="w-full max-h-96 object-contain rounded-md shadow-md" />
-                        <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-md shadow-md">
+                        <img v-if="imageUrl" :src="imageUrl" alt="제품 이미지"
+                            class="w-full max-h-96 object-contain rounded-md shadow-md" />
+                        <div v-else
+                            class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-md shadow-md">
                             <span class="text-gray-500">이미지 없음</span>
                         </div>
                         <div class="mt-10 flex justify-center">
-                            <input type="file" id="imageInput" ref="imageInput" @change="handleFileChange('s3Image', $event)" accept="image/*" class="hidden" />
-                            <button @click="triggeFileInput(imageInput)" type="button" class="w-40 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold hover:bg-orange-700 transition cursor-pointer">
+                            <input type="file" id="imageInput" ref="imageInput"
+                                @change="handleFileChange('s3Image', $event)" accept="image/*" class="hidden" />
+                            <button @click="triggeFileInput(imageInput)" type="button"
+                                class="w-40 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold hover:bg-orange-700 transition cursor-pointer">
                                 업로드
                             </button>
                         </div>
@@ -25,95 +27,97 @@
                     <div>
                         <div class="mb-4">
                             <label for="productName" class="block text-sm font-medium text-gray-700">제품코드</label>
-                            <input
-                                type="text"
-                                id="productName"
-                                :placeholder="'ex) 303'"
-                                v-model="productName"
-                                class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            />
+                            <input type="text" id="productName" :placeholder="'ex) 303'" v-model="productName"
+                                class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                         </div>
                         <div class="mb-4">
                             <label for="categoryLevel1" class="block text-sm font-medium text-gray-700">분야</label>
-                            <select id="categoryLevel1" v-model="selectedCategoryLevel1" @change="loadSecondLevelCategories">
+                            <select id="categoryLevel1" v-model="selectedCategoryLevel1"
+                                @change="loadSecondLevelCategories">
                                 <option value="" disabled>선택하세요</option>
-                                <option v-for="category in topLevelCategories" :key="category.categoryId" :value="category.categoryId">
+                                <option v-for="category in topLevelCategories" :key="category.categoryId"
+                                    :value="category.categoryId">
                                     {{ category.categoryName }}
                                 </option>
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label v-if="secondLevelCategories.length > 0" for="categoryLevel2" class="block text-sm font-medium text-gray-700">분류</label>
-                            <select v-if="secondLevelCategories.length > 0" id="categoryLevel2" v-model="selectedCategoryLevel2" @change="loadThirdLevelCategories">
+                            <label v-if="secondLevelCategories.length > 0" for="categoryLevel2"
+                                class="block text-sm font-medium text-gray-700">분류</label>
+                            <select v-if="secondLevelCategories.length > 0" id="categoryLevel2"
+                                v-model="selectedCategoryLevel2" @change="loadThirdLevelCategories">
                                 <option value="" disabled>선택하세요</option>
-                                <option v-for="category in secondLevelCategories" :key="category.categoryId" :value="category.categoryId">
+                                <option v-for="category in secondLevelCategories" :key="category.categoryId"
+                                    :value="category.categoryId">
                                     {{ category.categoryName }}
                                 </option>
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label v-if="thirdLevelCategories.length > 0" for="categoryLevel3" class="block text-sm font-medium text-gray-700">제조 공정</label>
-                            <select v-if="thirdLevelCategories.length > 0" id="categoryLevel3" v-model="selectedCategoryLevel3">
+                            <label v-if="thirdLevelCategories.length > 0" for="categoryLevel3"
+                                class="block text-sm font-medium text-gray-700">제조 공정</label>
+                            <select v-if="thirdLevelCategories.length > 0" id="categoryLevel3"
+                                v-model="selectedCategoryLevel3">
                                 <option value="" disabled>선택하세요</option>
-                                <option v-for="category in thirdLevelCategories" :key="category.categoryId" :value="category.categoryId">
+                                <option v-for="category in thirdLevelCategories" :key="category.categoryId"
+                                    :value="category.categoryId">
                                     {{ category.categoryName }}
                                 </option>
                             </select>
                         </div>
                         <div class="mb-4">
-                            <label for="productMinQuantity" class="block text-sm font-medium text-gray-700">최소 수량</label>
-                            <input
-                                type="text"
-                                id="productMinQuantity"
-                                :placeholder="'ex) 10'"
+                            <label for="productMinQuantity" class="block text-sm font-medium text-gray-700">최소
+                                수량</label>
+                            <input type="text" id="productMinQuantity" :placeholder="'ex) 10'"
                                 v-model="productMinQuantity"
-                                class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            />
+                                class="w-30 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                         </div>
                     </div>
                     <!-- 적용 용도 / 제품 특징 -->
                     <div>
                         <div class="mb-2">
                             <label for="productUsage" class="block text-sm font-medium text-gray-700">적용 용도</label>
-                            <textarea
-                                id="productUsage"
-                                :placeholder="$t('placeholder.content_input')"
+                            <textarea id="productUsage" :placeholder="$t('placeholder.content_input')"
                                 v-model="productUsage"
-                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"
-                            ></textarea>
+                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
                         </div>
                         <div class="mb-4 my-4">
                             <label for="productFeature" class="block text-sm font-medium text-gray-700">제품 특징</label>
-                            <textarea
-                                id="productFeature"
-                                :placeholder="$t('placeholder.content_input')"
+                            <textarea id="productFeature" :placeholder="$t('placeholder.content_input')"
                                 v-model="productFeature"
-                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"
-                            ></textarea>
+                                class="w-[20rem] border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[5rem]"></textarea>
                         </div>
                     </div>
                     <!-- 파일 업로드 -->
                     <div>
                         <div class="mb-4">
                             <label for="msdsInput" class="block text-sm font-medium text-gray-700">MSDS</label>
-                            <input type="file" id="msdsInput" ref="msdsInput" @change="handleFileChange('s3Msds', $event)" accept="application/pdf" class="hidden" />
-                            <button @click="triggeFileInput(msdsInput)" type="button" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">파일 선택</button>
+                            <input type="file" id="msdsInput" ref="msdsInput"
+                                @change="handleFileChange('s3Msds', $event)" accept="application/pdf" class="hidden" />
+                            <button @click="triggeFileInput(msdsInput)" type="button"
+                                class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">파일
+                                선택</button>
                             <p v-if="selectedFiles.s3Msds">선택된 파일: {{ selectedFiles.s3Msds.name }}</p>
                         </div>
                         <div class="mb-4">
                             <label for="tds1Input" class="block text-sm font-medium text-gray-700">TDS</label>
-                            <input type="file" id="tds1Input" ref="tds1Input" @change="handleFileChange('s3Tds1', $event)" accept="application/pdf" class="hidden" />
-                            <button @click="triggeFileInput(tds1Input)" type="button" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">파일 선택</button>
+                            <input type="file" id="tds1Input" ref="tds1Input"
+                                @change="handleFileChange('s3Tds1', $event)" accept="application/pdf" class="hidden" />
+                            <button @click="triggeFileInput(tds1Input)" type="button"
+                                class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">파일
+                                선택</button>
                             <p v-if="selectedFiles.s3Tds1">선택된 파일: {{ selectedFiles.s3Tds1.name }}</p>
                         </div>
                     </div>
                 </div>
                 <!-- 저장/취소 버튼 -->
                 <div class="flex items-center justify-end">
-                    <button type="submit" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button type="submit"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ isEditMode ? $t("btn.edit") : $t("btn.save") }}
                     </button>
-                    <button type="button" @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button type="button" @click="goBack"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.cancel") }}
                     </button>
                 </div>
@@ -129,6 +133,7 @@ import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
 import {loadAndCreateImageURL, revokeImageURL} from "@/utils/imageView";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
 

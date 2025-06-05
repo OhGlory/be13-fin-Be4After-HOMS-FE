@@ -1,32 +1,24 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>거래처 목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable @row-click="detailClient" :columns="userColumns" :items="client" :showCheckbox="true" :page="currentPage" :pageSize="pageSize" :isLoading="isTableLoading">
-            <template #actions="{item}">
-                <button
-                    @click="changeGrantState(item)"
-                    :class="
-                        item.isApprove === 'Y'
-                            ? 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm'
-                            : 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm'
-                    "
-                >
+        <DynamicTable @row-click="detailClient" :columns="userColumns" :items="client" :showCheckbox="true"
+            :page="currentPage" :pageSize="pageSize" :isLoading="isTableLoading">
+            <template #actions="{ item }">
+                <button @click="changeGrantState(item)" :class="item.isApprove === 'Y'
+                    ? 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm'
+                    : 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm'
+                    ">
                     {{ item.isApprove === "Y" ? "승인 취소" : "승인" }}
                 </button>
-                <button
-                    @click="changeContractState(item)"
-                    :class="
-                        item.isContract === 'Y'
-                            ? 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
-                            : 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
-                    "
-                >
+                <button @click="changeContractState(item)" :class="item.isContract === 'Y'
+                    ? 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
+                    : 'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm ml-2'
+                    ">
                     {{ item.isContract === "Y" ? "거래 취소" : "거래 재개" }}
                 </button>
             </template>
@@ -43,6 +35,7 @@ import PageNav from "@/components/common/PageNav.vue";
 import {onMounted, ref} from "vue";
 import apiClient from "@/api";
 import {useRouter} from "vue-router";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 

@@ -1,9 +1,7 @@
 <template>
   <div>
     <!-- 제목 -->
-    <div class="text-3xl px-3 py-3">
-      <span>통합계정관리</span>
-    </div>
+    <Breadcrumb />
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="currentUserRole" />
@@ -37,6 +35,7 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref } from 'vue';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 

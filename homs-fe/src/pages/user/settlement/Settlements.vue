@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>정산관리</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="currentUserRole" />
@@ -53,6 +51,7 @@ import {userStore} from "@/states/user";
 import {storeToRefs} from "pinia";
 import apiClient from "@/api";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const searchResult = ref(null);
 

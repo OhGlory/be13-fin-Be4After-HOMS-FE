@@ -1,16 +1,18 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>통합계정관리</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize" :isLoading="isTableLoading">
-            <template #actions="{item}">
-                <button @click="editUser(item)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">수정</button>
-                <button @click="deleteUser(item)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">삭제</button>
+        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" :isLoading="isTableLoading">
+            <template #actions="{ item }">
+                <button @click="editUser(item)"
+                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">수정</button>
+                <button @click="deleteUser(item)"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">삭제</button>
             </template>
         </DynamicTable>
         <!-- 페이지 네비 -->
@@ -26,6 +28,7 @@ import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import apiClient from "@/api";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 const router = useRouter();

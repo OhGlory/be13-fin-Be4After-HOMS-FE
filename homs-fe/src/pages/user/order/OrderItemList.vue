@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 주문목록 > 상세주문</span>
-        </div>
+        <Breadcrumb />
         <!-- 배송 등 상세 정보 -->
         <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-4 pr-4">
             <div class="flex flex-wrap gap-x-3 gap-y-4 w-full">
@@ -119,6 +117,7 @@ import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import OrderRequestModal from "@/components/common/modal/OrderRequestModal.vue";
 import ClaimRequestModal from "@/components/common/modal/ClaimRequestModal.vue";
 import ConfirmModal from "@/components/common/modal/ConfirmModal.vue";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 import {ref, watch, onMounted, toRaw, onBeforeUnmount} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
