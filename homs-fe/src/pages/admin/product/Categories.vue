@@ -7,7 +7,7 @@
     </div>
 
     <!-- DynamicTable -->
-    <DynamicTable :columns="categoriesColumns" :items="flatCategories" :isIndexActive=false>
+    <DynamicTable :columns="categoriesColumns" :items="flatCategories" :isIndexActive=false :isLoading="isTableLoading">
       <!-- 카테고리명 셀 -->
       <template #cell-categoryName="{ item }">
         <div class="cell-category" :style="{ paddingLeft: item.level * 20 + 'px' }">
@@ -50,6 +50,8 @@ import { ref, reactive, watch, onMounted } from "vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import apiClient from "@/api";
 
+const isTableLoading = ref(false); // 로딩 상태 관리
+
 // 트리 구조 데이터
 const categories = ref([]); // 트리 구조 데이터 관리 및 API 전송용
 const flatCategories = ref([]); // 트리 구조 UI 표시용
@@ -81,6 +83,7 @@ const flattenTree = (nodes, level = 0, arr = []) => {
 
 // API 호출
 const fetchData = async () => {
+  isTableLoading.value = true;
   try {
     const res = await apiClient.get("/productCategory/");
 
@@ -92,6 +95,8 @@ const fetchData = async () => {
   } catch (e) {
     console.error(e);
     categories.value = getSampleCategoryTree();
+  }finally {
+    isTableLoading.value = false; // 로딩 종료
   }
 };
 

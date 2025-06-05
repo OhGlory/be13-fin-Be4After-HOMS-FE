@@ -5,33 +5,30 @@
             <span>정산관리</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="currentUserRole" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize" action="세금계산서">
-            <template #cell-id="{item}">
+        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
+            :pageSize="pageSize" :isLoading="isTableLoading" action="세금계산서">
+            <template #cell-id="{ item }">
                 <strong>{{ item.id }}</strong>
             </template>
-            <template #cell-name="{item}">
+            <template #cell-name="{ item }">
                 {{ item.name }}
             </template>
-            <template #cell-isSettled="{item}">
-                <span
-                    :class="{
-                        'text-red-500': item.isSettled === '미정산',
-                        'text-yellow-500': item.isSettled === '대기',
-                        'text-green-500': item.isSettled === '완료',
-                    }"
-                >
+            <template #cell-isSettled="{ item }">
+                <span :class="{
+                    'text-red-500': item.isSettled === '미정산',
+                    'text-yellow-500': item.isSettled === '대기',
+                    'text-green-500': item.isSettled === '완료',
+                }">
                     {{ item.isSettled }}
                 </span>
             </template>
-            <template #actions="{item}">
+            <template #actions="{ item }">
                 <span class="text-gray-500">
-                    <button
-                        @click="checkTaxInvoice(item)"
-                        :disabled="item.isSettled === '미정산'"
-                        :class="['font-bold py-2 px-4 rounded text-sm', item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white']"
-                    >
+                    <button @click="checkTaxInvoice(item)" :disabled="item.isSettled === '미정산'"
+                        :class="['font-bold py-2 px-4 rounded text-sm', item.isSettled === '미정산' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-700 text-white']">
                         확인
                     </button>
                 </span>
@@ -59,6 +56,8 @@ import {useAuthStore} from "@/states/auth";
 
 const searchResult = ref(null);
 
+const isTableLoading = ref(false); // 로딩 상태 관리
+
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(1); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
@@ -73,11 +72,7 @@ const userId = authstore.user.userId;
 const orderId = ref(null);
 
 // 데이터
-const users = ref([
-    {id: 1, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "미정산", orderStatus: "-"},
-    {id: 2, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "대기", orderStatus: "반품/교환"},
-    {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "완료", orderStatus: "-"},
-]);
+const users = ref([]);
 
 const handleSelectOption = ref([
     {value: "", label: "전체"},
@@ -86,6 +81,7 @@ const handleSelectOption = ref([
 ]);
 
 const fetchData = async () => {
+    isTableLoading.value = true;
     try {
         // 나중에 유저 연결했을때 유저 정보 받아오는 부분
         const response = await apiClient.get(`settlement/user/${userId}`);
@@ -103,6 +99,8 @@ const fetchData = async () => {
         }));
     } catch (error) {
         console.log("정산 테이블을 불러오는데 실패 하였습니다", error);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

@@ -8,7 +8,7 @@
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" @row-click="handleRowClick" uniqueKey="orderId">
+            :pageSize="pageSize" @row-click="handleRowClick" :isLoading="isTableLoading" uniqueKey="orderId">
             <template #cell-reason="{ item }">
                 <p v-if="item.reason == 'DEFECTIVE'">제품 불량</p>
                 <p v-else-if="item.reason == 'DAMAGE'">제품 파손</p>
@@ -70,6 +70,8 @@ import {useAuthStore} from "@/states/auth";
 
 const authStore = useAuthStore();
 
+const isTableLoading = ref(false); // 로딩 상태 관리
+
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
 
@@ -112,6 +114,7 @@ const orders = ref([]);
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -149,6 +152,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 
