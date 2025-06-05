@@ -37,7 +37,6 @@ const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(1); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
-const currentUserRole = ref("admin"); // 현재 유저 권한
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -57,7 +56,7 @@ const actionButtons = ref([
         label: "신규 계정 생성",
         color: "bg-orange-500 hover:bg-orange-700",
         action: (item) => console.log("추가:", item),
-        allowedRoles: ["admin", "editor"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
+        allowedRoles: ["admin"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
     },
 ]);
 

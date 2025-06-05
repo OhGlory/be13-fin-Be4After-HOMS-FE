@@ -1,9 +1,6 @@
 <template>
   <div>
     <Breadcrumb />
-    <div class="text-3xl px-3 py-3">
-      <span class="font-bold">계정 설정</span>
-    </div>
     <ClientDetailFields :fields="fields" :isEditable="isEditable" />
 
     <div class="flex justify-center w-2/3 m-auto my-4 gap-10">

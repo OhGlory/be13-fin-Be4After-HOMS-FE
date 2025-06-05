@@ -307,7 +307,7 @@ const menusColumns = [
 <style>
 .btn-title {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   font-size: 24px;
   padding: 12px;
