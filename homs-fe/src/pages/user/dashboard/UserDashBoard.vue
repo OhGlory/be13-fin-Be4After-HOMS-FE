@@ -2,16 +2,16 @@
     <!-- 사용자 대시보드 -->
     <div class="flex flex-col">
         <div class="flex gap-5">
-            <Order></Order>
-            <SettlementManagement></SettlementManagement>
+            <Order />
+            <SettlementManagement />
         </div>
         <div class="flex gap-5 mt-10">
-            <UserDeliveryState :counts="statusCounts"></UserDeliveryState>
-            <ClaimStatue></ClaimStatue>
+            <UserDeliveryState :counts="statusCounts" />
+            <ClaimStatue />
         </div>
         <div class="flex gap-5 mt-10">
-            <Notice></Notice>  
-            <OilPriceTrends></OilPriceTrends>
+            <Notice />
+            <OilPriceTrends />
         </div>
     </div>
 </template>
@@ -46,6 +46,4 @@ onMounted(async () => {
 
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
