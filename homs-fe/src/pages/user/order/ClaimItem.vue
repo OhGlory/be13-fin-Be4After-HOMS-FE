@@ -1,14 +1,12 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 클레임목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" @row-click="handleRowClick" uniqueKey="orderId">
+            :pageSize="pageSize" @row-click="handleRowClick" :isLoading="isTableLoading" uniqueKey="orderId">
             <template #cell-reason="{ item }">
                 <p v-if="item.reason == 'DEFECTIVE'">제품 불량</p>
                 <p v-else-if="item.reason == 'DAMAGE'">제품 파손</p>
@@ -16,8 +14,8 @@
                 <p v-else>기타</p>
             </template>
             <template #cell-status="{ item }">
-                <p v-if="item.status === 'EXCHANGE'">반품</p>
-                <p v-else-if="item.status === 'COMPLETE'">완료</p>
+                <p class="text-red-500" v-if="item.status === 'EXCHANGE'">반품</p>
+                <p class="text-green-500" v-else-if="item.status === 'COMPLETE'">완료</p>
                 <p v-else>취소</p>
             </template>
             <template #actions="{ item }">
@@ -67,8 +65,11 @@ import {ref, watch, onMounted} from "vue";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -109,9 +110,11 @@ const orderColumns = ref([
 ]);
 
 const orders = ref([]);
+const orderCode = ref("");
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -142,6 +145,7 @@ const fetchData = async () => {
         });
         if (response.status === 200) {
             orders.value = response.data.data.content;
+            orderCode.value = response.data.data.content[0].orderCode;
             console.log(response.data.data);
             totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
@@ -149,6 +153,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

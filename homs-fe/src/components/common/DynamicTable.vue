@@ -2,8 +2,9 @@
     <div>
         <div class="flex flex-col mt-2">
             <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-4 lg:px-8">
-                <div
-                    class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+                <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg"
+                    style="position: relative">
+                    <Spinner :visible="props.isLoading" message="데이터를 불러오는 중..." />
                     <table class="min-w-full">
                         <thead>
                             <tr>
@@ -13,8 +14,7 @@
                                 </th>
                                 <th v-if="isIndexActive"
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
-                                    순번
-                                </th>
+                                    순번</th>
 
                                 <th v-for="column in columns" :key="column.key"
                                     class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
@@ -28,6 +28,13 @@
                         </thead>
 
                         <tbody class="bg-white">
+                            <tr v-if="props.isLoading">
+                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터를 불러오는
+                                    중입니다...</td>
+                            </tr>
+                            <tr v-else-if="items.length === 0">
+                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터가 없습니다.</td>
+                            </tr>
                             <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <input type="checkbox" :checked="selectedItems.includes(item[props.uniqueKey])"
@@ -54,7 +61,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import {ref, watch} from "vue";
+import Spinner from "@/components/common/Loading.vue";
 
 const props = defineProps({
     columns: {
@@ -78,24 +86,29 @@ const props = defineProps({
         // 액션 부분 헤더
     },
     uniqueKey: {
-            type: String,
-            default: 'id'
+        type: String,
+        default: "id",
     },
     page: {
         type: Number,
-        default: 1
+        default: 1,
     },
     pageSize: {
         type: Number,
-        default: 10
+        default: 10,
     },
     isIndexActive: {
         type: Boolean,
-        default: true
-    }
+        default: true,
+    },
+    isLoading: {
+        // 로딩
+        type: Boolean,
+        default: false,
+    },
 });
 
-const emit = defineEmits(['selected', 'row-click']);
+const emit = defineEmits(["selected", "row-click"]);
 
 const selectedItems = ref([]);
 const allSelected = ref(false);
@@ -103,7 +116,7 @@ const allSelected = ref(false);
 // 전체 선택/해제 기능
 const toggleAll = () => {
     if (allSelected.value) {
-        selectedItems.value = props.items.map(item => item[props.uniqueKey]);
+        selectedItems.value = props.items.map((item) => item[props.uniqueKey]);
     } else {
         selectedItems.value = [];
     }
@@ -123,30 +136,35 @@ const toggleIndividualCheckbox = (item) => {
 };
 
 const emitSelectedItems = () => {
-    emit('selected', selectedItems.value);
+    emit("selected", selectedItems.value);
 };
 
 // 전체 선택 상태 감시
-watch(selectedItems, () => {
-    allSelected.value = props.items.length > 0 && selectedItems.value.length === props.items.length;
-    if (props.items.length === 0) {
+watch(
+    selectedItems,
+    () => {
+        allSelected.value = props.items.length > 0 && selectedItems.value.length === props.items.length;
+        if (props.items.length === 0) {
             allSelected.value = false;
         }
-    },{ deep: true });
+    },
+    {deep: true}
+);
 
 // props.items가 변경될 때 (예: 페이지 이동, 검색 결과 변경 등) selectedItems 동기화 및 allSelected 재계산
-watch(() => props.items, (newItems) => {
-    // 새 items 배열에 포함되지 않는 기존 선택 항목은 selectedItems에서 제거
-    selectedItems.value = selectedItems.value.filter(id =>
-        newItems.some(item => item[props.uniqueKey] === id)
-    );
-    // items가 변경되면 allSelected 상태도 재계산
-    allSelected.value = newItems.length > 0 && selectedItems.value.length === newItems.length;
+watch(
+    () => props.items,
+    (newItems) => {
+        // 새 items 배열에 포함되지 않는 기존 선택 항목은 selectedItems에서 제거
+        selectedItems.value = selectedItems.value.filter((id) => newItems.some((item) => item[props.uniqueKey] === id));
+        // items가 변경되면 allSelected 상태도 재계산
+        allSelected.value = newItems.length > 0 && selectedItems.value.length === newItems.length;
 
-    // 만약 새 items가 비어있으면 allSelected도 false로
-    if (newItems.length === 0) {
-        allSelected.value = false;
-    }
-}, { deep: true });
-
+        // 만약 새 items가 비어있으면 allSelected도 false로
+        if (newItems.length === 0) {
+            allSelected.value = false;
+        }
+    },
+    {deep: true}
+);
 </script>

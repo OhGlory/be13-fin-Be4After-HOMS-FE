@@ -1,19 +1,20 @@
 <template>
     <div>
-        <div class="text-3xl px-3 py-3">
-        <span>배송 현황</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
+            :userRole="currentUserRole" />
         <div class="flex flex-col">
             <div class="flex items-end ml-auto mr-5">
-                <button @click="goDeliveryAddress"class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                <button @click="goDeliveryAddress"
+                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
                     배송지 관리
                 </button>
             </div>
-            <DynamicTable :columns="deliveryColumns" :items="delivery" :showCheckbox="false" :page="currentPage" :pageSize="pageSize">
-                <template #actions="{ item }">
-                </template>
+            <DynamicTable :columns="deliveryColumns" :items="delivery" :showCheckbox="false" :page="currentPage"
+                :pageSize="pageSize" :isLoading="isTableLoading">
+                <!-- <template #actions="{ item }">
+                </template> -->
             </DynamicTable>
         </div>
         <div class="flex mx-10 mt-10">
@@ -29,16 +30,14 @@ import DeliveryState from "@/components/dashboard/admin/DeliveryState.vue";
 import { useAuthStore } from "@/states/auth";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const route = useRouter();
 const authstore = useAuthStore();
 
-const delivery = ref([
-    {  orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', deliveryDate: '25-04-11', waybill:'운송장-1', deluveryStatus: 'BEFORE'},
-    {  orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', deliveryDate: '25-04-11', waybill:'운송장-1', deluveryStatus: 'BEFORE'},
-    {  orderCode: 'H-04-23', companyName: '영광상사', deliveryName: '서울', orderDate: '25-04-02', deliveryDate: '25-04-11', waybill:'운송장-1', deluveryStatus: 'BEFORE'},
- 
-])
+const delivery = ref([])
 
 const deliveryColumns = ref([
     {label: "발주번호", key: "orderCode"},
@@ -99,10 +98,12 @@ const DeliveryInfo = async () => {
             deliveryDate: new Date(item.deliveryDate).toISOString().split('T')[0],
             waybill: item.waybill,
             deliveryStatus: mapDeliveryStatus(status),
+
         };
     });
-
     statusCounts.value = counts;
+    
+
 }
 
 const goDeliveryAddress = () => {
@@ -115,6 +116,4 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

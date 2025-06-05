@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>상품관리 > 상품목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
@@ -11,7 +9,8 @@
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" :page="currentPage"
-            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
+            :isLoading="isTableLoading" :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick"
+            uniqueKey="productId">
             <!-- 항목 상세 설정 -->
             <template #cell-productId="{ item }">
                 <strong>{{ item.productId }}</strong>
@@ -78,8 +77,11 @@ import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
 import {downloadBlob, getFilenameFromHeaders} from "@/utils/fileDownloader";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -174,12 +176,7 @@ const userColumns = ref([
     {label: "재고량", key: "productQuantity"},
 ]);
 
-const products = ref([
-    {id: 1, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 2, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 3, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-    {id: 4, categroy: "PO", categroy2: "LDPE", productName: "303", productMinQuantity: "10", inven: "9999"},
-]);
+const products = ref([]);
 
 // 개별 추가
 const orderBtn = async (productId, quantity) => {
@@ -200,7 +197,6 @@ const addItems = async (selectedItem) => {
         alert.value = true;
         showConfirmModal.value = true;
         modalText.value = "항목을 선택해주세요!";
-
     } else {
         selectedProductId.value = selectedItem;
         alert.value = false;
@@ -237,6 +233,7 @@ const deleteBtn = (productId) => {
 
 // 상품 삭제
 const deletePostData = async (productId) => {
+    isTableLoading.value = true;
     try {
         const response = await apiClient.get(`/product/files/${productId}`);
         const files = response.data.data;
@@ -264,6 +261,8 @@ const deletePostData = async (productId) => {
         fetchData();
     } catch (error) {
         alert(error.response.data.message);
+    } finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 
@@ -272,7 +271,7 @@ const confirmModal = async () => {
     console.log("확인");
     if (modalType.value === "delete") {
         deletePostData(selectedId.value);
-    } else if(modalType.value === "multiCreateOrder") {
+    } else if (modalType.value === "multiCreateOrder") {
         const selectedProductIds = ref([]);
 
         // 반복문으로 Id값을 비교하여 개수 가져와 할당
@@ -290,7 +289,7 @@ const confirmModal = async () => {
     } else if (modalType.value === "singleCreateOrder") {
         orderItemPost(orderId, selectedProductId.value);
     }
-}
+};
 
 // 알림 모달에서 취소 눌렀을 때
 const confirmModalCancle = () => {
@@ -298,7 +297,7 @@ const confirmModalCancle = () => {
     selectedProductId.value = [];
     selectedId.value = null;
     showConfirmModal.value = false;
-}
+};
 
 // 엑셀 다운로드
 const excelDown = async (type) => {
@@ -369,6 +368,7 @@ const excelUpload = async (event) => {
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -407,6 +407,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    } finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

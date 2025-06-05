@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 주문목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
@@ -11,7 +9,8 @@
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
+            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
+            uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
             <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
@@ -27,7 +26,7 @@
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
@@ -88,8 +87,11 @@ import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -156,7 +158,6 @@ const actionButtons = ref([
     },
 ]);
 
-
 // ------- 테이블 --------
 const orderColumns = ref([
     {label: "발주번호", key: "orderCode"},
@@ -201,15 +202,14 @@ const setApprove = async (orderId, isApproved, reason) => {
     };
     try {
         await apiClient.put(`/order/${orderId}/approve`, requestData);
-        
+
         const emailType = isApproved ? "ORDER_CONFIRMATION" : "ORDER_CANCELLATION";
         const requestBody = {
             id: orderId,
             content: reason,
             emailType: emailType,
-        }
+        };
         apiClient.post("/notify/email/", requestBody);
-        
     } catch (error) {
         alert(error.response.data.message);
     }
@@ -236,7 +236,6 @@ const rejectReasonView = async (orderId) => {
                 <strong style="font-size: 1.1em; color: #333;">상세 사유</strong>
                 <p style="margin-top: 8px; margin-bottom: 0; line-height: 1.5;">${response.data.data.rejectReason}</p>
             `;
-            
         } else {
             alertModal.value = true;
             showConfirmModal.value = true;
@@ -265,10 +264,11 @@ const confirmModal = async () => {
             modalText.value = error.response.data.message;
         }
     }
-}
+};
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -306,6 +306,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    } finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 
@@ -392,7 +394,6 @@ const excelUpload = async (event) => {
     }
 };
 
-
 // 컴포넌트가 마운트될 때 데이터 가져오기
 onMounted(() => {
     console.log(route.query);
@@ -435,20 +436,19 @@ const handleSelectedItems = (selectedIds) => {
 async function approvedConfirmModal(inputValue) {
     const orderId = currentOrderId.value;
     showModal.value = false;
-    const now = new Date().toISOString(); 
+    const now = new Date().toISOString();
 
     const payload = {
         orderId: orderId,
         settlementDate: now,
         texInvoice: `invoce${orderId}`,
-        isSettled: "UNSETTLED" 
+        isSettled: "UNSETTLED",
     };
 
     if (currentActionType.value === "approve") {
         setApprove(currentOrderId.value, true, null);
         await apiClient.post(`settlement/${orderId}`, payload);
-
-
+        console.log("확인");
     } else if (currentActionType.value === "reject") {
         const reason = inputValue;
         if (reason !== null && reason.trim() !== "") {

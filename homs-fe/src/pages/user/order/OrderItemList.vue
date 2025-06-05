@@ -1,9 +1,7 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 주문목록 > 상세주문</span>
-        </div>
+        <Breadcrumb />
         <!-- 배송 등 상세 정보 -->
         <div class="flex flex-wrap gap-x-8 gap-y-4 justify-between w-full pl-4 pr-4">
             <div class="flex flex-wrap gap-x-3 gap-y-4 w-full">
@@ -57,7 +55,8 @@
 
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="products" :showCheckbox="true" :page="currentPage"
-            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="productId">
+            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
+            uniqueKey="productId">
             <!-- 항목 상세 설정 -->
             <template #cell-productQuantity="{ item }">
                 <div v-if="item && item.productQuantity === null">데이터 없음</div>
@@ -118,6 +117,7 @@ import ProductDetail from "@/components/common/modal/ProductDetail.vue";
 import OrderRequestModal from "@/components/common/modal/OrderRequestModal.vue";
 import ClaimRequestModal from "@/components/common/modal/ClaimRequestModal.vue";
 import ConfirmModal from "@/components/common/modal/ConfirmModal.vue";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 import {ref, watch, onMounted, toRaw, onBeforeUnmount} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -127,6 +127,8 @@ import {downloadBlob, getFilenameFromHeaders} from "@/utils/fileDownloader";
 const authStore = useAuthStore();
 const permission = ref(false);
 const claimPermission = ref(false);
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -318,6 +320,7 @@ const confirmModalCancle = () => {
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         orderId: orderId.value,
@@ -379,6 +382,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

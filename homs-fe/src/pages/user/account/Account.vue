@@ -1,14 +1,13 @@
 <template>
   <div>
     <!-- 제목 -->
-    <div class="text-3xl px-3 py-3">
-      <span>통합계정관리</span>
-    </div>
+    <Breadcrumb />
     <!-- 검색바 -->
     <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
       :userRole="currentUserRole" />
     <!-- 테이블 -->
-    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize">
+    <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage" :pageSize="pageSize"
+      :isLoading="isTableLoading">
       <template #cell-name="{ item }">
         {{ item.name }}
       </template>
@@ -36,6 +35,9 @@ import SearchBox from '@/components/common/SaerchBar.vue';
 import DynamicTable from '@/components/common/DynamicTable.vue';
 import PageNav from '@/components/common/PageNav.vue';
 import { ref } from 'vue';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
@@ -75,18 +77,7 @@ const userColumns = ref([
   { label: '최종 접속일', key: 'loginDate' },
 ]);
 
-const users = ref([
-    { id: 1, userName: '신하람', companyName: '영광상사', deptName: '구매', email: 'kim123@gmail.com', role: '관리자', isLockedOut:"로그인", loginDate: '25-04-02'},
-    { id: 2, userName: '김민수', companyName: '한빛전자', deptName: '영업', email: 'minsu77@gmail.com', role: '유저', isLockedOut: '로그인', loginDate: '25-04-01' },
-    { id: 3, userName: '박지훈', companyName: '태양물산', deptName: '총무', email: 'jihoon99@yahoo.com', role: '관리자', isLockedOut: '로그아웃', loginDate: '25-04-03' },
-    { id: 4, userName: '이서윤', companyName: '대명유통', deptName: '마케팅', email: 'seoyun@daemyung.com', role: '유저', isLockedOut: '로그인', loginDate: '25-04-02' },
-    { id: 5, userName: '정우성', companyName: '미래테크', deptName: '개발', email: 'woosung_dev@mirai.com', role: '관리자', isLockedOut: '잠김', loginDate: '25-04-04' },
-    { id: 6, userName: '김하나', companyName: '엔젤푸드', deptName: '품질관리', email: 'hana_kim@angelfood.com', role: '유저', isLockedOut: '로그인', loginDate: '25-04-05' },
-    { id: 7, userName: '최동혁', companyName: '스마트솔루션', deptName: '개발', email: 'donghyuk@smart.com', role: '관리자', isLockedOut: '로그인', loginDate: '25-04-01' },
-    { id: 8, userName: '송지민', companyName: '에코리빙', deptName: '기획', email: 'jimin_song@eco.com', role: '유저', isLockedOut: '잠김', loginDate: '25-04-06' },
-    { id: 9, userName: '한도윤', companyName: '코리아무역', deptName: '수출입', email: 'doyun_h@korea.com', role: '관리자', isLockedOut: '로그인', loginDate: '25-04-07' },
-    { id: 10, userName: '유나리', companyName: '스타미디어', deptName: '홍보', email: 'nariyu@star.com', role: '유저', isLockedOut: '잠김', loginDate: '25-04-09'},
-]);
+const users = ref([]);
 
 const editUser = (user) => {
   console.log('수정:', user);

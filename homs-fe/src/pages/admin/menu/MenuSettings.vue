@@ -1,13 +1,13 @@
 <template>
   <div>
-    <!-- 제목 및 루트 추가 버튼 -->
+    <Breadcrumb />
+    <!-- 루트 추가 버튼 -->
     <div class="btn-title">
-      <span>메뉴 관리</span>
       <button @click="addMenuRoot" class="btn-create-root"> 생성 </button>
     </div>
 
     <!-- DynamicTable -->
-    <DynamicTable :columns="menusColumns" :items="flatMenus" :isIndexActive=false>
+    <DynamicTable :columns="menusColumns" :items="flatMenus" :isIndexActive=false :isLoading="isTableLoading">
       <!-- 메뉴명 셀 -->
       <template #cell-menuName="{ item }">
         <div class="cell-menu" :style="{ paddingLeft: item.level * 20 + 'px' }">
@@ -49,7 +49,7 @@
             <img :src="getImageByKey(item.image)" class="icon-preview" />
           </div>
           <div v-if="dropdownOpen[item.menuId]" class="dropdown-menu">
-            <div v-for="(src, key) in imageMap" :key="key" class="dropdown-item"@click.stop="selectImage(item, key)">
+            <div v-for="(src, key) in imageMap" :key="key" class="dropdown-item" @click.stop="selectImage(item, key)">
               <img :src="src" alt="아이콘" class="icon-preview" />
             </div>
           </div>
@@ -108,6 +108,9 @@ import icon4 from '@/assets/menu/menu-icon-4.svg';
 import icon5 from '@/assets/menu/menu-icon-5.svg';
 import icon6 from '@/assets/menu/menu-icon-6.svg';
 import icon7 from '@/assets/menu/menu-icon-7.svg';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const dropdownOpen = reactive({});
 
@@ -175,6 +178,7 @@ const flattenTree = (nodes, level = 0, arr = []) => {
 
 // API 호출
 const fetchData = async () => {
+  isTableLoading.value = true;
   try {
     const res = await apiClient.get("/menu/");
 
@@ -183,6 +187,8 @@ const fetchData = async () => {
     } 
   } catch (e) {
     console.error(e);
+  } finally {
+      isTableLoading.value = false; // 로딩 종료
   }
 };
 

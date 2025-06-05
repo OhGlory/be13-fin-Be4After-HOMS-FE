@@ -1,15 +1,13 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>계약 목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
             :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="contracts" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" @row-click="handleRowClick" uniqueKey="contractId">
+            :isLoading="isTableLoading" :pageSize="pageSize" @row-click="handleRowClick" uniqueKey="contractId">
             <template #cell-contractId="{ item }">
                 <strong>{{ item.contractId }}</strong>
             </template>
@@ -46,8 +44,11 @@ import ContractDetail from '@/components/common/modal/ContractDetail.vue';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/states/auth';
 import { useRouter ,useRoute} from 'vue-router';
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const showModal = ref(false); // 모달 상태 관리
 const selectedId = ref(null); // 선택된 항목 ID
@@ -104,6 +105,7 @@ const client = ref([
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -140,6 +142,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error('데이터 요청 중 에러 발생:', err);
+    }finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

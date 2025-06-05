@@ -1,14 +1,13 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 클레임목록</span>
-        </div>
+        <Breadcrumb />
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
         <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" @selected="handleSelectedItems" @row-click="handleRowClick" uniqueKey="orderId">
+            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
+            uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
             <template #cell-orderDate="{ item }">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
@@ -17,8 +16,8 @@
                 {{ new Date(item.dueDate).toLocaleDateString() }}
             </template>
             <template #cell-allClaimsRejected="{ item }">
-                <strong v-if="item.allClaimsRejected === true">완료</strong>
-                <strong v-else>진행중</strong>
+                <strong class="text-green-500" v-if="item.allClaimsRejected === true">완료</strong>
+                <strong class="text-red-500" v-else>진행중</strong>
             </template>
         </DynamicTable>
 
@@ -37,8 +36,11 @@ import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
+
+const isTableLoading = ref(false); // 로딩 상태 관리
 
 const {t, locale} = useI18n();
 const selectedLang = ref(locale.value === "ko" ? "KOR" : "ENG");
@@ -78,14 +80,11 @@ const orderColumns = ref([
     {label: "클레임 상태", key: "allClaimsRejected"},
 ]);
 
-const orders = ref([
-    {id: 1, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11"},
-    {id: 2, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11"},
-    {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11"},
-]);
+const orders = ref([]);
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
+    isTableLoading.value = true;
     // 기본 요청 파라미터
     const params = {
         page: currentPage.value - 1, // 현재 페이지 번호 -1 (0 기반 인덱스)
@@ -123,6 +122,8 @@ const fetchData = async () => {
         }
     } catch (err) {
         console.error(t("errors.fetch_data_erro"), err);
+    } finally {
+        isTableLoading.value = false; // 로딩 종료
     }
 };
 

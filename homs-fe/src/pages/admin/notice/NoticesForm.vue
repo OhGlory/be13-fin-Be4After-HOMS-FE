@@ -1,43 +1,28 @@
 <template>
     <div>
         <!-- 제목 -->
-        <div class="text-3xl px-3 py-3">
-            <span>{{ $t("title.notice") }}</span>
-        </div>
+        <Breadcrumb />
         <div class="p-6 bg-white rounded-md shadow-md">
             <h4 class="text-xl font-bold mb-4">{{ isEditMode ? $t("btn.edit") : $t("btn.create") }}</h4>
             <form @submit.prevent="submitForm">
                 <!-- 제목 -->
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700">{{ $t("data.title") }}</label>
-                    <input
-                        type="text"
-                        id="title"
-                        :placeholder="$t('placeholder.title_input')"
-                        v-model="title"
-                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
+                    <input type="text" id="title" :placeholder="$t('placeholder.title_input')" v-model="title"
+                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <!-- 내용 -->
                 <div class="mb-4 my-4">
-                    <label for="content" class="block text-sm font-medium text-gray-700">{{ $t("data.content") }}</label>
-                    <textarea
-                        id="content"
-                        :placeholder="$t('placeholder.content_input')"
-                        v-model="content"
-                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[25rem]"
-                    ></textarea>
+                    <label for="content" class="block text-sm font-medium text-gray-700">{{ $t("data.content")
+                        }}</label>
+                    <textarea id="content" :placeholder="$t('placeholder.content_input')" v-model="content"
+                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 h-[25rem]"></textarea>
                 </div>
                 <!-- 이미지 업로드 -->
                 <div class="mb-4">
                     <label for="image" class="block text-sm font-medium text-gray-700">이미지 업로드</label>
-                    <input
-                        type="file"
-                        id="image"
-                        @change="handleImageChange"
-                        accept="image/*"
-                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
+                    <input type="file" id="image" @change="handleImageChange" accept="image/*"
+                        class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
                     <div v-if="imageUrl" class="mt-2">
                         <img :src="imageUrl" alt="Uploaded Image" class="max-h-48 rounded-md" />
                     </div>
@@ -47,14 +32,17 @@
                         <progress :value="uploadProgress" max="100" class="w-full"></progress>
                     </div>
                     <!-- 업로드 실패 메세지 -->
-                    <div v-if="uploadError" class="mt-2 text-red-500">{{ $t("message.upload_failed") }}: {{ uploadErrorMessage }}</div>
+                    <div v-if="uploadError" class="mt-2 text-red-500">{{ $t("message.upload_failed") }}: {{
+                        uploadErrorMessage }}</div>
                 </div>
                 <!-- 하단 버튼 -->
                 <div class="flex items-center justify-end">
-                    <button type="submit" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button type="submit"
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ isEditMode ? $t("btn.edit") : $t("btn.save") }}
                     </button>
-                    <button type="button" @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    <button type="button" @click="goBack"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                         {{ $t("btn.cancel") }}
                     </button>
                 </div>
@@ -70,6 +58,7 @@ import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
 import {loadAndCreateImageURL, revokeImageURL} from "@/utils/imageView";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 
 const authStore = useAuthStore();
 
