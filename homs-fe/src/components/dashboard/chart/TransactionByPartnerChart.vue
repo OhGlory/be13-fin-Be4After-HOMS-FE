@@ -1,17 +1,11 @@
 <template>
-    <div class="flex-col w-full max-w-4xl p-8 bg-white border border-gray-300 rounded-3xl shadow-lg">   
+    <div class="flex-col w-full max-w-4xl p-8 bg-white border border-gray-300 rounded-3xl shadow-lg">
         <div class="flex items-center justify-between mb-4">
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 거래처별 거래 현황
             </h5>
         </div>
-        <Bar
-            :options="chartOptions"
-            :data="chartData"
-            :width="700"
-            :height="300"
-            class="mx-auto"
-        />
+        <Bar :options="chartOptions" :data="chartData" :width="700" :height="300" class="mx-auto" />
     </div>
 </template>
 
@@ -54,7 +48,3 @@ const chartOptions = {
 };
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>

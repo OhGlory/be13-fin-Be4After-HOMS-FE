@@ -6,10 +6,7 @@
             </h5>
         </div>
         <div>
-            <Pie 
-            :options="chartOptions" 
-            :data="chartData" 
-            />
+            <Pie :options="chartOptions" :data="chartData" />
         </div>
     </div>
 </template>
@@ -36,7 +33,3 @@ const chartOptions = {
 }
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>
