@@ -76,8 +76,8 @@
   const userColumns = ref([
     { label: '회사명', key: 'companyName' },
     { label: '대표자명', key: 'ceoName' },
-    { label: '거래 진행 여부', key: 'isContract' },
     { label: '승인 여부', key: 'isApprove' },
+    { label: '거래 진행 여부', key: 'isContract' },
   ]);
 
   const client = ref([
