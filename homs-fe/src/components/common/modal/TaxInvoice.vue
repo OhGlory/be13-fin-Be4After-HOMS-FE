@@ -12,27 +12,37 @@
             <p class="mx-10 text-gray-700 text-md font-extrabold">공급자 정보</p>
             <div class="grid grid-cols-3 mx-10">
                 <!-- 상호명 -->
-                <label class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">파트너사명</label>
+                <label
+                    class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">파트너사명</label>
                 <div class="col-span-2 p-2 border border-gray-300">
-                    <input v-model="invoiceForm.companyName" type="text" class="flex w-1/3 border border-gray-300 text-md" />
+                    <input v-model="invoiceForm.companyName" type="text"
+                        class="flex w-1/3 border border-gray-300 text-md" />
                 </div>
 
                 <!-- 사업자 등록번호 -->
-                <label class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">사업자 등록번호</label>
+                <label
+                    class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">사업자
+                    등록번호</label>
                 <div class="col-span-2 p-2 border border-gray-300">
-                    <input v-model="invoiceForm.companyNumber" type="text" placeholder="000-00-00000" class="flex w-1/3 border border-gray-300 text-md" />
+                    <input v-model="invoiceForm.companyNumber" type="text" placeholder="000-00-00000"
+                        class="flex w-1/3 border border-gray-300 text-md" />
                 </div>
 
                 <!-- 대표자명 -->
-                <label class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">대표자명</label>
+                <label
+                    class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">대표자명</label>
                 <div class="col-span-2 p-2 border border-gray-300">
-                    <input v-model="invoiceForm.ceoName" type="text" class="flex w-1/3 border border-gray-300 text-md" />
+                    <input v-model="invoiceForm.ceoName" type="text"
+                        class="flex w-1/3 border border-gray-300 text-md" />
                 </div>
 
                 <!-- 사업장 주소 -->
-                <label class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">사업장 주소</label>
+                <label
+                    class="flex items-center pl-3 h-full bg-gray-200 border border-gray-300 font-semibold self-center">사업장
+                    주소</label>
                 <div class="col-span-2 p-2 border border-gray-300">
-                    <input v-model="invoiceForm.companyAdress" type="text" class="flex w-1/3 border border-gray-300 text-md" />
+                    <input v-model="invoiceForm.companyAdress" type="text"
+                        class="flex w-1/3 border border-gray-300 text-md" />
                 </div>
 
                 <!-- 업태 -->
@@ -50,13 +60,14 @@
 
             <p class="mt-8 mx-10 text-gray-700 text-md font-extrabold">주문 정보</p>
             <DynamicTable :columns="orderColumns" :items="orderList" :isLoading="isTableLoading" class="px-5">
-                <template #cell-id="{item}">
+                <template #cell-id="{ item }">
                     <strong>{{ item.id }}</strong>
                 </template>
             </DynamicTable>
 
             <div class="flex justify-end">
-                <button @click="onIssued" class="mt-5 mr-9 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold hover:bg-orange-700 transition">발급</button>
+                <button @click="onIssued"
+                    class="mt-5 mr-9 px-6 py-3 w-1/6 bg-orange-600 text-white font-bold hover:bg-orange-700 transition">발급</button>
             </div>
         </div>
     </div>
@@ -97,7 +108,7 @@ async function onIssued() {
 
             alert("발급 되었습니다");
             emit("confirm");
-            await router.push("/admin/settlement");
+            // await router.push("/admin/settlement");
         } else {
             alert("발급 처리에 실패했습니다. 다시 시도해주세요.");
             console.error("응답 내용:", response.data);
