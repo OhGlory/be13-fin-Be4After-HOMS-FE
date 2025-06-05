@@ -14,11 +14,11 @@
             <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="(item, index) in NoticeList" :key="index" class="py-3 sm:py-4">
                     <div class="flex items-center justify-between">
-                        <p class="flex text-md font-medium text-gray-900 truncate">
-                            {{ item.title }}
+                        <p class="flex text-md font-medium text-gray-900 
+                  w-2/3 pr-4 truncate whitespace-nowrap overflow-hidden text-ellipsis"> {{ item.title }}
                         </p>
-                        <div class="flex w-1/3 items-center text-gray-900">
-                            {{ item.date }}
+
+                        <div class="flex w-1/3 justify-end items-center text-gray-900"> {{ item.date }}
                         </div>
                     </div>
                 </li>

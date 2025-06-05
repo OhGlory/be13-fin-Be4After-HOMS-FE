@@ -32,7 +32,7 @@
             <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ order.companyName }}</p>
             <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ order.deliveryName }}</p>
             <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ new
-              Date(order.orderDate).toLocaleDateString() }}</p>
+              Date(order.orderDate).toISOString().split('T')[0] }}</p>
             <p class="w-1/5 text-base font-bold text-center truncate text-green-700" v-if="order.approved === true">승인
             </p>
             <p class="w-1/5 text-base font-bold text-center truncate text-red-600"
