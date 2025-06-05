@@ -2,19 +2,19 @@
     <!-- 관리자 대시보드 -->
     <div v-if="isUser" class="flex flex-col">
         <div class="flex gap-10">
-            <OrderedProducts></OrderedProducts>
-            <MonthlySalesChart></MonthlySalesChart>
+            <OrderedProducts />
+            <MonthlySalesChart />
         </div>
         <div class="flex gap-10 mt-10">
-            <TotalSalesChart></TotalSalesChart>
-            <TransactionByPartnerChart></TransactionByPartnerChart>
+            <TotalSalesChart />
+            <TransactionByPartnerChart />
         </div>
         <div class="flex mt-10">
-            <DeliveryState :counts="statusCounts"></DeliveryState>
+            <DeliveryState :counts="statusCounts" />
         </div>
         <div class="flex mt-10 gap-10">
-            <ClaimStatue></ClaimStatue>
-            <OilPriceTrends></OilPriceTrends>
+            <ClaimStatue />
+            <OilPriceTrends />
         </div>
     </div>
 </template>
