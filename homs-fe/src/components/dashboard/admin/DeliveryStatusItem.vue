@@ -11,7 +11,7 @@
     </div>
   </div>
 </template>
-  
+
 <script setup>
 import { computed } from 'vue'
 
@@ -50,7 +50,3 @@ const textClass = computed(() => {
   }[props.size]
 })
   </script>
-  
-  <style scoped>
-  </style>
-  

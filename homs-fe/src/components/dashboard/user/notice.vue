@@ -5,7 +5,7 @@
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 공지 사항
             </h5>
-            <a href="#" class="text-sm font-medium hover:underline" @click.prevent = "goToNotice">
+            <a href="#" class="text-sm font-medium hover:underline" @click.prevent="goToNotice">
                 +
             </a>
         </div>
@@ -14,18 +14,18 @@
             <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="(item, index) in NoticeList" :key="index" class="py-3 sm:py-4">
                     <div class="flex items-center justify-between">
-                            <p class="flex text-md font-medium text-gray-900 truncate">
-                                {{ item.title }}
-                            </p>
-                        <div class="flex w-1/3 items-center text-gray-900">
-                            {{ item.date }}
+                        <p class="flex text-md font-medium text-gray-900 
+                  w-2/3 pr-4 truncate whitespace-nowrap overflow-hidden text-ellipsis"> {{ item.title }}
+                        </p>
+
+                        <div class="flex w-1/3 justify-end items-center text-gray-900"> {{ item.date }}
                         </div>
                     </div>
                 </li>
             </ul>
         </div>
-        
-   </div>
+
+    </div>
 
 </template>
 
@@ -75,7 +75,3 @@ onMounted (
 )
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>

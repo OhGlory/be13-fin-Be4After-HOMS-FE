@@ -32,7 +32,7 @@
       <template #cell-button="{ item }">
         <div class="cell-buttons">
           <!-- 버튼 클릭 시 부모 클릭 이벤트까지 작동하면 안 되어 @click.stop 사용 -->
-          <button v-if="item.hasChildren && item.level === 0" @click.stop="addCategoryChild(item)"
+          <button v-if="item.hasChildren && item.level < 2" @click.stop="addCategoryChild(item)"
             class="btn-create-child">
             생성
           </button>

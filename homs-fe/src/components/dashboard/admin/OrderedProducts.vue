@@ -20,14 +20,14 @@
                             </p>
                         </div>
                         <div class="flex w-1/3 items-center font-semibold text-gray-900">
-                        {{ item.price.toLocaleString() }}원
+                            {{ item.price.toLocaleString() }}원
                         </div>
                     </div>
                 </li>
             </ul>
         </div>
-        
-   </div>
+
+    </div>
 
 </template>
 
@@ -43,7 +43,3 @@ const productList = ref([
 ])
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>
