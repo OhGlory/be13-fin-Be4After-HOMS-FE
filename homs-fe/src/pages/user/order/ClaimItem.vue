@@ -2,7 +2,7 @@
     <div>
         <!-- 제목 -->
         <div class="text-3xl px-3 py-3">
-            <span>주문관리 > 클레임목록</span>
+            <span>주문관리 > 클레임목록 > {{ orderCode }}</span>
         </div>
         <!-- 검색바 -->
         <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :userRole="authStore.isAdmin" />
@@ -16,8 +16,8 @@
                 <p v-else>기타</p>
             </template>
             <template #cell-status="{ item }">
-                <p v-if="item.status === 'EXCHANGE'">반품</p>
-                <p v-else-if="item.status === 'COMPLETE'">완료</p>
+                <p class="text-red-500" v-if="item.status === 'EXCHANGE'">반품</p>
+                <p class="text-green-500" v-else-if="item.status === 'COMPLETE'">완료</p>
                 <p v-else>취소</p>
             </template>
             <template #actions="{ item }">
@@ -111,6 +111,7 @@ const orderColumns = ref([
 ]);
 
 const orders = ref([]);
+const orderCode = ref("");
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -145,6 +146,7 @@ const fetchData = async () => {
         });
         if (response.status === 200) {
             orders.value = response.data.data.content;
+            orderCode.value = response.data.data.content[0].orderCode;
             console.log(response.data.data);
             totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {

@@ -7,35 +7,15 @@
         </div>
         <div class="flex justify-center items-center  min-h-full ">
             <div class="flex mx-auto space-x-6">
-                <DeliveryStatusItem
-                    :icon= "checklist"
-                    label="납품 확인"
-                    :count="0"
-                />
+                <DeliveryStatusItem :icon="checklist" label="납품 확인" :count="0" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="box"
-                    label="배송 준비"
-                    :count="props.counts.BEFORE"
-                />
+                <DeliveryStatusItem :icon="box" label="배송 준비" :count="props.counts.BEFORE" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="truck"
-                    label="배송중"
-                    :count="props.counts.SHIPPING"
-                />
+                <DeliveryStatusItem :icon="truck" label="배송중" :count="props.counts.SHIPPING" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="deliverycomplete"
-                    label="납품 완료"
-                    :count="props.counts.COMPLETED"
-                />
+                <DeliveryStatusItem :icon="deliverycomplete" label="납품 완료" :count="props.counts.COMPLETED" />
                 <img :src=arrow alt="화살표" class=" h-16 my-auto">
-                <DeliveryStatusItem
-                    :icon="collect"
-                    label="회수"
-                    :count="props.counts.COLLECT"
-                />
+                <DeliveryStatusItem :icon="collect" label="회수" :count="props.counts.COLLECT" />
             </div>
         </div>
     </div>
@@ -66,6 +46,4 @@ const props = defineProps({
 
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -2,20 +2,26 @@
     <div>
         <div class="flex flex-col mt-2">
             <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-4 lg:px-8">
-                <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg" style="position: relative">
+                <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg"
+                    style="position: relative">
                     <Spinner :visible="props.isLoading" message="데이터를 불러오는 중..." />
                     <table class="min-w-full">
                         <thead>
                             <tr>
-                                <th v-if="showCheckbox" class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                <th v-if="showCheckbox"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     <input type="checkbox" @change="toggleAll" v-model="allSelected" />
                                 </th>
-                                <th v-if="isIndexActive" class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">순번</th>
+                                <th v-if="isIndexActive"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                    순번</th>
 
-                                <th v-for="column in columns" :key="column.key" class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                <th v-for="column in columns" :key="column.key"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     {{ column.label }}
                                 </th>
-                                <th v-if="$slots.actions" class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
+                                <th v-if="$slots.actions"
+                                    class="px-6 py-3 text-sm font-bold leading-4 tracking-wider text-left uppercase bg-gray-100 border-b border-gray-200">
                                     {{ props.action }}
                                 </th>
                             </tr>
@@ -23,22 +29,26 @@
 
                         <tbody class="bg-white">
                             <tr v-if="props.isLoading">
-                                <td :colspan="computedColspan" class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터를 불러오는 중입니다...</td>
+                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터를 불러오는
+                                    중입니다...</td>
                             </tr>
                             <tr v-else-if="items.length === 0">
-                                <td :colspan="computedColspan" class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터가 없습니다.</td>
+                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터가 없습니다.</td>
                             </tr>
                             <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-                                    <input type="checkbox" :checked="selectedItems.includes(item[props.uniqueKey])" @change="toggleIndividualCheckbox(item)" @click.stop />
+                                    <input type="checkbox" :checked="selectedItems.includes(item[props.uniqueKey])"
+                                        @change="toggleIndividualCheckbox(item)" @click.stop />
                                 </td>
                                 <td v-if="isIndexActive" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot>{{ index + 1 + (props.page - 1) * props.pageSize }}</slot>
                                 </td>
-                                <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
+                                <td v-for="column in columns" :key="column.key" @click="$emit('row-click', item)"
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
                                     <slot :name="`cell-${column.key}`" :item="item">{{ item[column.key] }}</slot>
                                 </td>
-                                <td v-if="$slots.actions" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-right">
+                                <td v-if="$slots.actions"
+                                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-right">
                                     <slot name="actions" :item="item"></slot>
                                 </td>
                             </tr>

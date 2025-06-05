@@ -5,17 +5,10 @@
             <span>정산관리</span>
         </div>
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="currentUserRole" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" />
         <!-- 테이블 -->
         <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
             :pageSize="pageSize" :isLoading="isTableLoading" action="세금계산서">
-            <template #cell-id="{ item }">
-                <strong>{{ item.id }}</strong>
-            </template>
-            <template #cell-name="{ item }">
-                {{ item.name }}
-            </template>
             <template #cell-isSettled="{ item }">
                 <span :class="{
                     'text-red-500': item.isSettled === '미정산',
@@ -53,7 +46,8 @@ const isTableLoading = ref(false); // 로딩 상태 관리
 
 const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
-const totalPages = ref(20); // 총 페이지 수 상태 관리
+const totalPages = ref(1); // 총 페이지 수 상태 관리
+const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 // 모달 관련
 const showTIModal = ref(false);
 const showCheckModal = ref(false);
@@ -61,11 +55,7 @@ const showCheckModal = ref(false);
 const selectedOrderId = ref(null);
 
 // 데이터
-const users = ref([
-    {id: 1, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "미정산", orderStatus: "-"},
-    {id: 2, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "대기", orderStatus: "반품/교환"},
-    {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11", isSettled: "완료", orderStatus: "-"},
-]);
+const users = ref([]);
 
 const handleSelectOption = ref([
     {value: "", label: "전체"},
@@ -144,8 +134,10 @@ const checkIssuedInvoice = (order) => {
     showCheckModal.value = true;
 };
 
+// 모달 확인
 function confirmModal() {
     showTIModal.value = false;
+    fetchData();
 }
 
 const confirmCheckTaxInvoice = (order) => {

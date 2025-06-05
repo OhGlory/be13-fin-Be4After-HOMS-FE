@@ -18,8 +18,8 @@
                 {{ new Date(item.dueDate).toLocaleDateString() }}
             </template>
             <template #cell-allClaimsRejected="{ item }">
-                <strong v-if="item.allClaimsRejected === true">완료</strong>
-                <strong v-else>진행중</strong>
+                <strong class="text-green-500" v-if="item.allClaimsRejected === true">완료</strong>
+                <strong class="text-red-500" v-else>진행중</strong>
             </template>
         </DynamicTable>
 
