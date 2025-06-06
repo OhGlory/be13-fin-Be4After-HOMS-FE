@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-gray-900 opacity-60"></div>
       <div class="relative bg-white shadow-lg w-full max-w-5xl text-center z-10 pb-10">
@@ -51,13 +52,13 @@
             </div>
 
             <!-- 담당자명 -->
-            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-400 font-semibold self-center">담당자명</label>
+            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-400 font-semibold self-center">대표담당자명</label>
             <div class="col-span-2 p-2 border border-gray-400">
                 <input v-model="form.managerName" type="text" class="flex w-1/3 border border-gray-400 text-md">
             </div>
 
             <!-- 담당자Email -->
-            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-400 font-semibold self-center">담당자 E-mail</label>
+            <label class=" flex items-center pl-3 h-full bg-gray-200 border border-gray-400 font-semibold self-center">대표담당자 E-mail</label>
             <div class="col-span-2 p-2 border border-gray-400">
                 <input v-model="form.managerEmail" type="text" class="flex w-1/3 border border-gray-400 text-md">
             </div>
@@ -76,7 +77,8 @@
     </div>
     
     <PartnerRegisterSaveModal :visible="showSuccess" :formData="form" @close="onConfirmModalClose" />
-  </template>
+  </div>
+</template>
   
   <script setup>
   import xmark from '@/assets/xmark.svg'

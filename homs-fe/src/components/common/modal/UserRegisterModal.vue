@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-gray-900 opacity-60"></div>
       <div class="relative bg-white shadow-lg w-full max-w-5xl text-center z-10 pb-10">
@@ -99,6 +100,7 @@
     </div>
     
     <PartnerRegisterSaveModal :visible="showSuccess" :formData="form" @close="onConfirmModalClose" />
+  </div>
   </template>
   
   <script setup>
@@ -135,20 +137,35 @@
   })
 
   const signUpUser = async () => {
+    try {
+      const requestData = {
+        userName: form.userName,
+        password: form.password,
+        managerName: form.managerName,
+        managerEmail: form.managerEmail,
+        managerPhone: form.managerPhone,
+        role: form.role,
+        companyId: form.companyId,
+        deptId: form.deptId,
+      }
+    
+      const response = await apiClient.post('/admin/user', requestData)
 
-    const requestData = {
-      userName: form.userName,
-      password: form.password,
-      managerName: form.managerName,
-      managerEmail: form.managerEmail,
-      managerPhone: form.managerPhone,
-      role: form.role,
-      companyId: form.companyId,
-      deptId: form.deptId,
+      console.log('신규 계정 등록 성공:', response.data)
+
+      // 이메일 보내기
+      const requestBody = {
+        email: form.managerEmail,
+        emailType: "ACCOUNT_CREATED",
+      };
+      apiClient.post("/notify/email/", requestBody);
+
+      showSuccess.value = true
+    } catch (error) {
+      console.log(form.managerEmail);
+      console.error('신규 계정 등록 실패:', error)
     }
-    const response = await apiClient.post('/admin/user', requestData)
-    console.log('신규 계정 등록 성공:', response.data)
-    showSuccess.value = true
+    
   }
 
   // 파트너사 등록 모달만 닫는기능
