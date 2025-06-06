@@ -155,6 +155,8 @@
 
       // 이메일 보내기
       const requestBody = {
+        subject: form.userName,
+        content: form.password,
         email: form.managerEmail,
         emailType: "ACCOUNT_CREATED",
       };
