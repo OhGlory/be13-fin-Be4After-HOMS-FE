@@ -17,8 +17,8 @@
         </DynamicTable>
         <!-- 페이지 네비 -->
         <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
-
         <UserRegisterModal :visible="showRegisterModal" @close="showRegisterModal = false" />
+
     </div>
 </template>
 
@@ -27,12 +27,12 @@ import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
+
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import apiClient from "@/api";
 import {useAuthStore} from "@/states/auth";
 import UserRegisterModal from '@/components/common/modal/UserRegisterModal.vue'
-
 
 
 const isTableLoading = ref(false); // 로딩 상태 관리
@@ -43,6 +43,8 @@ const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(1); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
 const showRegisterModal = ref(false)
+const currentUserRole = ref("admin"); // 현재 유저 권한
+
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -120,6 +122,7 @@ const userData = async () => {
 // const createUser = async () => {
 //     const 
 // }
+
 
 const editUser = (user) => {
     console.log("수정:", user.id);
