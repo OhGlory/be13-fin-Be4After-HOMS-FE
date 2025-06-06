@@ -10,31 +10,9 @@
 </template>
 
 <script setup>
-import { Bar } from 'vue-chartjs';
 import { ref } from 'vue';
 import { Chart } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-} from 'chart.js'
 
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale
-)
 const chartData = ref({
     labels : ['무구상사', '영광상사', '대다상사', '라니상사', '경상사', '범석상사', 'SJ상사'],
     datasets: [
