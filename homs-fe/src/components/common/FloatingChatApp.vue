@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts"> // TypeScript 사용을 명시
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import apiClient from '@/api'; // apiClient 임포트
 import { useAuthStore } from '@/states/auth'; // Pinia 인증 스토어 임포트
@@ -144,7 +144,7 @@ const route = useRoute();
 
 // Props 정의 (otherUserId는 이제 옵셔널)
 interface Props {
-  otherUserId?: string;
+  otherUserId?: string; // 이젠 managerEmail 대신 초기 로드용
 }
 const props = defineProps<Props>();
 
@@ -160,6 +160,9 @@ const selectedChatRoomId = ref<string | null>(null);
 
 // 컴포넌트 마운트 시 초기화 로직
 onMounted(() => {
+  // Pinia 스토어에서 현재 사용자 ID 가져오기
+  // authStore.user는 Pinia 스토어에 사용자 정보가 저장되어 있다고 가정합니다.
+  // 이 예시에서는 userId를 문자열로 사용합니다.
   if (authStore.isLoggedIn && authStore.user && authStore.user.userId) {
     currentUserId.value = String(authStore.user.userId);
   } else {
@@ -210,7 +213,7 @@ const getOtherUserName = (senderId: number): string => { // senderId는 백엔�
       return participant.managerName; // 상대방의 managerName 반환
     }
   }
-  return `User ${senderId}`; // 찾지 못하면 기본값
+  return `User ${senderId}`; // 찾지 못하면 기본값 (폴백)
 };
 
 // 모든 채팅방 목록을 백엔드에서 가져옵니다.
@@ -233,6 +236,9 @@ async function fetchChatRooms(): Promise<void> {
     });
 
     // otherUserId prop이 있다면 해당 방을 우선적으로 선택
+    // 이 로직은 `otherUserId` prop이 실제로 `targetUserEmail`이 아닌 `userId`를 기대하므로,
+    // 이젠 `otherUserEmail`을 직접 프롭으로 받는 대신, 필요한 경우 첫 로드 시 managerEmail을 처리해야 합니다.
+    // 여기서는 `otherUserId`가 여전히 `userId`를 의미한다고 가정하고 로직을 유지합니다.
     if (props.otherUserId && chatRooms.value.length > 0) {
       const initialRoom = chatRooms.value.find(room =>
         (room.user1.userId.toString() === currentUserId.value && room.user2.userId.toString() === props.otherUserId) ||
@@ -241,8 +247,10 @@ async function fetchChatRooms(): Promise<void> {
       if (initialRoom) {
         selectChatRoom(initialRoom.id);
       } else {
-        // 해당 otherUserId와의 채팅방이 없으면 새로 생성
-        createOrEnterRoom(props.otherUserId);
+        // 해당 otherUserId와의 채팅방이 없으면 새로 생성 (이 경우 otherUserId는 실제 user ID여야 함)
+        // 만약 props.otherUserId가 managerEmail이었다면, 이 로직은 재고려되어야 합니다.
+        // 현재는 prop이 userId라고 가정하고 넘어갑니다.
+        // managerEmail로 생성은 '새 채팅방 만들기' 버튼을 통해서만 가능하다고 가정합니다.
       }
     } else if (chatRooms.value.length > 0) {
       // otherUserId prop이 없거나 해당 방이 없으면 첫 번째 채팅방 자동 선택
@@ -256,10 +264,11 @@ async function fetchChatRooms(): Promise<void> {
   }
 }
 
-// 특정 `otherUserId`와 1:1 채팅방 생성 또는 기존 방 조회
-async function createOrEnterRoom(otherUserId: string): Promise<void> {
+// 특정 `otherUserEmail`과 1:1 채팅방 생성 또는 기존 방 조회
+async function createOrEnterRoom(otherUserEmail: string): Promise<void> { // Changed to otherUserEmail
   try {
-    const response = await apiClient.post(`/chat/room?otherUserId=${otherUserId}`);
+    // API 호출 시 쿼리 파라미터를 otherUserEmail로 변경
+    const response = await apiClient.post(`/chat/room?otherUserEmail=${otherUserEmail}`);
     const newRoom = response.data; // { roomId, user1Id, user2Id }
 
     // 새로운 방이 생성/조회되면 전체 채팅방 목록을 새로고침하여 ParticipantDto 정보를 가져옵니다.
@@ -269,7 +278,7 @@ async function createOrEnterRoom(otherUserId: string): Promise<void> {
     selectChatRoom(newRoom.roomId);
   } catch (error: any) {
     console.error('채팅방 생성/조회 오류:', error);
-    alert('채팅방을 불러오는 중 오류가 발생했습니다.');
+    alert(error.response?.data?.message || '채팅방을 불러오는 중 오류가 발생했습니다.'); // 백엔드 메시지 활용
     isOpen.value = false;
     localStorage.setItem(CHAT_WINDOW_STATE_KEY, 'false');
   }
@@ -421,29 +430,23 @@ function toggleChat(): void {
 
 // "새 채팅방 만들기" 버튼 클릭 시
 function openCreateRoomPrompt(): void {
-  const targetUserId = prompt("채팅을 시작할 상대방의 ID를 입력하세요:");
-  if (targetUserId) {
-    if (targetUserId === currentUserId.value) {
+  const targetUserEmail = prompt("채팅을 시작할 상대방의 이메일을 입력하세요 (managerEmail):"); // 메시지 변경
+  if (targetUserEmail) {
+    // 현재 사용자의 managerEmail을 Pinia 스토어에서 가져와 비교합니다.
+    const currentUserEmail = authStore.user?.managerEmail; // authStore.user에 managerEmail이 있다고 가정
+    if (currentUserEmail && targetUserEmail === currentUserEmail) {
       alert("자기 자신과는 채팅할 수 없습니다.");
       return;
     }
 
-    if (isNaN(Number(targetUserId)) || parseInt(targetUserId) <= 0) { // Number()로 변환 후 isNaN 체크
-        alert("유효한 사용자 ID를 입력해주세요 (숫자).");
+    // 이메일 형식 검증 (간단한 예시)
+    if (!targetUserEmail.includes('@') || !targetUserEmail.includes('.')) {
+        alert("유효한 이메일 주소를 입력해주세요.");
         return;
     }
 
-    const existingRoom = chatRooms.value.find(room =>
-      (room.user1.userId.toString() === currentUserId.value && room.user2.userId.toString() === targetUserId) ||
-      (room.user1.userId.toString() === targetUserId && room.user2.userId.toString() === currentUserId.value)
-    );
-
-    if (existingRoom) {
-      alert("이미 존재하는 채팅방입니다. 해당 채팅방으로 이동합니다.");
-      selectChatRoom(existingRoom.id);
-    } else {
-      createOrEnterRoom(targetUserId);
-    }
+    // `createOrEnterRoom`에 이메일 전달
+    createOrEnterRoom(targetUserEmail);
   }
 }
 </script>
