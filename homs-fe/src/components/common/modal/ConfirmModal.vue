@@ -6,7 +6,7 @@
             <div class="flex justify-end bg-slate-700 text-xl font-semibold mb-4 p-2">
                 <img :src="xmark" alt="엑스마크" class="w-5 h-5 cursor-pointer" @click="handleCancel">
             </div>
-            <div class="flex justify-center">
+            <div class="flex justify-center pl-10 pr-10">
                 <div class="flex justify-center"><img :src="error" alt="정보아이콘" class=""></div>
                 <p class=" p-6 text-gray-700 font-bold text-l" v-html="text"></p>
             </div>

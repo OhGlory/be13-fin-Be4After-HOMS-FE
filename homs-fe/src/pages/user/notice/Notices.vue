@@ -19,7 +19,7 @@
                 <strong>{{ item.id }}</strong>
             </template>
             <template #cell-createdAt="{ item }">
-                {{ new Date(item.createdAt).toLocaleDateString() }}
+                {{ item.createdAt.split('T')[0] }}
             </template>
         </DynamicTable>
 
@@ -131,6 +131,7 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get("/notice/", {params});
         if (response.status === 200) {
+            console.log(response.data.data);
             users.value = response.data.data.content; // 응답 데이터 할당
             totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {

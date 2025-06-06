@@ -10,10 +10,10 @@
             uniqueKey="orderId">
             <!-- 항목 상세 설정 -->
             <template #cell-orderDate="{ item }">
-                {{ new Date(item.orderDate).toLocaleDateString() }}
+                {{ new Date(item.orderDate).toISOString().split('T')[0] }}
             </template>
             <template #cell-dueDate="{ item }">
-                {{ new Date(item.dueDate).toLocaleDateString() }}
+                {{ new Date(item.dueDate).toISOString().split('T')[0] }}
             </template>
             <template #cell-allClaimsRejected="{ item }">
                 <strong class="text-green-500" v-if="item.allClaimsRejected === true">완료</strong>

@@ -16,7 +16,8 @@
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
             <template #cell-dueDate="{ item }">
-                {{ new Date(item.dueDate).toLocaleDateString() }}
+                <div v-if="item.dueDate === null" class="items-center text-center">-</div>
+                <div v-else-if="item.dueDate !== null">{{ new Date(item.dueDate).toLocaleDateString() }}</div>
             </template>
             <template #cell-approved="{ item }">
                 <strong v-if="item.approved === true">승인</strong>
@@ -24,9 +25,9 @@
                 <strong v-else>미승인</strong>
             </template>
             <template #cell-productQuantity="{ item }">
-                <div v-if="item && item.productQuantity === null">데이터 없음</div>
+                <div v-if="item && item.productQuantity === null">-</div>
                 <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+                    }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
                     <input type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"

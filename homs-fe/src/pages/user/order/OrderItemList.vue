@@ -102,7 +102,7 @@
         <ClaimRequestModal :visible="showClaimModal" :text="modalText" @update:visible="showClaimModal = $event"
             @confirm="claimConfirm" @cancel="showClaimModal = false" />
         <!-- 알림 모달 -->
-        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType"
+        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alertModal"
             @update:visible="showConfirmModal = $event" @confirm="confirmModal" @canccle="confirmModalCancle">
         </ConfirmModal>
     </div>
@@ -288,14 +288,17 @@ const deletePostData = async (params) => {
                 return params.productIds.map((id) => `productIds=${id}`).join("&"); // 배열을 올바르게 직렬화
             },
         });
-        alertModal.value = true;
-        showConfirmModal.value = true;
         modalText.value = "해당 상품의 주문이 취소되었습니다.";
-        fetchData();
-    } catch (error) {
         alertModal.value = true;
         showConfirmModal.value = true;
+        console.log("삭제됨");
+    } catch (error) {
         modalText.value = error;
+        alertModal.value = true;
+        showConfirmModal.value = true;
+    } finally {
+        console.log("데이터 불러옴");
+        fetchData();
     }
 };
 
@@ -349,11 +352,8 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get(`/orderitem/${orderId.value}`, {params});
         if (response.status === 200) {
-            console.log(response.data.message);
-            console.log(response.data);
             products.value = response.data.data.content;
             orders.value = response.data.data.content[0];
-            console.log(orders.value);
             if (orders.value.dueDate) {
                 selectedDueDate.value = new Date(orders.value.dueDate).toISOString().split("T")[0];
             }
@@ -366,13 +366,11 @@ const fetchData = async () => {
             } else if (orders.value.approved || orders.value.rejectReason) {
                 permission.value = true;
             }
-
             // 클레임 권한 관리
             if (authStore.isUser && orders.value.approved && orders.value.rejectReason === null) {
                 console.log("클레임 가능");
                 claimPermission.value = true;
             }
-            
             // 배송정보 가져옴
             const deliveryAddress = await apiClient.get(`/deliveryAdd/${orders.value.companyId}`);
             address.value = deliveryAddress.data.data;
@@ -381,7 +379,8 @@ const fetchData = async () => {
             alert(t("errors.fetch_data_failed"));
         }
     } catch (err) {
-        console.error(t("errors.fetch_data_erro"), err);
+        console.error(err.response.data.message);
+        products.value = [];
     }finally {
         isTableLoading.value = false; // 로딩 종료
     }
