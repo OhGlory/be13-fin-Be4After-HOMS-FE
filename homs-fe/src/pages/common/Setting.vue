@@ -87,11 +87,11 @@ const toggleEdit = async () => {
     const userId = getAuthUserId();
 
     try{
-      await apiClient.put(getApiPath(`/user/${userId}`), {
+      await apiClient.put(`/user/${userId}`, {
         managerName: updatedData.managerName,
         managerEmail: updatedData.managerEmail,
         managerPhone: updatedData.managerPhone,
-        password: updatedData.password,
+        newPassword: updatedData.password,
       });
       alert('수정이 완료되었습니다.');
     }catch (error) {
