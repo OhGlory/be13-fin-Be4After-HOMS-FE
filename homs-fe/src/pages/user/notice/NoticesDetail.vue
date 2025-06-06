@@ -16,17 +16,14 @@
             <hr class="my-6" />
             <div class="flex items-center justify-end">
                 <div v-if="authStore.isAdmin">
-                    <button @click="goToEditPage(notice)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="goToEditPage(notice)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ $t("btn.edit") }}
                     </button>
-                    <button @click="confirmDelete(notice.id)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
+                    <button @click="confirmDelete(notice.id)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">
                         {{ $t("btn.del") }}
                     </button>
                 </div>
-                <button @click="goBack"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                <button @click="goBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
                     {{ $t("btn.list") }}
                 </button>
             </div>
@@ -41,7 +38,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
 import {loadAndCreateImageURL, revokeImageURL} from "@/utils/imageView";
-import Breadcrumb from '@/components/common/Breadcrumb.vue';
+import Breadcrumb from "@/components/common/Breadcrumb.vue";
 
 const authStore = useAuthStore();
 
@@ -110,8 +107,8 @@ const confirmDelete = (noticeId) => {
 const deletePostData = async (noticeId) => {
     try {
         // 이미지가 있다면 먼저 제거
-        if (notice.value.imageUrl) {
-            const response = await apiClient.delete(`/files/delete?key=${notice.value.imageUrl}`);
+        if (notice.value.imagePath) {
+            const response = await apiClient.delete(`/files/delete?key=${notice.value.imagePath}`);
             console.log(response.data);
         }
 
