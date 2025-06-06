@@ -10,13 +10,15 @@
             :pageSize="pageSize" :isLoading="isTableLoading">
             <template #actions="{ item }">
                 <button @click="editUser(item)"
-                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">수정</button>
+                    class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">조회</button>
                 <button @click="deleteUser(item)"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">삭제</button>
             </template>
         </DynamicTable>
         <!-- 페이지 네비 -->
         <PageNav :currentPage="currentPage" :totalPages="totalPages" @set-page="handleSetPage"></PageNav>
+
+        <UserRegisterModal :visible="showRegisterModal" @close="showRegisterModal = false" />
     </div>
 </template>
 
@@ -24,11 +26,14 @@
 import SearchBox from "@/components/common/SaerchBar.vue";
 import DynamicTable from "@/components/common/DynamicTable.vue";
 import PageNav from "@/components/common/PageNav.vue";
+import Breadcrumb from '@/components/common/Breadcrumb.vue';
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import apiClient from "@/api";
 import {useAuthStore} from "@/states/auth";
-import Breadcrumb from '@/components/common/Breadcrumb.vue';
+import UserRegisterModal from '@/components/common/modal/UserRegisterModal.vue'
+
+
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 const router = useRouter();
@@ -37,6 +42,7 @@ const searchResult = ref(null);
 const currentPage = ref(1); // 현재 페이지 상태 관리
 const totalPages = ref(1); // 총 페이지 수 상태 관리
 const pageSize = ref(10); // 페이지당 항목 수 (고정값)
+const showRegisterModal = ref(false)
 
 // ------- 검색바 --------
 const handleSearch = (searchData) => {
@@ -55,7 +61,9 @@ const actionButtons = ref([
     {
         label: "신규 계정 생성",
         color: "bg-orange-500 hover:bg-orange-700",
-        action: (item) => console.log("추가:", item),
+        action: () => {
+      showRegisterModal.value = true;
+    },
         allowedRoles: ["admin"], // 이 버튼은 'admin' 또는 'editor'만 볼 수 있음
     },
 ]);
@@ -107,6 +115,11 @@ const userData = async () => {
     users.value = usersWithCompanyName;
     isTableLoading.value = false; // 로딩 종료
 };
+
+// 신규 계정 등록 API 추가
+// const createUser = async () => {
+//     const 
+// }
 
 const editUser = (user) => {
     console.log("수정:", user.id);
