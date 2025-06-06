@@ -48,7 +48,7 @@ const authStore = useAuthStore()
 const logoPath = computed(() => (authStore.isAdmin ? '/admin' : '/'))
 
 const menuItems = ref([])
-const deptId = ref(null);
+const deptName = ref(null);
 
 // 메뉴 아이콘 경로
 const getIconPath = (iconNumber) => {
@@ -74,12 +74,13 @@ const getPath = (basePath) => {
 }
 
 // API 호출 (companyId 용 한번만 태움 댐)
-const fetchData_deptId = async () => {
+const fetchData_deptName = async () => {
   try {
     const res = await apiClient.get(`/admin/user/${authStore.user.userId}`);
 
     if (res.status === 200) {
-      deptId.value = res.data.data.deptId;
+      console.log(res.data.data);
+      deptName.value = res.data.data.deptName;
       console.log(res.data.data)
     }
   } catch (e) {
@@ -92,9 +93,9 @@ const fetchData = async () => {
   try {
 
     console.log("fetchData")
-    console.log(deptId.value)
+    console.log(deptName.value)
 
-    const res = await apiClient.get(`/menu/${deptId.value}`);
+    const res = await apiClient.get(`/menu/dept?menuName=${deptName.value}`);
     if (res.status === 200) {
       const rawMenus = res.data.data;
 
@@ -120,7 +121,7 @@ const fetchData = async () => {
 };
 
 onMounted(async () => {
-  await fetchData_deptId();
+  await fetchData_deptName();
   await fetchData();
 })
 </script>
