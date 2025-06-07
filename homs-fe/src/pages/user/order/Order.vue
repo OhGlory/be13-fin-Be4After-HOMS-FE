@@ -398,6 +398,14 @@ const excelUpload = async (event) => {
         console.log("파일 업로드 성공:", response.data);
         alert("엑셀 파일이 성공적으로 업로드되었습니다!");
         router.push({name: "OrderItemList", query: {orderId: currentOrderId.value}});
+        const payload = {
+            orderId: orderId,
+            settlementDate: now,
+            texInvoice: `invoce${orderId}`,
+            isSettled: "UNSETTLED",
+        };
+        await apiClient.post(`settlement/${orderId}`, payload);
+
     } catch (error) {
         console.error("파일 업로드 실패:", error);
         if (error.response) {
