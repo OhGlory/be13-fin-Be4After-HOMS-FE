@@ -3,59 +3,74 @@
         <!-- 제목 -->
         <Breadcrumb />
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="orders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
-            uniqueKey="orderId">
+        <DynamicTable
+            :columns="orderColumns"
+            :items="orders"
+            :showCheckbox="false"
+            :page="currentPage"
+            :pageSize="pageSize"
+            :isLoading="isTableLoading"
+            @selected="handleSelectedItems"
+            @row-click="handleRowClick"
+            uniqueKey="orderId"
+        >
             <!-- 항목 상세 설정 -->
-            <template #cell-orderDate="{ item }">
+            <template #cell-orderDate="{item}">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
-            <template #cell-dueDate="{ item }">
-                {{ new Date(item.dueDate).toLocaleDateString() }}
+            <template #cell-dueDate="{item}">
+                <div v-if="item.dueDate === null" class="items-center text-center">-</div>
+                <div v-else-if="item.dueDate !== null">{{ new Date(item.dueDate).toLocaleDateString() }}</div>
             </template>
-            <template #cell-approved="{ item }">
+            <template #cell-approved="{item}">
                 <strong v-if="item.approved === true">승인</strong>
                 <strong v-else-if="item.approved === false && item.rejectReason !== null">거부</strong>
                 <strong v-else>미승인</strong>
             </template>
-            <template #cell-productQuantity="{ item }">
-                <div v-if="item && item.productQuantity === null">데이터 없음</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                }}</div>
+            <template #cell-productQuantity="{item}">
+                <div v-if="item && item.productQuantity === null">-</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
+                        min="1"
+                        max="9999"
+                        v-model.number="item.productQuantity"
+                        @click.stop
+                        @mousedown.stop
+                    />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <!-- 관리자는 상태를 설정가능 -->
                 <div v-if="authStore.isAdmin">
                     <!-- 미승인 상태 -->
                     <div v-if="item.approved === false && item.rejectReason === null">
-                        <button @click="rejectOrder(item.orderId)"
-                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                        <button @click="approveOrder(item.orderId)"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                        <button @click="rejectOrder(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                        <button @click="approveOrder(item.orderId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                     </div>
                 </div>
 
                 <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved === false && item.rejectReason === null"
+                    <button
+                        v-if="item.approved === false && item.rejectReason === null"
                         @click="cancleBtn(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
                         취소
                     </button>
-                    <button v-else-if="item.approved === false && item.rejectReason !== null"
+                    <button
+                        v-else-if="item.approved === false && item.rejectReason !== null"
                         @click="rejectReasonView(item.orderId)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
                         사유
                     </button>
                 </div>
@@ -63,15 +78,19 @@
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 거부/승인 모달 -->
-        <Notify :visible="showModal" :text="modalText" :showTextArea="showTextAreaInput"
-            :textAreaPlaceholder="textAreaHint" @update:visible="showModal = $event" @confirm="approvedConfirmModal"
-            @cancel="showModal = false" />
+        <Notify
+            :visible="showModal"
+            :text="modalText"
+            :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint"
+            @update:visible="showModal = $event"
+            @confirm="approvedConfirmModal"
+            @cancel="showModal = false"
+        />
         <!-- 알림 모달 -->
-        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alertModal"
-            @update:visible="showConfirmModal = $event" @confirm="confirmModal"></ConfirmModal>
+        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alertModal" @update:visible="showConfirmModal = $event" @confirm="confirmModal"></ConfirmModal>
     </div>
 </template>
 
@@ -87,7 +106,7 @@ import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
-import Breadcrumb from '@/components/common/Breadcrumb.vue';
+import Breadcrumb from "@/components/common/Breadcrumb.vue";
 
 const authStore = useAuthStore();
 
@@ -168,11 +187,7 @@ const orderColumns = ref([
     {label: "승인상태", key: "approved"},
 ]);
 
-const orders = ref([
-    {id: 1, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11"},
-    {id: 2, orderCode: "H-04-23", companyName: "영광상사", deliveryName: "서울", orderDate: "25-04-02", settlementDate: "25-04-11"},
-    {id: 3, orderCode: "H-04-23", companyName: "하이젠버그", deliveryName: "미국", orderDate: "25-04-02", settlementDate: "25-04-11"},
-]);
+const orders = ref([]);
 
 // 승인
 const approveOrder = (orderId) => {

@@ -12,10 +12,10 @@
                 <strong>{{ item.contractId }}</strong>
             </template>
             <template #cell-contractStartAt="{ item }">
-                {{ new Date(item.contractStartAt).toLocaleDateString() }}
+                {{ new Date(item.contractStartAt).toISOString().split('T')[0] }}
             </template>
             <template #cell-contractStopAt="{ item }">
-                {{ new Date(item.contractStopAt).toLocaleDateString() }}
+                {{ new Date(item.contractStopAt).toISOString().split('T')[0] }}
             </template>
             <!-- <template #actions="{ item }">
                 <button @click="detailClient(item)"

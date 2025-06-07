@@ -57,7 +57,7 @@
       <!-- 푸터 -->
       <div class="flex justify-end p-4 bg-gray-50">
         <button @click="onClose"
-                class="px-6 py-2 bg-slate-500 text-white font-bold hover:bg-slate-600 transition rounded-md">
+          class="px-6 py-2 bg-slate-500 text-white font-bold hover:bg-slate-600 transition rounded-md">
           닫기
         </button>
       </div>

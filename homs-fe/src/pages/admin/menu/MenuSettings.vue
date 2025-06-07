@@ -23,7 +23,7 @@
       <!-- 순번 셀 -->
       <template #cell-sortNo="{ item }">
         <div class="cell-sort">
-          <input type="number" v-model.number="item.sortNo" min="1" />
+          <input class="sort-input" type="number" v-model.number="item.sortNo" min="1" />
         </div>
       </template>
 
@@ -278,7 +278,8 @@ const updateMenu = async (item) => {
         console.log("수정 성공");
       }
     }
-    fetchData();
+    // fetchData();
+    window.location.reload();
   } catch (error) {
     alert(error.response.data.message);
   }
@@ -324,9 +325,14 @@ const menusColumns = [
   justify-content: space-between;
 }
 
+.sort-input,
+.cell-sort {
+  width: 50px;
+}
+
 .cell-image {
   position: relative;
-  width: 120px;
+  width: 60px;
 }
 
 .dropdown {
@@ -344,13 +350,9 @@ const menusColumns = [
 }
 
 .dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
+  width: 60px;
   border: 1px solid #ccc;
   background: white;
-  z-index: 10;
   max-height: 200px;
   overflow-y: auto;
 }
@@ -371,7 +373,6 @@ const menusColumns = [
   height: 24px;
   margin-right: 8px;
 }
-
 
 .cell-buttons {
   display: flex;

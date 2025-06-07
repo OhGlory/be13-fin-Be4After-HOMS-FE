@@ -10,26 +10,29 @@
 
     <nav class="mb-6 overflow-y-auto flex-grow custom-scrollbar">
       <h2 class="text-gray-400 text-xs sm:text-sm">MENU</h2>
-      <ul class="flex flex-col gap-4 mt-5">
-        <li v-for="item in menuItems" :key="item.menuId">
-          <button class="w-full text-start flex px-3 py-2 items-center cursor-pointer" @click="toggleMenu(item.menuId)">
-            <img :src="getIconPath(item.icon)" alt="menu icon" class="w-6 h-6" />
-            <span class="text-lg sm:text-xl font-medium ml-5">{{ item.menuName }}</span>
-            <font-awesome-icon :icon="['fas', item.open ? 'angle-up' : 'angle-down']" class="ml-auto w-5 h-5" />
-          </button>
+      <div v-for="item in menuItems" :key="item.menuId">
+        <ul v-if="item.children && item.children.length > 0" class="flex flex-col gap-4 mt-5">
+          <li>
+            <button class="w-full text-start flex px-3 py-2 items-center cursor-pointer"
+              @click="toggleMenu(item.menuId)">
+              <img :src="getIconPath(item.icon)" alt="menu icon" class="w-6 h-6" />
+              <span class="text-lg sm:text-xl font-medium ml-5">{{ item.menuName }}</span>
+              <font-awesome-icon :icon="['fas', item.open ? 'angle-up' : 'angle-down']" class="ml-auto w-5 h-5" />
+            </button>
 
-          <div class="overflow-hidden transition-all duration-500 ease-in-out"
-            :style="item.open ? 'max-height: 500px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
-            <ul v-if="item.open" class="flex flex-col gap-2 mt-3 ml-10 transition-all duration-300">
-              <li v-for="child in item.children" :key="child.menuId">
-                <router-link :to="child.path" class="pl-4 font-bold block hover:underline text-sm sm:text-base">
-                  {{ child.menuName }}
-                </router-link>
-              </li>
-            </ul>
-          </div>
-        </li>
-      </ul>
+            <div class="overflow-hidden transition-all duration-500 ease-in-out"
+              :style="item.open ? 'max-height: 500px; opacity: 1;' : 'max-height: 0; opacity: 0;'">
+              <ul v-if="item.open" class="flex flex-col gap-2 mt-3 ml-10 transition-all duration-300">
+                <li v-for="child in item.children" :key="child.menuId">
+                  <router-link :to="child.path" class="pl-4 font-bold block hover:underline text-sm sm:text-base">
+                    {{ child.menuName }}
+                  </router-link>
+                </li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
     </nav>
   </aside>
 </template>
@@ -45,7 +48,7 @@ const authStore = useAuthStore()
 const logoPath = computed(() => (authStore.isAdmin ? '/admin' : '/'))
 
 const menuItems = ref([])
-const deptId = ref(null);
+const deptName = ref(null);
 
 // 메뉴 아이콘 경로
 const getIconPath = (iconNumber) => {
@@ -71,12 +74,13 @@ const getPath = (basePath) => {
 }
 
 // API 호출 (companyId 용 한번만 태움 댐)
-const fetchData_deptId = async () => {
+const fetchData_deptName = async () => {
   try {
     const res = await apiClient.get(`/admin/user/${authStore.user.userId}`);
 
     if (res.status === 200) {
-      deptId.value = res.data.data.deptId;
+      console.log(res.data.data);
+      deptName.value = res.data.data.deptName;
       console.log(res.data.data)
     }
   } catch (e) {
@@ -89,9 +93,9 @@ const fetchData = async () => {
   try {
 
     console.log("fetchData")
-    console.log(deptId.value)
+    console.log(deptName.value)
 
-    const res = await apiClient.get(`/menu/${deptId.value}`);
+    const res = await apiClient.get(`/menu/dept?menuName=${deptName.value}`);
     if (res.status === 200) {
       const rawMenus = res.data.data;
 
@@ -117,7 +121,7 @@ const fetchData = async () => {
 };
 
 onMounted(async () => {
-  await fetchData_deptId();
+  await fetchData_deptName();
   await fetchData();
 })
 </script>

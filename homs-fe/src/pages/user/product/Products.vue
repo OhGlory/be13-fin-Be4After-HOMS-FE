@@ -208,10 +208,12 @@ const addItems = async (selectedItem) => {
 
 // 주문한 아이템을 저장하는 메서드
 const orderItemPost = async (orderId, params) => {
+    console.log(orderId.value);
     if (!orderId.value) {
         const order = await apiClient.post("/order/");
         orderId.value = order.data.data.orderId;
     }
+    console.log(orderId.value);
 
     // toRaw를 사용하여 원본 자바스크립트 객체로 변환
     const rawParams = toRaw(params);
@@ -284,8 +286,8 @@ const confirmModal = async () => {
                     quantity: foundProduct.quantityToOrder,
                 });
             }
-            orderItemPost(orderId, selectedProductIds.value);
         });
+        orderItemPost(orderId, selectedProductIds.value);
     } else if (modalType.value === "singleCreateOrder") {
         orderItemPost(orderId, selectedProductId.value);
     }

@@ -4,28 +4,34 @@
         <Breadcrumb />
 
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
         <!-- 테이블 -->
-        <DynamicTable :columns="userColumns" :items="users" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
+        <DynamicTable
+            :columns="userColumns"
+            :items="users"
+            :showCheckbox="false"
+            :page="currentPage"
+            :pageSize="pageSize"
+            :isLoading="isTableLoading"
+            @selected="handleSelectedItems"
+            @row-click="handleRowClick"
             :column-classes="{
                 title: 'text-start font-semibold text-gray-700',
                 createdAt: 'text-start text-sm text-gray-500',
                 id: 'text-start',
-            }">
+            }"
+        >
             <!-- 항목 상세 설정 -->
-            <template #cell-id="{ item }">
+            <template #cell-id="{item}">
                 <strong>{{ item.id }}</strong>
             </template>
-            <template #cell-createdAt="{ item }">
-                {{ new Date(item.createdAt).toLocaleDateString() }}
+            <template #cell-createdAt="{item}">
+                {{ item.createdAt.split("T")[0] }}
             </template>
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
     </div>
 </template>
 
@@ -38,7 +44,7 @@ import {ref, watch, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
-import Breadcrumb from '@/components/common/Breadcrumb.vue';
+import Breadcrumb from "@/components/common/Breadcrumb.vue";
 
 const authStore = useAuthStore();
 
@@ -96,10 +102,7 @@ const userColumns = ref([
 ]);
 
 // 샘플 데이터
-const users = ref([
-    {id: 1, title: "한화 솔루션 케미칼에서 알려드립니다.", createdAt: "25-04-23"},
-    {id: 2, title: "아무말이나 더미데이터로 넣어봅시다!", createdAt: "25-04-24"},
-]);
+const users = ref([]);
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
@@ -131,6 +134,7 @@ const fetchData = async () => {
     try {
         const response = await apiClient.get("/notice/", {params});
         if (response.status === 200) {
+            console.log(response.data.data);
             users.value = response.data.data.content; // 응답 데이터 할당
             totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
         } else {
