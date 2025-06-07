@@ -461,8 +461,8 @@ async function approvedConfirmModal(inputValue) {
     };
 
     if (currentActionType.value === "approve") {
-        setApprove(currentOrderId.value, true, null);
         await apiClient.post(`settlement/${orderId}`, payload);
+        setApprove(currentOrderId.value, true, null);
         console.log("확인");
     } else if (currentActionType.value === "reject") {
         const reason = inputValue;
