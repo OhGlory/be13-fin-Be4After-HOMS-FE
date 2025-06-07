@@ -47,9 +47,13 @@
           </div>
 
         </div>
-        <div class="left-0 flex flex-nowrap gap-2 overflow-x-auto">
+        <div class="left-0 flex flex-nowrap gap-2">
           <button v-for="button in filteredButtons" :key="button.label" :class="button.color"
-            class="text-white font-bold py-2 px-4 rounded text-sm" @click="button.action()">
+            class="text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center"
+            @click="button.action()">
+            <img v-if="button.iconPath" :src="button.iconPath" alt="" class="w-4 h-4 mr-2" />
+            <span v-else-if="button.iconSvg" v-html="button.iconSvg"
+              class="w-4 h-4 mr-2 flex items-center justify-center"></span>
             {{ button.label }}
           </button>
         </div>

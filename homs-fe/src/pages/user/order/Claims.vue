@@ -67,13 +67,13 @@ const handleSearch = (searchData) => {
 };
 // 검색 필터 목록
 const handleSelectOption = ref([
-    {value: "ORDER_CODE", label: "발주번호"},
+    {value: "ORDER_CODE", label: "주문번호"},
     {value: "COMPANY_NAME", label: "거래처명"},
 ]);
 
 // ------- 테이블 --------
 const orderColumns = ref([
-    {label: "발주번호", key: "orderCode"},
+    {label: "주문번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
     {label: "요청일", key: "orderDate"},
     {label: "납기일", key: "dueDate"},
