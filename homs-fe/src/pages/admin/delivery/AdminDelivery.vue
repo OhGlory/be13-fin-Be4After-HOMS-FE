@@ -47,7 +47,7 @@ const statusCounts = computed(() => deliveryStore.statusCounts);
 // ])
 
 const deliveryColumns = ref([
-    {label: "발주번호", key: "orderCode"},
+    {label: "주문번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
     {label: "배송지", key: "deliveryName"},
     {label: "주문일", key: "orderDate"},

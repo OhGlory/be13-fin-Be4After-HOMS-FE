@@ -29,11 +29,16 @@
 
                         <tbody class="bg-white">
                             <tr v-if="props.isLoading">
-                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터를 불러오는
-                                    중입니다...</td>
+                                <td :colspan="totalColumnCount"
+                                    class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">
+                                    데이터를 불러오는 중입니다...
+                                </td>
                             </tr>
                             <tr v-else-if="items.length === 0">
-                                <td class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">데이터가 없습니다.</td>
+                                <td :colspan="totalColumnCount"
+                                    class="px-6 py-4 text-center text-gray-500 border-b border-gray-200">
+                                    데이터가 없습니다.
+                                </td>
                             </tr>
                             <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-100 cursor-pointer">
                                 <td v-if="showCheckbox" class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
@@ -61,7 +66,7 @@
 </template>
 
 <script setup>
-import {ref, watch} from "vue";
+import {ref, watch, computed, useSlots} from "vue";
 import Spinner from "@/components/common/Loading.vue";
 
 const props = defineProps({
@@ -109,9 +114,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["selected", "row-click"]);
+const slots = useSlots(); // useSlots 훅을 사용하여 슬롯에 접근
 
 const selectedItems = ref([]);
 const allSelected = ref(false);
+
+// 테이블의 총 열 개수를 계산하는 computed 속성
+const totalColumnCount = computed(() => {
+    let count = props.columns.length; // 기본적으로 columns 배열의 길이
+    if (props.showCheckbox) {
+        count++; // 체크박스 열
+    }
+    if (props.isIndexActive) {
+        count++; // 순번 열
+    }
+    // $slots.actions를 직접 확인하여 액션 열 존재 여부 판단
+    if (slots.actions) { // props.action 텍스트가 있더라도 슬롯이 사용되어야 액션 열이 렌더링되므로 슬롯 유무로 판단하는 것이 더 정확합니다.
+        count++; // 액션 열
+    }
+    return count;
+});
 
 // 전체 선택/해제 기능
 const toggleAll = () => {

@@ -126,7 +126,7 @@ const handleSearch = (searchData) => {
 // ------- 테이블 --------
 //헤더
 const userColumns = ref([
-    {label: "발주번호", key: "orderCode"},
+    {label: "주문번호", key: "orderCode"},
     {label: "거래처명", key: "companyName"},
     {label: "납품장소", key: "deliveryName"},
     {label: "요청일", key: "orderDate"},
