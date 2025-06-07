@@ -16,36 +16,87 @@
 </template>
 
 <script setup>
+import { ref, onMounted, reactive } from 'vue';
+import axios from 'axios';
+import { Bar } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from 'chart.js';
 
-import {Bar} from 'vue-chartjs';
-import { ref } from 'vue';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, plugins, LineElement, PointElement } from 'chart.js'
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-// 차트 데이터는 여기에 저장 (DB에서 )
+const labels = [
+  '1월', '2월', '3월', '4월', '5월', '6월',
+  '7월', '8월', '9월', '10월', '11월', '12월',
+];
+
 const chartData = ref({
-    labels : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    datasets: [
-        {
-            type: 'bar',
-            label: '매출',
-            backgroundColor: '#F16203',
-            data: [40, 20, 12, 30, 29, 18, 49, 28, 67, 50, 81, 72],
-        },
-    ],
+  labels,
+  datasets: [
+    {
+      type: 'bar',
+      label: '매출',
+      backgroundColor: '#F16203',
+      data: [], 
+    },
+  ],
 });
 
 const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: 'none',
-        },
-        title: {
-            display: false,
-            text: '월별 매출',
-        },
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'none',
     },
+    title: {
+      display: false,
+      text: '월별 매출',
+    },
+  },
 };
+
+function calculateMonthlySales(data) {
+  const monthlySales = Array(12).fill(0);
+  data.forEach(item => {
+    const date = new Date(item.order.orderDate);
+    const month = date.getMonth();
+    monthlySales[month] += item.quantity;
+  });
+  return monthlySales;
+}
+
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem("accessToken")
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/orderitem/`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    
+    const orderItems = response.data.data;
+    const monthlySales = calculateMonthlySales(orderItems);
+    console.log("monthlySales", monthlySales)
+    chartData.value = {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: '매출',
+          backgroundColor: '#F16203',
+          data: monthlySales,
+        },
+      ],
+    };
+  } catch (error) {
+    console.error('API 호출 에러:', error);
+  }
+});
 
 </script>
