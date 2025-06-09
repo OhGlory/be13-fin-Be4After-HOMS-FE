@@ -5,44 +5,94 @@
                 거래처별 거래 현황
             </h5>
         </div>
-        <Chart :options="chartOptions" :data="chartData" :width="700" :height="300" class="mx-auto" />
+        <Bar :options="chartOptions" :data="chartData" :width="700" :height="300" class="mx-auto" />
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Chart } from 'vue-chartjs'
+import { ref, onMounted } from 'vue';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
+import { Chart, Bar } from 'vue-chartjs';
+import apiClient from '@/api';
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+
 
 const chartData = ref({
-    labels : ['무구상사', '영광상사', '대다상사', '라니상사', '경상사', '범석상사', 'SJ상사'],
-    datasets: [
-        {
-            type: 'bar',
-            label: '매출',
-            backgroundColor: '#F16203',
-            data: [40, 20, 12, 30, 29, 18, 49],
-        },
-        {
-            type: 'line',
-            label: "작년 매출",
-            borderColor: "#0000ff",
-            backgroundColor: "#ffffff",
-            data: [50, 30, 22, 40, 39, 28, 59]
-        }
-    ],
+  labels: [],
+  datasets: []
 });
 
 const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: 'none',
-        },
-        title: {
-            display: false,
-            text: '월별 매출',
-        },
+  responsive: true,
+  scales: {
+    x: {
+      stacked: false
     },
+    y: {
+      beginAtZero: true
+    }
+  },
+  plugins: {
+    legend: {
+      position: 'top'
+    }
+  }
 };
+
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    const response = await apiClient.get(`${import.meta.env.VITE_API_URL}/order/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const orders = response.data.data.content;
+    console.log("orders", orders)
+
+    const currentYear = new Date().getFullYear();  // 2025
+    const companyMap = new Map();
+
+    orders.forEach(order => {
+      const year = new Date(order.orderDate).getFullYear();
+      console.log('year', year)
+      const company = order.companyName;
+
+      if (!companyMap.has(company)) {
+        companyMap.set(company, { [currentYear]: 0, [currentYear - 1]: 0 });
+      }
+
+      if (year === currentYear) {
+        companyMap.get(company)[currentYear]++;
+      } else if (year === currentYear - 1) {
+        companyMap.get(company)[currentYear - 1]++;
+      }
+    });
+
+    const labels = Array.from(companyMap.keys());
+    console.log("labels",labels)
+    const lastYearData = labels.map(name => companyMap.get(name)[currentYear - 1]);
+    const thisYearData = labels.map(name => companyMap.get(name)[currentYear]);
+
+    chartData.value = {
+      labels,
+      datasets: [
+        {
+          label: `${currentYear - 1}년 거래`,
+          backgroundColor: '#bca79d',
+          data: lastYearData
+        },
+        {
+          label: `${currentYear}년 거래`,
+          backgroundColor: '#F16203',
+          data: thisYearData
+        }
+      ]
+    };
+  } catch (error) {
+    console.error('API 에러:', error);
+  }
+});
 
 </script>

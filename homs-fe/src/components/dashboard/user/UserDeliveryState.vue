@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-col w-2/3 min-h-[402px] p-8 bg-white border border-gray-300 rounded-3xl shadow-lg">
+      <div class="w-full max-w-6xl min-h-[402px] p-8 bg-white border border-gray-300 rounded-3xl shadow-lg">
         <div class="flex items-center justify-between">
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 배송 현황
