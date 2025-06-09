@@ -37,8 +37,10 @@ import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "@/states/auth";
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
+import { useClaimStore } from "@/states/claim";
 
 const authStore = useAuthStore();
+const claimStore = useClaimStore();
 
 const isTableLoading = ref(false); // 로딩 상태 관리
 
@@ -114,9 +116,20 @@ const fetchData = async () => {
             params: params, // 여기에 구성한 파라미터 객체를 전달합니다.
         });
         if (response.status === 200) {
-            orders.value = response.data.data.content;
-            console.log(response.data.data);
+            const content = response.data.data.content;
+            orders.value = content;
             totalPages.value = response.data.data.page.totalPages; // 총 페이지 수 할당
+
+            console.log("orders.value", orders.value)
+
+            const summary = {
+                cancel: content.filter(order => order.claimStatus === 'CANCEL').length,
+                complete: content.filter(order => order.claimStatus === 'COMPLETE').length,
+                exchange: content.filter(order => order.claimStatus === 'EXCHANGE').length,
+            };
+            console.log("summary+++++",summary);
+
+            claimStore.updateSummary(summary);
         } else {
             alert(t("errors.fetch_data_failed"));
         }

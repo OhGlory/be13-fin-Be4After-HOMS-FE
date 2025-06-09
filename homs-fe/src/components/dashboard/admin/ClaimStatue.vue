@@ -19,7 +19,7 @@
                             </p>
                         </div>
                         <div class="flex w-1/3 justify-end items-center font-semibold text-gray-900 mr-5">
-                        {{ item.num.toLocaleString() }}
+                            {{ item.num.toLocaleString() }}
                         </div>
                     </div>
                 </li>
@@ -30,13 +30,16 @@
 
 <script setup>
 
-import { ref } from 'vue'
-// 나중에 DB에서 받아서 할 예정
-const claimlist = ref([
-  { name: '취소 요청', num: 1 },
-  { name: '반품 요청', num: 0 },
-  { name: '교환 요청', num: 2 },
+import { computed, ref } from 'vue'
+import { useClaimStore } from '@/states/claim'
 
+const claimStore = useClaimStore()
+
+// 나중에 DB에서 받아서 할 예정
+const claimlist = computed(() => [
+  { name: '취소 요청', num: claimStore.claimSummary.cancel },
+  { name: '반품 요청', num: claimStore.claimSummary.complete },
+  { name: '교환 요청', num: claimStore.claimSummary.exchange },
 ])
 
 </script>
