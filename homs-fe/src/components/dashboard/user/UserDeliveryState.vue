@@ -6,23 +6,23 @@
             </h5>
         </div>
         <div class="flex justify-center items-center min-h-full ">
-            <div class="flex flex-wrap mx-auto space-x-6">
+            <div class="flex flex-wrap mx-auto space-x-2">
               <div class="flex items-center gap-2">
-          <DeliveryStatusItem :icon="checklist" label="주문 확인" :count="0" size="user" />
-          <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
-        </div>
-        <div class="flex items-center gap-2">
-          <DeliveryStatusItem :icon="box" label="배송 준비" :count="props.counts.BEFORE" size="user" />
-          <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
-        </div>
-        <div class="flex items-center gap-2">
-          <DeliveryStatusItem :icon="truck" label="배송중" :count="props.counts.SHIPPING" size="user" />
-          <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
-        </div>
-        <div class="flex items-center gap-2">
-          <DeliveryStatusItem :icon="deliverycomplete" label="배송 완료" :count="props.counts.COMPLETED" size="user" />
-        </div>
-        </div>
+              <DeliveryStatusItem :icon="checklist" label="주문 확인" :count="0" size="user" />
+                <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
+              </div>
+              <div class="flex items-center gap-2">
+                <DeliveryStatusItem :icon="box" label="배송 준비" :count="props.counts.BEFORE" size="user" />
+                <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
+              </div>
+              <div class="flex items-center gap-2">
+                <DeliveryStatusItem :icon="truck" label="배송중" :count="props.counts.SHIPPING" size="user" />
+                <img :src="arrow" alt="화살표" class="h-10 hidden sm:block" />
+              </div>
+              <div class="flex items-center gap-2">
+                <DeliveryStatusItem :icon="deliverycomplete" label="배송 완료" :count="props.counts.COMPLETED" size="user" />
+              </div>
+          </div>
         </div>
     </div>
 </template>
