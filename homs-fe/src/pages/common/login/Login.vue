@@ -64,6 +64,12 @@
     <Modal :visible="showModal" @confirm="confirmModal" />
     <PartnerRegisterModal :visible="showRegisterModal" @close="showRegisterModal = false" />
     <PasswordResetModal :visible="showPasswordResetModal" @close="showPasswordResetModal = false" />
+    <ConfirmModal
+      :visible="showErrorModal"
+      :alert="true"
+      :text="errorMessage"
+      @update:visible="showErrorModal = false"
+    />
 
 </template>
 
@@ -82,6 +88,7 @@
   import { fetchUserProfile } from '@/api/user';
   import  {jwtDecode}  from 'jwt-decode';
   import { userStore } from '@/states/user';
+  import ConfirmModal from '@/components/common/modal/ConfirmModal.vue';
 
   
 
@@ -91,6 +98,7 @@
   const { locale } = useI18n()
   const selectedLang = ref(locale.value === 'ko' ? 'KOR' : 'ENG')
   const showModal = ref(true)
+  const showErrorModal = ref(false);
   const showRegisterModal = ref(false)
   const showPasswordResetModal = ref(false)
   const router = useRouter();
@@ -129,8 +137,6 @@
 
 async function onSubmit(): Promise<void> {
     errorMessage.value = '';
-    console.log("로그인 시도");
-
     const payload: SignInDto = {
         userName: credentials.value.username,
         password: credentials.value.password
@@ -140,16 +146,8 @@ async function onSubmit(): Promise<void> {
     // 1) 로그인 → 토큰 발급
     const { data: tokens } = await apiClient.post<SignInResponseDto>('/auth/signin', payload)
     const {accessToken, refreshToken, userId} = tokens.data;
-
-    console.log('tokens.data', tokens.data);
-
     const decoded: JwtPayload = jwtDecode(accessToken);
     const userRole = decoded.role;
-
-    console.log("authStore.user?.role 권한은 뭘까용??", authStore.user?.role);
-    console.log("authStore.user 권한은 뭘까용??", authStore.user);
-    console.log("userRole 권한은 뭘까용??", userRole);   //이거로 ROLE_ADMIN나옴
-    console.log("decoded 권한은 뭘까용??", decoded);
 
     authStore.setTokens(accessToken,refreshToken);    
 
@@ -175,7 +173,7 @@ async function onSubmit(): Promise<void> {
           router.push({name: 'UserDashBoard'})
     }
   } catch (err: any) {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 500) {
       errorMessage.value =
         locale.value === 'ko'
           ? '아이디 또는 비밀번호가 올바르지 않습니다.'
@@ -186,6 +184,7 @@ async function onSubmit(): Promise<void> {
           ? '로그인 중 오류가 발생했습니다.'
           : 'An error occurred during login.'
     }
+    showErrorModal.value = true;
   }
 }
 
