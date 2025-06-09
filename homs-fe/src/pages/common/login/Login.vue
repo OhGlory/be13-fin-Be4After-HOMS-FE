@@ -44,8 +44,10 @@
             <!-- 로그인 옵션 부분 -->
             <div class="flex w-full justify-between mt-2">
                 <div class="flex">
-                    <input type="checkbox" id="saveId" class="cursor-pointer">
-                    <label for="saveId" class="ml-1 font-semibold text-xs cursor-pointer">{{ $t('saveId') }}</label>
+                    <input type="checkbox" id="saveId" class="cursor-pointer" v-model="saveId">
+                    <label for="saveId" class="ml-1 font-semibold text-xs cursor-pointer" >
+                      {{ $t('saveId') }}
+                    </label>
                 </div>
                 <div class="flex">
                     <p @click="showPasswordResetModal = true" class=" underline font-semibold text-xs cursor-pointer">
@@ -102,6 +104,7 @@
   const showRegisterModal = ref(false)
   const showPasswordResetModal = ref(false)
   const router = useRouter();
+  const saveId = ref<boolean>(false);
   
   interface Credentials {
     username: string;
@@ -162,6 +165,12 @@ async function onSubmit(): Promise<void> {
 
 
     store.setRole(profile.role)
+
+    if (saveId.value) {
+      localStorage.setItem('savedId', credentials.value.username);
+    } else {
+      localStorage.removeItem('savedId');
+    }
     
     // 3) 홈으로 이동
     // router.push({ name: 'UserDashBoard' })
@@ -200,6 +209,12 @@ async function onSubmit(): Promise<void> {
     const modalConfirmed = localStorage.getItem('modalConfirmed')
     if (modalConfirmed === 'true') {
       showModal.value = false
+    }
+
+    const savedId = localStorage.getItem('savedId');
+    if (savedId) {
+      credentials.value.username = savedId;
+      saveId.value = true;
     }
   })
   </script>
