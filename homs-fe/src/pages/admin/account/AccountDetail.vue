@@ -43,10 +43,21 @@ const userData = async (userId) => {
     const response = await apiClient.get(getApiPath(`/user/${userId}`));
     const data = response.data.data;
 
+    const deptNameMap = {
+      SALES: '영업',
+      BUY: '구매',
+      DELIVERY: '배송',
+      MATERIALS: '자재'
+    };
+
     fields.value = fields.value.map(field => {
+      let value = data[field.key] ?? '';
+      if (field.key === 'deptName') {
+        value = deptNameMap[value] || value; // 매핑된 값이 없으면 원래 값 유지
+      }
       return {
         ...field,
-        value: data[field.key] ?? '',
+        value,
       };
     });
   } catch (error) {
