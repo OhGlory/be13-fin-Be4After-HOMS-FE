@@ -37,9 +37,9 @@ const claimStore = useClaimStore()
 
 // 나중에 DB에서 받아서 할 예정
 const claimlist = computed(() => [
-  { name: '취소 요청', num: claimStore.claimSummary.cancel },
-  { name: '반품 요청', num: claimStore.claimSummary.complete },
-  { name: '교환 요청', num: claimStore.claimSummary.exchange },
+  { name: '취소', num: claimStore.claimSummary.cancel },
+  { name: '교환', num: claimStore.claimSummary.exchange },
+  { name: '완료', num: claimStore.claimSummary.complete },
 ])
 
 </script>
