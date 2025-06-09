@@ -178,7 +178,14 @@ async function onSubmit(): Promise<void> {
         locale.value === 'ko'
           ? '아이디 또는 비밀번호가 올바르지 않습니다.'
           : 'Invalid username or password.'
-    } else {
+    } 
+    else if (err.response?.status === 400) {
+      errorMessage.value =
+        locale.value === 'ko'
+          ? '아이디 또는 비밀번호를 입력해주세요'
+          : 'Invalid username or password.'
+    } 
+    else {
       errorMessage.value =
         locale.value === 'ko'
           ? '로그인 중 오류가 발생했습니다.'
