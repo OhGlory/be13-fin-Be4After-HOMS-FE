@@ -4,7 +4,7 @@
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 클래임 관리
             </h5>
-            <a href="#" class="text-sm font-medium hover:underline ">
+            <a @click.prevent="goToClaim" class="text-sm font-medium hover:underline ">
                 +
             </a>
         </div>
@@ -32,8 +32,14 @@
 
 import { computed, ref } from 'vue'
 import { useClaimStore } from '@/states/claim'
+import { useRouter } from 'vue-router'
 
 const claimStore = useClaimStore()
+const router = useRouter()
+
+function goToClaim() {
+  router.push("/claims")
+}
 
 // 나중에 DB에서 받아서 할 예정
 const claimlist = computed(() => [
