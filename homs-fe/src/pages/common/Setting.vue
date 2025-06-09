@@ -86,13 +86,20 @@ const toggleEdit = async () => {
     // 로컬스토리지에서 userId 가져오기
     const userId = getAuthUserId();
 
-    try{
-      await apiClient.put(`/user/${userId}`, {
-        managerName: updatedData.managerName,
-        managerEmail: updatedData.managerEmail,
-        managerPhone: updatedData.managerPhone,
-        newPassword: updatedData.password,
-      });
+    // API로 보낼 데이터 객체 생성
+    const payload = {
+      managerName: updatedData.managerName,
+      managerEmail: updatedData.managerEmail,
+      managerPhone: updatedData.managerPhone,
+    };
+
+    // 비밀번호 칸이 비어있지 않은 경우에만 포함
+    if (updatedData.password && updatedData.password.trim() !== "") {
+      payload.newPassword = updatedData.password;
+    }
+
+    try {
+      await apiClient.put(`/user/${userId}`, payload);
       alert('수정이 완료되었습니다.');
     }catch (error) {
       console.error('수정 중 오류 발생:', error);
