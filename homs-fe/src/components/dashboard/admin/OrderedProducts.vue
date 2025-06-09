@@ -5,7 +5,7 @@
             <h5 class="text-xl font-bold leading-none text-gray-900 ">
                 상위 주문 상품
             </h5>
-            <a href="#" class="text-sm font-medium hover:underline ">
+            <a @click.prevent="goToOrderForm" class="text-sm font-medium hover:underline ">
                 +
             </a>
         </div>
@@ -32,9 +32,6 @@
 </template>
 
 <script setup>
-// import { ref } from 'vue'
-
-
 // 나중에 DB에서 받아서 할 예정
 // const productList = ref([
 //   { name: 'LDPE-303', price: 5230000 },
@@ -46,8 +43,16 @@
 
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const productList = ref([])
+const router = useRouter()
+
+function goToOrderForm() {
+  router.push("/orders")
+}
+
+
 onMounted(async () => {
   try {
     const token = localStorage.getItem("accessToken")

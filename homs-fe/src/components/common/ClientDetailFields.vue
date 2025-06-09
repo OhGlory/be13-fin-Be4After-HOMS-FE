@@ -5,8 +5,17 @@
                 {{ item.label }}
             </div>
             <div v-if="!data" class="flex border-gray-400 border w-1/2 p-2 font-bold">
-                <input type="text" v-model="item.value" :readonly="!isEditable" :class="['w-full outline-none', isEditable ? 'bg-[#fdf6e3] border border-gray-400' : 'bg-transparent']" />
-            </div>
+                <input
+                    type="text"
+                    v-model="item.value"
+                    :readonly="!isEditable || !editableKeys.includes(item.key)"
+                    :class="[
+                        'w-full outline-none',
+                        isEditable && editableKeys.includes(item.key)
+                        ? 'bg-[#fdf6e3] border border-gray-400'
+                        : 'bg-transparent'
+                    ]"/>
+                </div>
             <div v-else class="flex border-gray-400 border w-1/2 p-2 font-bold">
                 <!-- 파트너사 명 -->
                 <select v-if="item.key === `companyId`" v-model="item.value" :class="['w-full outline-none', isEditable ? 'bg-[#fdf6e3] border border-gray-400' : 'bg-transparent']">
@@ -53,6 +62,9 @@
 
 <script setup>
 import {computed, ref, watch} from "vue";
+
+const editableKeys = ['managerName', 'managerEmail', 'managerPhone', 'password'];
+
 
 const props = defineProps({
     fields: {

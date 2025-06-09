@@ -2,7 +2,7 @@
   <div class="w-full max-w-1/2 p-4 bg-white border border-gray-300 rounded-3xl shadow-lg sm:p-8">
     <div class="flex items-center justify-between mb-4">
       <h5 class="text-xl font-bold leading-none text-gray-900">주문 건</h5>
-      <a href="#" class="text-sm font-medium hover:underline">+</a>
+      <a @click.prevent="goToOrderForm" class="text-sm font-medium hover:underline">+</a>
     </div>
 
     <Spinner :visible="isLoading" message="주문 목록 불러오는 중..." />
@@ -49,9 +49,15 @@
   import Spinner from "@/components/common/Loading.vue";
   import { ref, onMounted } from 'vue'
   import apiClient from '@/api'
+  import { useRouter } from 'vue-router'
   
   const isOrderListLoading = ref(false);
   const orderList = ref([])
+  const router = useRouter()
+
+  function goToOrderForm() {
+  router.push("/orders")
+}
 
   // 데이터 가져오는 함수
 const fetchData = async () => {
