@@ -69,6 +69,9 @@ const fetchData = async () => {
         const response = await apiClient.get("/settlement/");
         const data = response.data.data;
         console.log("정산 데이터", data);
+
+        data.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+        
         users.value = data.map((item, index) => ({
             id: item.orderId,
             orderCode: item.orderCode,

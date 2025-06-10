@@ -96,6 +96,9 @@ const userData = async () => {
 
     const filteredData = data.filter((item) => item.deleteAt === null);
 
+    filteredData.sort((a, b) => b.userId - a.userId);
+
+
     const usersWithCompanyName = filteredData.map((item) => ({
         id: item.userId,
         userName: item.managerName,
