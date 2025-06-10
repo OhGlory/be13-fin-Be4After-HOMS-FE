@@ -86,6 +86,9 @@ const fetchData = async () => {
         const response = await apiClient.get(`settlement/user/${userId}`);
         const data = response.data.data;
         console.log(data);
+
+        data.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+        
         users.value = data.map((item, index) => ({
             id: item.orderId,
             orderCode: item.orderCode,

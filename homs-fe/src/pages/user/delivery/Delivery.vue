@@ -84,6 +84,9 @@ const DeliveryInfo = async () => {
     };
 
     console.log(data)
+
+    data.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+    
     delivery.value = data.map(item => {
         const status = item.deliveryStatus;
         if (counts[status] !== undefined) {
