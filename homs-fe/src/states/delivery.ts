@@ -64,6 +64,8 @@ export const useDeliveryStore = defineStore('delivery', {
         COLLECT: 0,
       };
 
+      data.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+
       this.deliveryList = data.map(item => {
         const status = item.deliveryStatus as keyof StatusCounts;
         if (counts[status] !== undefined) {
