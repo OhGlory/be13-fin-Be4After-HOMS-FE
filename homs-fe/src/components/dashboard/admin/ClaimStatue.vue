@@ -19,7 +19,7 @@
                             </p>
                         </div>
                         <div class="flex w-1/3 justify-end items-center font-semibold text-gray-900 mr-5">
-                            {{ item.num.toLocaleString() }}
+                            {{ item.num.toLocaleString()}}
                         </div>
                     </div>
                 </li>
@@ -30,7 +30,7 @@
 
 <script setup>
 
-import { computed, ref } from 'vue'
+import { ref, onMounted   } from 'vue'
 import { useClaimStore } from '@/states/claim'
 import { useRouter } from 'vue-router'
 
@@ -41,11 +41,21 @@ function goToClaim() {
   router.push("/claims")
 }
 
-// 나중에 DB에서 받아서 할 예정
-const claimlist = computed(() => [
-  { name: '취소', num: claimStore.claimSummary.cancel },
-  { name: '교환', num: claimStore.claimSummary.exchange },
-  { name: '완료', num: claimStore.claimSummary.complete },
+const claimlist = ref([
+  { name: '취소', num: 0 },
+  { name: '교환', num: 0 },
+  { name: '완료', num: 0 },
 ])
+
+onMounted(async () => {
+  await claimStore.fetchClaimSummary()
+  claimlist.value = [
+    { name: '취소', num: claimStore.claimSummary.cancel },
+    { name: '교환', num: claimStore.claimSummary.exchange },
+    { name: '완료', num: claimStore.claimSummary.complete },
+  ]
+})
+
+
 
 </script>
