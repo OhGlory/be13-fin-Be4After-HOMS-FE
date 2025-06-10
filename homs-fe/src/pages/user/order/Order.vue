@@ -271,13 +271,16 @@ const confirmModal = async () => {
 // DynamicTable에 전달할 필터링된 주문 목록
 const filteredOrders = computed(() => {
     // 관리자는 발주요청되지 않은 주문은 못봄
-    if(authStore.isAdmin) {
-        return orders.value.filter(item => {
+    let result = [];
+    if (authStore.isAdmin) {
+        result = orders.value.filter(item => {
             return !(item.deliveryName === null && item.dueDate === null);
         });
-    } else{
-        return orders.value;
+    } else {
+        result = orders.value;
     }
+    // 최신순(주문일 내림차순) 정렬 추가
+    return result.slice().sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 });
 
 // 데이터 가져오는 함수
