@@ -6,7 +6,7 @@
             </div>
             <div v-if="!data" class="flex border-gray-400 border w-1/2 p-2 font-bold">
                 <input
-                    type="text"
+                    :type="item.key === 'password' ? 'password' : 'text'"
                     v-model="item.value"
                     :readonly="!isEditable || !editableKeys.includes(item.key)"
                     :class="[
