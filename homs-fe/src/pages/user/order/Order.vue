@@ -3,63 +3,74 @@
         <!-- 제목 -->
         <Breadcrumb />
         <!-- 검색바 -->
-        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons"
-            :userRole="authStore.isAdmin" />
+        <SearchBox @search="handleSearch" :selectOptions="handleSelectOption" :buttons="actionButtons" :userRole="authStore.isAdmin" />
         <!-- 엑셀 업로드 -->
         <input type="file" ref="excelFileInput" @change="excelUpload" style="display: none" accept=".xlsx, .xls" />
         <!-- 테이블 -->
-        <DynamicTable :columns="orderColumns" :items="filteredOrders" :showCheckbox="false" :page="currentPage"
-            :pageSize="pageSize" :isLoading="isTableLoading" @selected="handleSelectedItems" @row-click="handleRowClick"
-            uniqueKey="orderId">
+        <DynamicTable
+            :columns="orderColumns"
+            :items="orders"
+            :showCheckbox="false"
+            :page="currentPage"
+            :pageSize="pageSize"
+            :isLoading="isTableLoading"
+            @selected="handleSelectedItems"
+            @row-click="handleRowClick"
+            uniqueKey="orderId"
+        >
             <!-- 항목 상세 설정 -->
-            <template #cell-orderDate="{ item }">
+            <template #cell-orderDate="{item}">
                 {{ new Date(item.orderDate).toLocaleDateString() }}
             </template>
-            <template #cell-dueDate="{ item }">
+            <template #cell-dueDate="{item}">
                 <div v-if="item.dueDate === null" class="items-center text-center">-</div>
                 <div v-else-if="item.dueDate !== null">{{ new Date(item.dueDate).toLocaleDateString() }}</div>
             </template>
-            <template #cell-approved="{ item }">
-                <p class=" text-base font-bold truncate text-green-700" v-if="item.approved === true">
-                    승인
-                </p>
-                <p class=" text-base font-bold truncate text-red-600"
-                    v-else-if="item.approved === false && item.rejectReason !== null">거부</p>
-                <p class=" text-base font-bold truncate text-orange-400" v-else>미승인</p>
+            <template #cell-approved="{item}">
+                <p class="text-base font-bold truncate text-green-700" v-if="item.approved === true">승인</p>
+                <p class="text-base font-bold truncate text-red-600" v-else-if="item.approved === false && item.rejectReason !== null">거부</p>
+                <p class="text-base font-bold truncate text-orange-400" v-else>미승인</p>
             </template>
-            <template #cell-productQuantity="{ item }">
+            <template #cell-productQuantity="{item}">
                 <div v-if="item && item.productQuantity === null">-</div>
-                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity
-                    }}</div>
+                <div v-else-if="item && item.productQuantity !== undefined && !item.isEditing">{{ item.productQuantity }}</div>
                 <div v-else-if="item && item.productQuantity !== undefined && item.isEditing">
-                    <input type="number"
+                    <input
+                        type="number"
                         class="rounded mr-2 border-1 border-gray-300 w-15 focus:border-orange-500 focus:outline-none"
-                        min="1" max="9999" v-model.number="item.productQuantity" @click.stop @mousedown.stop />
+                        min="1"
+                        max="9999"
+                        v-model.number="item.productQuantity"
+                        @click.stop
+                        @mousedown.stop
+                    />
                 </div>
                 <div v-else>데이터 오류</div>
             </template>
-            <template #actions="{ item }">
+            <template #actions="{item}">
                 <!-- 관리자는 상태를 설정가능 -->
                 <div v-if="authStore.isAdmin">
                     <!-- 미승인 상태 -->
                     <div v-if="item.approved === false && item.rejectReason === null">
-                        <button @click="rejectOrder(item.orderId)"
-                            class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
-                        <button @click="approveOrder(item.orderId)"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
+                        <button @click="rejectOrder(item.orderId)" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm mr-2">거부</button>
+                        <button @click="approveOrder(item.orderId)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">승인</button>
                     </div>
                 </div>
 
                 <!-- 사용자는 취소할 수 있음 -->
                 <div v-else>
-                    <button v-if="item.approved === false && item.rejectReason === null"
+                    <button
+                        v-if="item.approved === false && item.rejectReason === null"
                         @click="cancleBtn(item.orderId)"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
                         취소
                     </button>
-                    <button v-else-if="item.approved === false && item.rejectReason !== null"
+                    <button
+                        v-else-if="item.approved === false && item.rejectReason !== null"
                         @click="rejectReasonView(item.orderId)"
-                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-sm"
+                    >
                         사유
                     </button>
                 </div>
@@ -67,15 +78,19 @@
         </DynamicTable>
 
         <!-- 페이지 네비 -->
-        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage">
-        </PageNav>
+        <PageNav :currentPage="Number(currentPage)" :totalPages="Number(totalPages)" @set-page="handleSetPage"> </PageNav>
         <!-- 거부/승인 모달 -->
-        <Notify :visible="showModal" :text="modalText" :showTextArea="showTextAreaInput"
-            :textAreaPlaceholder="textAreaHint" @update:visible="showModal = $event" @confirm="approvedConfirmModal"
-            @cancel="showModal = false" />
+        <Notify
+            :visible="showModal"
+            :text="modalText"
+            :showTextArea="showTextAreaInput"
+            :textAreaPlaceholder="textAreaHint"
+            @update:visible="showModal = $event"
+            @confirm="approvedConfirmModal"
+            @cancel="showModal = false"
+        />
         <!-- 알림 모달 -->
-        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alertModal"
-            @update:visible="showConfirmModal = $event" @confirm="confirmModal"></ConfirmModal>
+        <ConfirmModal :visible="showConfirmModal" :text="modalText" :type="modalType" :alert="alertModal" @update:visible="showConfirmModal = $event" @confirm="confirmModal"></ConfirmModal>
     </div>
 </template>
 
@@ -142,19 +157,21 @@ const handleSelectOption = ref([
 
 // 액션 버튼 정의
 const actionButtons = ref([
-{
+    {
         label: "엑셀양식",
         color: "bg-green-600 hover:bg-green-700",
         action: () => excelDown("TEMPLATE"),
         allowedRoles: ["user"],
-        iconSvg: '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256"><g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.8125,0.03125l-28,5.3125c-0.47266,0.08984 -0.8125,0.51953 -0.8125,1v37.3125c0,0.48047 0.33984,0.91016 0.8125,1l28,5.3125c0.0625,0.01172 0.125,0.03125 0.1875,0.03125c0.23047,0 0.44531,-0.07031 0.625,-0.21875c0.23047,-0.19141 0.375,-0.48437 0.375,-0.78125v-48c0,-0.29687 -0.14453,-0.58984 -0.375,-0.78125c-0.23047,-0.19141 -0.51953,-0.24219 -0.8125,-0.1875zM32,6v7h2v2h-2v5h2v2h-2v5h2v2h-2v6h2v2h-2v7h15c1.10156,0 2,-0.89844 2,-2v-34c0,-1.10156 -0.89844,-2 -2,-2zM36,13h8v2h-8zM6.6875,15.6875h5.125l2.6875,5.59375c0.21094,0.44141 0.39844,0.98438 0.5625,1.59375h0.03125c0.10547,-0.36328 0.30859,-0.93359 0.59375,-1.65625l2.96875,-5.53125h4.6875l-5.59375,9.25l5.75,9.4375h-4.96875l-3.25,-6.09375c-0.12109,-0.22656 -0.24609,-0.64453 -0.375,-1.25h-0.03125c-0.0625,0.28516 -0.21094,0.73047 -0.4375,1.3125l-3.25,6.03125h-5l5.96875,-9.34375zM36,20h8v2h-8zM36,27h8v2h-8zM36,35h8v2h-8z"></path></g></g></svg>'
+        iconSvg:
+            '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256"><g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.8125,0.03125l-28,5.3125c-0.47266,0.08984 -0.8125,0.51953 -0.8125,1v37.3125c0,0.48047 0.33984,0.91016 0.8125,1l28,5.3125c0.0625,0.01172 0.125,0.03125 0.1875,0.03125c0.23047,0 0.44531,-0.07031 0.625,-0.21875c0.23047,-0.19141 0.375,-0.48437 0.375,-0.78125v-48c0,-0.29687 -0.14453,-0.58984 -0.375,-0.78125c-0.23047,-0.19141 -0.51953,-0.24219 -0.8125,-0.1875zM32,6v7h2v2h-2v5h2v2h-2v5h2v2h-2v6h2v2h-2v7h15c1.10156,0 2,-0.89844 2,-2v-34c0,-1.10156 -0.89844,-2 -2,-2zM36,13h8v2h-8zM6.6875,15.6875h5.125l2.6875,5.59375c0.21094,0.44141 0.39844,0.98438 0.5625,1.59375h0.03125c0.10547,-0.36328 0.30859,-0.93359 0.59375,-1.65625l2.96875,-5.53125h4.6875l-5.59375,9.25l5.75,9.4375h-4.96875l-3.25,-6.09375c-0.12109,-0.22656 -0.24609,-0.64453 -0.375,-1.25h-0.03125c-0.0625,0.28516 -0.21094,0.73047 -0.4375,1.3125l-3.25,6.03125h-5l5.96875,-9.34375zM36,20h8v2h-8zM36,27h8v2h-8zM36,35h8v2h-8z"></path></g></g></svg>',
     },
     {
         label: "엑셀주문",
         color: "bg-green-600 hover:bg-green-700",
         action: () => handleExcelUploadClick(),
         allowedRoles: ["user"],
-        iconSvg: '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256"><g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.8125,0.03125l-28,5.3125c-0.47266,0.08984 -0.8125,0.51953 -0.8125,1v37.3125c0,0.48047 0.33984,0.91016 0.8125,1l28,5.3125c0.0625,0.01172 0.125,0.03125 0.1875,0.03125c0.23047,0 0.44531,-0.07031 0.625,-0.21875c0.23047,-0.19141 0.375,-0.48437 0.375,-0.78125v-48c0,-0.29687 -0.14453,-0.58984 -0.375,-0.78125c-0.23047,-0.19141 -0.51953,-0.24219 -0.8125,-0.1875zM32,6v7h2v2h-2v5h2v2h-2v5h2v2h-2v6h2v2h-2v7h15c1.10156,0 2,-0.89844 2,-2v-34c0,-1.10156 -0.89844,-2 -2,-2zM36,13h8v2h-8zM6.6875,15.6875h5.125l2.6875,5.59375c0.21094,0.44141 0.39844,0.98438 0.5625,1.59375h0.03125c0.10547,-0.36328 0.30859,-0.93359 0.59375,-1.65625l2.96875,-5.53125h4.6875l-5.59375,9.25l5.75,9.4375h-4.96875l-3.25,-6.09375c-0.12109,-0.22656 -0.24609,-0.64453 -0.375,-1.25h-0.03125c-0.0625,0.28516 -0.21094,0.73047 -0.4375,1.3125l-3.25,6.03125h-5l5.96875,-9.34375zM36,20h8v2h-8zM36,27h8v2h-8zM36,35h8v2h-8z"></path></g></g></svg>'
+        iconSvg:
+            '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256"><g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.8125,0.03125l-28,5.3125c-0.47266,0.08984 -0.8125,0.51953 -0.8125,1v37.3125c0,0.48047 0.33984,0.91016 0.8125,1l28,5.3125c0.0625,0.01172 0.125,0.03125 0.1875,0.03125c0.23047,0 0.44531,-0.07031 0.625,-0.21875c0.23047,-0.19141 0.375,-0.48437 0.375,-0.78125v-48c0,-0.29687 -0.14453,-0.58984 -0.375,-0.78125c-0.23047,-0.19141 -0.51953,-0.24219 -0.8125,-0.1875zM32,6v7h2v2h-2v5h2v2h-2v5h2v2h-2v6h2v2h-2v7h15c1.10156,0 2,-0.89844 2,-2v-34c0,-1.10156 -0.89844,-2 -2,-2zM36,13h8v2h-8zM6.6875,15.6875h5.125l2.6875,5.59375c0.21094,0.44141 0.39844,0.98438 0.5625,1.59375h0.03125c0.10547,-0.36328 0.30859,-0.93359 0.59375,-1.65625l2.96875,-5.53125h4.6875l-5.59375,9.25l5.75,9.4375h-4.96875l-3.25,-6.09375c-0.12109,-0.22656 -0.24609,-0.64453 -0.375,-1.25h-0.03125c-0.0625,0.28516 -0.21094,0.73047 -0.4375,1.3125l-3.25,6.03125h-5l5.96875,-9.34375zM36,20h8v2h-8zM36,27h8v2h-8zM36,35h8v2h-8z"></path></g></g></svg>',
     },
     {
         label: "상품목록",
@@ -268,20 +285,20 @@ const confirmModal = async () => {
     }
 };
 
-// DynamicTable에 전달할 필터링된 주문 목록
-const filteredOrders = computed(() => {
-    // 관리자는 발주요청되지 않은 주문은 못봄
-    let result = [];
-    if (authStore.isAdmin) {
-        result = orders.value.filter(item => {
-            return !(item.deliveryName === null && item.dueDate === null);
-        });
-    } else {
-        result = orders.value;
-    }
-    // 최신순(주문일 내림차순) 정렬 추가
-    return result.slice().sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
-});
+// // DynamicTable에 전달할 필터링된 주문 목록
+// const filteredOrders = computed(() => {
+//     // 관리자는 발주요청되지 않은 주문은 못봄
+//     let result = [];
+//     if (authStore.isAdmin) {
+//         result = orders.value.filter((item) => {
+//             return !(item.deliveryName === null && item.dueDate === null);
+//         });
+//     } else {
+//         result = orders.value;
+//     }
+//     // 최신순(주문일 내림차순) 정렬 추가
+//     return result.slice().sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+// });
 
 // 데이터 가져오는 함수
 const fetchData = async () => {
