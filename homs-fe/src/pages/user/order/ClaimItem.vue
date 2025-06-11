@@ -133,7 +133,8 @@ async function cliamOrder() {
     if (result.status === 200) {
         const orderId = result.data.data;
         // 부모 주문의 배송상태를 회수로 바꿈
-        apiClient.put(`order/${orderId}/status?requestStatus=COLLECT`)
+        apiClient.put(`order/${currentOrderId.value}/status?requestStatus=COLLECT`)
+
         router.push({name: "OrderItemList", query: {orderId: orderId}});
     } else {
         alert(t("errors.fetch_data_failed"));
