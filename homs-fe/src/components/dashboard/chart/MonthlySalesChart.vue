@@ -3,11 +3,13 @@
         <div class="flex items-center justify-between mb-4">
             <h5 class="text-xl font-bold leading-none text-gray-900">월별 매출 현황</h5>
             <div class="flex items-center space-x-3">
-                <button @click="changeYear(-1)" :disabled="selectedYear <= minYear" class="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button @click="changeYear(-1)" :disabled="selectedYear <= minYear"
+                    class="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                     &lt;
                 </button>
                 <span class="text-lg font-semibold text-gray-900">{{ selectedYear }}년</span>
-                <button @click="changeYear(1)" :disabled="selectedYear >= maxYear" class="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button @click="changeYear(1)" :disabled="selectedYear >= maxYear"
+                    class="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
                     &gt;
                 </button>
             </div>
@@ -51,7 +53,7 @@ const chartOptions = {
     },
 };
 
-const selectedYear = ref(2024); // 시작 연도를 2024년으로 고정
+const selectedYear = ref(2025); // 시작 연도를 2025년으로 고정
 const minYear = 2024; // 최소 연도
 const maxYear = 2025; // 최대 연도 (필요에 따라 더 추가 가능)
 const allOrderItems = ref([]); // 모든 주문 데이터를 저장할 ref
