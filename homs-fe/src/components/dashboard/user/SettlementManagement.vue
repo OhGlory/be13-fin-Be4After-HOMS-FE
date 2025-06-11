@@ -20,9 +20,12 @@
                 <!-- 데이터 목록 -->
                 <li v-for="(settlements, index) in settlementsList" :key="index" class="py-3 sm:py-4">
                     <div class="flex items-center w-full justify-between">
-                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ settlements.orderId }}</p>
-                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ settlements.orderDate }}</p>
-                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ settlements.settlementDate }}</p>
+                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ settlements.orderId
+                        }}</p>
+                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{ settlements.orderDate
+                        }}</p>
+                        <p class="w-1/5 text-base font-bold text-center text-gray-900 truncate">{{
+                            settlements.settlementDate }}</p>
                         <p class="w-1/5 text-base font-bold text-center truncate" :class="getColor(settlements.status)">
                             {{ settlements.status }}
                         </p>
@@ -82,7 +85,7 @@ const mapSettlementStatus = (status) => {
         case "SETTLED":
             return "완료";
         case "UNSETTLED":
-            return "";
+            return "미정산";
         case "WAITING":
             return "대기";
         default:
